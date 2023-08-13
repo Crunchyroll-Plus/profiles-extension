@@ -1,0 +1,38 @@
+{
+    "name": "Crunchyroll Profile",
+    "description": "Allows you to have your own profile for a shared crunchyroll account.",
+    "version": "0.0.26",
+    "manifest_version": 2,
+    "background": {
+        "scripts": [
+            "src/modules/urls.js",
+            "src/modules/storage.js",
+            "src/modules/request.js",
+            "src/modules/crunchyroll.js",
+            "src/profile.js",
+            "src/token.js",
+            "src/watchlist.js",
+            "src/history.js"
+        ],
+        "persistent": true
+    },
+    "browser_action": {
+        "default_icon": "src/assets/icon.png",
+        "default_popup": "src/popup/index.html"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "ayykkk@outlook.com",
+            "strict_min_version": "57.0a1"
+        }
+    },
+    "permissions": [
+        "storage",
+        "unlimitedStorage",
+        "tabs",
+        "webRequest",
+        "webRequestBlocking",
+        "https://www.crunchyroll.com/*",
+        "https://static.crunchyroll.com/*"
+    ]
+}
