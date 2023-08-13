@@ -1,7 +1,7 @@
 {
     "name": "Crunchyroll Profile",
-    "description": "Allows you to have your own profile for a shared crunchyroll account.",
-    "version": "0.0.26",
+    "description": "Allows you to have your own profiles for a personal experience on a shared account.",
+    "version": "0.0.25",
     "manifest_version": 2,
     "background": {
         "scripts": [

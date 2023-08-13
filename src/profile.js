@@ -1,23 +1,17 @@
 /*
-This script handles profile changes, and saves the profile on first run.
+This script handles profile changes.
 */
 
 const removeError = `
 if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
   document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
-`
+`;
 
 function tabExec(script) {
   browser.tabs.executeScript({
     code: removeError + script
-  })
+  });
 }
-
-request.override(["https://www.crunchyroll.com/account/preferences"], "GET", (info) => {
-  tabExec(`
-  `)
-  return info.body;
-}, ["main_frame"])
 
 request.block([URLS.profile], "PATCH", (info) => {
   storage.get(storage.currentUser, "profile", (profile) => {

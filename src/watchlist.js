@@ -29,6 +29,7 @@ request.block([URLS.watchlist.save], "POST", (info) => {
         }
 
         let count = -1;
+        
         for(const item of watchlist.items) {
             if(item.content_id == info.body.content_id) {
                 toggle = true;
