@@ -5,6 +5,7 @@ const URLS = {
         save: "https://www.crunchyroll.com/content/v2/*/watchlist?preferred_audio_language=*&locale=*",
         check_exist: "https://www.crunchyroll.com/content/v2/*/watchlist?preferred_audio_language=*&locale=*",
         history: "https://www.crunchyroll.com/content/v2/discover/*/watchlist?order=*&n=*",
+        get: "https://www.crunchyroll.com/content/v2/*/watchlist?content_ids=*&preferred_audio_language=*&locale=*",
         watchlist: "https://www.crunchyroll.com/content/v2/discover/*/watchlist?locale=*&n=*"
     },
     history: {
