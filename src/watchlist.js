@@ -2,6 +2,30 @@
  Saves the watchlist.
 */
 
+request.override([URLS.watchlist.get], "GET", (info) => {
+    return storage.get(storage.currentUser, "watchlist", (watchlist) => {
+      if(watchlist === undefined) return;
+  
+      watchlist.items.reverse();
+  
+      let ids = info.details.url.split("content_ids=")[1].split("&")[0].split("%2C");
+  
+      let result = new crunchyArray();
+  
+      for(let item of watchlist.items) {
+        if(ids.indexOf(item.content_id) === -1) continue;
+  
+        result.push({
+            id: item.content_id,
+            is_favorite: item.is_favorite,
+            last_modified: "2023-06-23T20:54:00Z"
+        })
+      }
+  
+      return result.stringify();
+    })
+  })
+
 request.block([URLS.watchlist.save], "POST", (info) => {
     storage.get(storage.currentUser, "watchlist", (watchlist) => {
         let toggle = false;

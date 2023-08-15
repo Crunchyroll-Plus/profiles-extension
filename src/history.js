@@ -132,9 +132,7 @@ request.override([URLS.history.playheads], "GET", (info) => {
 
     let result = new crunchyArray();
 
-    for(let item in history.items) {
-      item = history.items[item];
-
+    for(let item of history.items) {
       if(ids.indexOf(item.content_id) === -1) continue;
 
       result.push({
