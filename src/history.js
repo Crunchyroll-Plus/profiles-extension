@@ -96,6 +96,7 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
 
     if(found === true) return; 
 
+
     crunchyroll.send({
       url: "https://www.crunchyroll.com/content/v2/cms/objects/" + postJS.content_id + "?ratings=true&locale="+getLocale(),
       method: "GET"
@@ -107,6 +108,8 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
       storage.set(storage.currentUser, "history", history);
 
       storage.get(storage.currentUser, "watchlist", (watchlist) => {
+        if(watchlist === undefined) return;
+        
         for(const item of watchlist.items) {
           if(item.panel.episode_metadata.series_id === postJS.panel.episode_metadata.series_id) {
             item.playhead = postJS.playhead;
