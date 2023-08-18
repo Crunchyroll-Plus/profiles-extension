@@ -13,7 +13,7 @@ function tabExec(script) {
   });
 }
 
-request.block([URLS.profile], "PATCH", (info) => {
+request.block([URLS.profile.get], "PATCH", (info) => {
   storage.get(storage.currentUser, "profile", (profile) => {
     let data = info.body;
 
@@ -26,29 +26,44 @@ request.block([URLS.profile], "PATCH", (info) => {
   })
 })
 
-request.override([URLS.profile], "GET", async (info) => {
+request.block([URLS.profile.new_profile], "PATCH", (info) => {
+  // Overrides the profile activation page to work as a new profile button.
+  tabExec(`
+  let img = document.querySelector(".content-image__image--7tGlg").src.split("/170x170/")[1];
+
+  let xml = new XMLHttpRequest();
   
-  return storage.getUsers((profiles) => {
-    // TODO: Finish "Who is watching?" page.
-    // browser.windows.create({url: browser.extension.getURL("/src/page/profiles.html")});
-    
+  xml.open("GET", "https://www.crunchyroll.com/fake/message?message="+img+",${info.body.username}&type=0");
+
+  xml.send();
+  `)
+})
+
+request.override([URLS.profile.get], "GET", async (info) => {
+  console.log(info.details)
+  if(info.details.originUrl === "https://www.crunchyroll.com/profile/activation") return "" // Enables the use of this page even with a profile.
+
+  return storage.getUsers((profiles) => {    
     storage.currentUser = profiles.current
 
     return storage.get(storage.currentUser, "profile", (profile) => {
+      browser.storage.local.set({original_profile: info.body});
 
       if(profile === undefined) {
-        let prof = JSON.parse(info.body);
-        
-        profile = new crunchyProfile();
+        // TODO: Finish "Who is watching?" page.
+        let profile_window = browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
 
-        profile.username = prof.username;
+        var interval;
 
-        storage.set(storage.currentUser, "profile", profile);
+        profile_window.then((window) => {
+          interval = setInterval(() => {
+              browser.windows.get(window.id).catch(() => {
+                clearInterval(interval);
+                tabExec("window.location.reload();");
+              });
+          }, 500);
+        });
       }
-
-      // Save original profile so we can revert to it later.
-
-      browser.storage.local.set({original_profile: info.body});
       
       return JSON.stringify(profile);
     })

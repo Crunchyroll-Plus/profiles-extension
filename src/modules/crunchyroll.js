@@ -88,7 +88,10 @@ const crunchyroll = {
                 url: "https://www.crunchyroll.com/assets/v2/" + getLocale() + "/avatar",
                 method: "GET",
                 headers: {
-                    "Accept": "application/json, text/plain, */*"
+                    "Accept": "application/json, text/plain, */*",
+                    "Host": "www.crunchyroll.com",
+                    "Referer": "https://www.crunchyroll.com/account/prefences",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0"
                 }
             },
             (xml) => {
@@ -100,5 +103,6 @@ const crunchyroll = {
 
 
 browser.storage.local.get("access").then(item => {
-  crunchyroll.token = item.access;  
+    console.log(item.access)
+    crunchyroll.token = item.access;
 })
