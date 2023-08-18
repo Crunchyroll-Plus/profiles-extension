@@ -5,12 +5,17 @@
         <link rel="preload" href="https://static.crunchyroll.com/cxweb/assets/fonts/Lato/Lato-Heavy.woff2" as="font" type="font/woff2" crossorigin="anonymous">
         <link rel="stylesheet" href="https://www.crunchyroll.com/build/main-ltr.common-f50829eb.bc2f7ffcbe8d33394a69.css">
         <link rel="stylesheet" href="https://www.crunchyroll.com/build/main-ltr.common-fdd41e81.d7c476c9d654d137aeab.css">
-        <link rel="stylesheet" href="https://www.crunchyroll.com/build/main-ltr.common-fdd41e81.d7c476c9d654d137aeab.css">
+
         <style>
+            .active {
+                box-shadow: 0.9px 1.8px 1.8px hsl(0deg 0% 0% / 0.47);
+                opacity: 1;
+                transition: opacity 1 infinite linear;
+            }
             .grid {
                 background-color: #23252bb3;
                 border-radius: 5px;
-                height: 285px;
+                height: 280px;
                 width: 94%;
                 position: relative;
                 top: 200px;
@@ -27,7 +32,7 @@
             }
 
             .g-item {
-                left: 60px;
+                left: 50px;
                 position: relative;
                 top: 30px;
                 grid-row-start: 1;
@@ -48,6 +53,21 @@
             .grid .g-item:nth-child(1) {
                 grid-column: 4;
             }
+            .grid .g-item:nth-child(2) {
+                grid-column: 5;
+            }
+            .grid .g-item:nth-child(3) {
+                grid-column: 3;
+            }
+            .grid .g-item:nth-child(4) {
+                grid-column: 6;
+            }
+            .grid .g-item:nth-child(5) {
+                grid-column: 2;
+            }
+            .grid .g-item:nth-child(6) {
+                grid-column: 7;
+            }
             .grid .g-item:nth-child(7) {
                 grid-column: 1;
             }
@@ -56,6 +76,8 @@
                 border-radius: 100%;
                 width: 125px;
                 height: 125px;
+            }
+            .hover-item {
                 opacity: 0.6;
                 animation: profile-hover-leave 0.4s linear;
             }
@@ -79,8 +101,11 @@
             }
             .btn-group {
                 position: absolute;
-                left: 40%;
+                left: 35%;
                 top: 420px;
+            }
+            .select-btn {
+                margin-left: 50px;
             }
             .remove-btn {
                 margin-left: 50px;
@@ -112,11 +137,16 @@
                 <span class="call-to-action--PEidl call-to-action--is-m--RVdkI button__cta--LOqDH">Add</span>
                 <div></div>
             </div>
+            <div role="button" tabindex="0" class="select-button button--xqVd0 button--is-type-one-weak--KLvCX buttons-group__item--ThNEA" data-t="cancel-avatar-btn">
+                <span class="call-to-action--PEidl call-to-action--is-m--RVdkI button__cta--LOqDH">Done</span>
+                <div></div>
+            </div>
             <div role="button" tabindex="0" class="remove-button button--xqVd0 button--is-type-one-weak--KLvCX buttons-group__item--ThNEA" data-t="cancel-avatar-btn">
                 <span class="call-to-action--PEidl call-to-action--is-m--RVdkI button__cta--LOqDH">Remove</span>
                 <div></div>
             </div>
         </div>
+        <script src="../../modules/request.js"></script>
         <script src="../../modules/storage.js"></script>
         <script src="../../modules/crunchyroll.js"></script>
         <script src="./profile.js"></script>

@@ -1,6 +1,10 @@
 const URLS = {
     token: "https://www.crunchyroll.com/auth/v1/token",
-    profile: "https://www.crunchyroll.com/accounts/v1/me/profile",
+    message: "https://www.crunchyroll.com/fake/message*", // used for sending messages between tab and background scripts.
+    profile: {
+        get: "https://www.crunchyroll.com/accounts/v1/me/profile",
+        new_profile: "https://www.crunchyroll.com/accounts/v1/me/credentials"
+    },
     watchlist: {
         save: "https://www.crunchyroll.com/content/v2/*/watchlist?preferred_audio_language=*&locale=*",
         check_exist: "https://www.crunchyroll.com/content/v2/*/watchlist?preferred_audio_language=*&locale=*",

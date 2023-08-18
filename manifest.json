@@ -9,6 +9,7 @@
             "src/modules/storage.js",
             "src/modules/request.js",
             "src/modules/crunchyroll.js",
+            "src/message.js",
             "src/profile.js",
             "src/token.js",
             "src/watchlist.js",
@@ -18,7 +19,7 @@
     },
     "browser_action": {
         "default_icon": "src/assets/icon.png",
-        "default_popup": "src/popup/index.html"
+        "default_popup": "src/popup/select.html"
     },
     "browser_specific_settings": {
         "gecko": {

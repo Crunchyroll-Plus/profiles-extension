@@ -13,7 +13,7 @@ function tabExec(script) {
   });
 }
 
-request.block([URLS.profile], "PATCH", (info) => {
+request.block([URLS.profile.get], "PATCH", (info) => {
   storage.get(storage.currentUser, "profile", (profile) => {
     let data = info.body;
 
@@ -26,8 +26,23 @@ request.block([URLS.profile], "PATCH", (info) => {
   })
 })
 
-request.override([URLS.profile], "GET", async (info) => {
+request.block([URLS.profile.new_profile], "PATCH", (info) => {
+  // Overrides the profile activation page to work as a new profile button.
+  tabExec(`
+  let img = document.querySelector(".content-image__image--7tGlg").src.split("/170x170/")[1];
+
+  let xml = new XMLHttpRequest();
   
+  xml.open("GET", "https://www.crunchyroll.com/fake/message?message="+img+",${info.body.username}&type=0");
+
+  xml.send();
+  `)
+})
+
+request.override([URLS.profile.get], "GET", async (info) => {
+  console.log(info.details)
+  if(info.details.originUrl === "https://www.crunchyroll.com/profile/activation") return "" // Enables the use of this page even with a profile.
+
   return storage.getUsers((profiles) => {    
     storage.currentUser = profiles.current
 
@@ -37,16 +52,17 @@ request.override([URLS.profile], "GET", async (info) => {
       if(profile === undefined) {
         // TODO: Finish "Who is watching?" page.
         let profile_window = browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
+
         var interval;
 
         profile_window.then((window) => {
           interval = setInterval(() => {
-              browser.windows.get(window.id).catch((err) => {
+              browser.windows.get(window.id).catch(() => {
                 clearInterval(interval);
                 tabExec("window.location.reload();");
               });
-          }, 500)
-        })
+          }, 500);
+        });
       }
       
       return JSON.stringify(profile);
