@@ -40,8 +40,18 @@ request.block([URLS.profile.new_profile], "PATCH", (info) => {
 })
 
 request.override([URLS.profile.get], "GET", async (info) => {
-  console.log(info.details)
-  if(info.details.originUrl === "https://www.crunchyroll.com/profile/activation") return "" // Enables the use of this page even with a profile.
+  if(info.details.originUrl === "https://www.crunchyroll.com/profile/activation") {
+    tabExec(`
+    const title = document.querySelector(".page-title");
+    const btn = document.querySelectorAll(".button__cta--LOqDH")[1];
+
+    title.innerText = "Create a new profile!";
+    btn.innerText = "Create profile";
+
+    console.log(title, btn);
+    `)
+    return "" // Enables the use of this page even with a profile.
+  }
 
   return storage.getUsers((profiles) => {    
     storage.currentUser = profiles.current
