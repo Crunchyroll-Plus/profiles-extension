@@ -36,7 +36,7 @@ request.block([URLS.watchlist.save], "POST", (info) => {
             crunchyroll.send({
                 url: "https://www.crunchyroll.com/content/v2/discover/up_next/" + info.body.content_id +"?preferred_audio_language=ja-JP&locale="+getLocale(),
                 method: "GET"
-            }, (xml) => {OP
+            }, (xml) => {
                 let data = JSON.parse(xml.responseText).data[0];
 
                 info.body.panel = data.panel;
