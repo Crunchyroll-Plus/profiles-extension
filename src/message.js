@@ -33,5 +33,16 @@ request.block([URLS.message], "GET", (info) => {
           tabExec('window.location.href = "' + url + '"');
         })
         break;
+      case 1:
+        let js = JSON.parse(messages[0].replaceAll("$LERE", ",").replaceAll("%22", "\"").replaceAll("$LCASE", "}"));
+        switch(js.type){
+          case 1:
+            // Import profile.
+            storage.set(storage.currentUser, "profile", js.value);
+            tabExec('window.location.reload()');
+            break;
+          
+        }
+        break;
     }
   });

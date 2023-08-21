@@ -9,6 +9,7 @@
             "src/modules/storage.js",
             "src/modules/request.js",
             "src/modules/crunchyroll.js",
+            "src/modules/patch.js",
             "src/message.js",
             "src/profile.js",
             "src/token.js",
@@ -32,6 +33,7 @@
         "unlimitedStorage",
         "tabs",
         "webRequest",
+        "downloads",
         "webRequestBlocking",
         "https://www.crunchyroll.com/*",
         "https://static.crunchyroll.com/*"

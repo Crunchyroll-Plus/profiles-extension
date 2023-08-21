@@ -1,8 +1,15 @@
 const URLS = {
     token: "https://www.crunchyroll.com/auth/v1/token",
     message: "https://www.crunchyroll.com/fake/message*", // used for sending messages between tab and background scripts.
+    settings: {
+        prefences: "https://www.crunchyroll.com/account/preferences"
+    },
+    assets: {
+        avatar: "https://www.crunchyroll.com/assets/v2/*/avatar"
+    },
     profile: {
         get: "https://www.crunchyroll.com/accounts/v1/me/profile",
+        activation: "https://www.crunchyroll.com/profile/activation",
         new_profile: "https://www.crunchyroll.com/accounts/v1/me/credentials"
     },
     watchlist: {

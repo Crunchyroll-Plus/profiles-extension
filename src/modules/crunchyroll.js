@@ -103,6 +103,5 @@ const crunchyroll = {
 
 
 browser.storage.local.get("access").then(item => {
-    console.log(item.access)
     crunchyroll.token = item.access;
 })
