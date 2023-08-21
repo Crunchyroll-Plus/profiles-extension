@@ -150,6 +150,9 @@ request.override([URLS.watchlist.history], "GET", async (info) => {
     return storage.get(storage.currentUser, "watchlist", (watchlist) => {
         let data = new crunchyArray();
 
+        if(info.details.url.includes("check=false")) 
+            return info.body;
+
         if(watchlist === undefined)
             return data.stringify();
 

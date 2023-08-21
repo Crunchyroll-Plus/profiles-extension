@@ -47,9 +47,12 @@ request.override([URLS.profile.get], "GET", async (info) => {
   return storage.getUsers((profiles) => {    
     storage.currentUser = profiles.current
 
-    return storage.get(storage.currentUser, "profile", (profile) => {
+    return storage.get(storage.currentUser, "profile", (profile, item) => {
       browser.storage.local.set({original_profile: info.body});
 
+      if(profile.profile)
+            delete profile.profile;
+        
       if(profile === undefined) {
         // TODO: Finish "Who is watching?" page.
         let profile_window = browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});

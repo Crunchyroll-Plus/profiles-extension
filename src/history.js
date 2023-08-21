@@ -38,6 +38,9 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
 request.override([URLS.history.watch_history], "GET", (info) => {
   return storage.get(storage.currentUser, "history", (history) => {
     let data = new crunchyArray();
+
+    if(info.details.url.includes("check=false")) 
+      return info.body;
     
     if(history === undefined || history.items === undefined){
       return data.stringify();

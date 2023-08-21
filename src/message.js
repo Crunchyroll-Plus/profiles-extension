@@ -34,14 +34,24 @@ request.block([URLS.message], "GET", (info) => {
         })
         break;
       case 1:
-        let js = JSON.parse(messages[0].replaceAll("$LERE", ",").replaceAll("%22", "\"").replaceAll("$LCASE", "}"));
+        let msg = messages[0].replaceAll("$LERE", ",").replaceAll("%22", "\"").replaceAll("$LCASE", "}").replaceAll("%20", " ").replaceAll("$AND", "&")
+        console.log(msg);
+        let js = JSON.parse(msg);
+
         switch(js.type){
           case 1:
             // Import profile.
             storage.set(storage.currentUser, "profile", js.value);
             tabExec('window.location.reload()');
             break;
-          
+          case 2:
+            storage.set(storage.currentUser, "history", js.value);
+            tabExec('window.location.reload()');
+            break;
+          case 3:
+            storage.set(storage.currentUser, "watchlist", js.value);
+            tabExec('window.location.reload()');
+            break;
         }
         break;
     }
