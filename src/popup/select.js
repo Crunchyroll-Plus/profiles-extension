@@ -25,6 +25,6 @@ function createOption(name, callback) {
     ul.appendChild(li);
 }
 
-createOption(locale.getMessage("profile-selection"), function() {
+createOption(locale.messages.profile_selection, function() {
     browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
 });

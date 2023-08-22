@@ -13,10 +13,10 @@ request.override([URLS.watchlist.get], "GET", (info) => {
       let result = new crunchyArray();
   
       for(let item of watchlist.items) {
-        if(ids.indexOf(item.content_id) === -1) continue;
+        if(ids.indexOf(item.panel.id) === -1) continue;
   
         result.push({
-            id: item.content_id,
+            id: item.panel.id,
             is_favorite: item.is_favorite,
             last_modified: "2023-06-23T20:54:00Z"
         })
@@ -55,7 +55,7 @@ request.block([URLS.watchlist.save], "POST", (info) => {
         let count = -1;
         
         for(const item of watchlist.items) {
-            if(item.content_id == info.body.content_id) {
+            if(item.panel.episode_metadata.series_id == info.body.content_id) {
                 toggle = true;
                 count++;
                 break;
@@ -119,10 +119,10 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
 request.block(["https://www.crunchyroll.com/content/v2/*/watchlist/*?preferred_audio_language=*&locale=*"], ["DELETE", "PATCH"], (info) => {
     storage.get(storage.currentUser, "watchlist", (watchlist) => {
         let id = info.details.url.split("?")[0].split("").reverse().join("").split("/")[0].split("").reverse().join("");
-
+        console.log(id, info.details.method);
         if(info.details.method === "DELETE") {
             for(let i = 0; i < watchlist.items.length; i++) {
-                if(watchlist.items[i].content_id == id) {
+                if(watchlist.items[i].panel.episode_metadata.series_id == id) {
                     watchlist.items.pop(i);
                     break;
                 }
@@ -131,7 +131,7 @@ request.block(["https://www.crunchyroll.com/content/v2/*/watchlist/*?preferred_a
 
         if(info.details.method === "PATCH") {
             for(let i = 0; i < watchlist.items.length; i++) {
-                if(watchlist.items[i].content_id == id) {
+                if(watchlist.items[i].panel.episode_metadata.series_id == id) {
                     for(let key of Object.keys(info.body)){
                         watchlist.items[i][key] = info.body[key]
                     }
@@ -139,6 +139,8 @@ request.block(["https://www.crunchyroll.com/content/v2/*/watchlist/*?preferred_a
                 }
             }
         }
+
+        console.log(storage.currentUser);
 
         storage.set(storage.currentUser, "watchlist", watchlist)
 

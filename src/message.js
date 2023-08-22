@@ -34,7 +34,7 @@ request.block([URLS.message], "GET", (info) => {
         })
         break;
       case 1:
-        let msg = messages[0].replaceAll("$LERE", ",").replaceAll("%22", "\"").replaceAll("$LCASE", "}").replaceAll("%20", " ").replaceAll("$AND", "&")
+        let msg = messages[0].replaceAll("$LERE", ",").replaceAll("%27", "'").replaceAll("%22", "\"").replaceAll("$LCASE", "}").replaceAll("%20", " ").replaceAll("$AND", "&")
         console.log(msg);
         let js = JSON.parse(msg);
 

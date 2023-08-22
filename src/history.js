@@ -58,7 +58,7 @@ request.override([URLS.history.watch_history], "GET", (info) => {
         new: false,
         parent_id: hitem.panel.episode_metadata.duration_ms,
         parent_type: "series",
-        id: hitem.content_id,
+        id: hitem.panel.id,
         panel: hitem.panel
       })
     }
@@ -81,7 +81,7 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
     
     for(let i = 0; i < history.items.length; i++) {
       let item = history.items[i];
-      if(item.content_id == postJS.content_id) {
+      if(item.panel.id == postJS.content_id) {
         history.items.pop(i);
 
         if(item.panel === undefined || item.panel === null)
@@ -139,11 +139,11 @@ request.override([URLS.history.playheads], "GET", (info) => {
     let result = new crunchyArray();
 
     for(let item of history.items) {
-      if(ids.indexOf(item.content_id) === -1) continue;
+      if(ids.indexOf(item.panel.id) === -1) continue;
 
       result.push({
           playhead: item.playhead | 0,
-          content_id: item.content_id,
+          content_id: item.panel.id,
           fully_watched: false,
           last_modified: "2023-06-23T20:54:00Z"
       })
@@ -154,23 +154,24 @@ request.override([URLS.history.playheads], "GET", (info) => {
 })
 
 request.block([URLS.history.delete], "DELETE", (info) => {
-  let id = info.details.url.split("watch-history")[1].split("?")[0];
+  let id = info.details.url.split("watch-history")[1].split("?")[0].split("/")[1];
   
   return storage.get(storage.currentUser, "history", (history) => {
     if(history === undefined) {
       return;
     }
 
-    history.items.reverse();
+    if(id === undefined)
+      history.items = [];
 
-    for(const i in history.items) {
+    for(let i = 0; i < history.items.length; i++) {
       let item = history.items[i];
-      if(item.content_id == id || id === "") {
+      
+      if(item.panel.id == id) {
         history.items.pop(i);
+        break;
       }
     }
-
-    history.items.reverse();
 
     storage.set(storage.currentUser, "history", history);
     tabExec("");
