@@ -16,6 +16,15 @@ function tabExec(script) {
   });
 }
 
+const add_text = document.querySelector('.add-btn-text');
+const done_text = document.querySelector('.done-btn-text');
+const remove_text = document.querySelector('.remove-btn-text');
+const who_is_watching = document.querySelector('.browse-title');
+
+add_text.innerText = locale.getMessage("add-button");
+done_text.innerText = locale.getMessage("done-button");
+remove_text.innerText = locale.getMessage("remove-button");
+who_is_watching.innerText = locale.getMessage("who-is-watching");
 
 function addProfile(profile, i) {
     if(profile === undefined) return;

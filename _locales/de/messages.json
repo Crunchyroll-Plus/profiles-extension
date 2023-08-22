@@ -1,0 +1,53 @@
+{
+    "extName": {
+        "message": "Crunchyroll-Profile"
+    },
+    "extDescription": {
+        "message": "Ermöglicht Ihnen die Erstellung eigener Profile für ein personalisiertes Erlebnis auf einem gemeinsamen Konto."
+    },
+    "profile-selection": {
+        "message": "Profile"
+    },
+    "who-is-watching": {
+        "message": "Wer schaut zu"
+    },
+    "add-button": {
+        "message": "Erstellen"
+    },
+    "remove-button": {
+        "message": "Löschen"
+    },
+    "done-button": {
+        "message": "Schließen"
+    },
+    "import-button": {
+        "message": "Importieren"
+    },
+    "import-current": {
+        "message": "Alt Importieren"
+    },
+    "create-profile-title": {
+        "message": "Erstellen Sie ein neues Profil!"
+    },
+    "create-profile-button": {
+        "message": "Profil erstellen"
+    },
+    "import-profile-button": {
+        "message": "Importprofil"
+    },
+    "export-profile-button": {
+        "message": "Exportprofil"
+    },
+    "import-history-button": {
+        "message": "Importhistorie"
+    },
+    "export-history-button": {
+        "message": "Exporthistorie"
+    },
+    "import-watchlist-button": {
+        "message": "Merkliste importieren"
+    },
+    "export-watchlist-button": {
+        "message": "Beobachtungsliste exportieren"
+    }
+}

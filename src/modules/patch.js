@@ -63,32 +63,33 @@ function createButton(text, callback) {
 }
 `;
 
-var importProfile = download + sendJson + importScript + `
-const user_info = document.querySelector(".erc-account-user-info");
+var importProfile = download + waitFor + sendJson + importScript + `
 
-importBtn = createButton("Import Profile", () => {
-    var finput = document.createElement("input");
+waitForElm(".erc-account-user-info").then(user_info => {
+    importBtn = createButton("` + locale.getMessage("import-profile-button") + `", () => {
+        var finput = document.createElement("input");
 
-    finput.setAttribute("type", "file");
-    finput.setAttribute("accept", ".json");
+        finput.setAttribute("type", "file");
+        finput.setAttribute("accept", ".json");
 
-    finput.click();
+        finput.click();
 
-    finput.onchange = () => {
-        var reader = new FileReader();
-        reader.readAsText(finput.files[0], "UTF-8");
-        reader.onload = function (evt) {
-            sendJson({"type": 1, "value": JSON.parse(evt.target.result)});
-        }
-    };
+        finput.onchange = () => {
+            var reader = new FileReader();
+            reader.readAsText(finput.files[0], "UTF-8");
+            reader.onload = function (evt) {
+                sendJson({"type": 1, "value": JSON.parse(evt.target.result)});
+            }
+        };
+    });
+
+    exportBtn = createButton("` + locale.getMessage("export-profile-button") + `", () => {
+        download("profile_" + String(getRandomInt(90000)) + ".json", JSON.stringify(profile, null, 4));
+    });
+
+    user_info.after(importBtn);
+    importBtn.after(exportBtn);
 });
-
-exportBtn = createButton("Export Profile", () => {
-    download("profile_" + String(getRandomInt(90000)) + ".json", JSON.stringify(profile, null, 4));
-});
-
-user_info.after(importBtn);
-importBtn.after(exportBtn);
 `;
 
 var importHistory = waitFor + download + sendJson + importScript + `
@@ -97,7 +98,7 @@ var btnGroup = document.createElement("div");
 btnGroup.classList.add("collection-header");
 btnGroup.style.width = "auto";
 
-importBtn = createButton("Import History", () => {
+importBtn = createButton("` + locale.getMessage("import-history-button") + `", () => {
     var finput = document.createElement("input");
 
     finput.setAttribute("type", "file");
@@ -114,7 +115,7 @@ importBtn = createButton("Import History", () => {
     };
 });
 
-importCurrent = createButton("Import Current", () => {
+importCurrent = createButton("` + locale.getMessage("import-current") + `", () => {
     let xml = new XMLHttpRequest();
     xml.open("GET", "https://www.crunchyroll.com/content/v2/906995a7-4493-5783-916b-2664b377510e/watch-history?page_size=2000&locale=` + getLocale() + `");
     xml.setRequestHeader("Authorization", "Bearer " + token);
@@ -140,7 +141,7 @@ importCurrent = createButton("Import Current", () => {
     xml.send();
 });
 
-exportBtn = createButton("Export History", () => {
+exportBtn = createButton("` + locale.getMessage("export-history-button") + `", () => {
     download("history_" + String(getRandomInt(90000)) + ".json", JSON.stringify(history, null, 4));
 });
 
@@ -163,8 +164,8 @@ waitForElm(".content-wrapper--MF5LS").then((elm) => {
             eImportBtn.querySelector("a").removeAttribute("href");
             eCurrentBtn.querySelector("a").removeAttribute("href");
 
-            eImportBtn.querySelector("span").innerText = "Import";
-            eCurrentBtn.querySelector("span").innerText = "Import Current";
+            eImportBtn.querySelector("span").innerText = "` + locale.getMessage("import-button") + `";
+            eCurrentBtn.querySelector("span").innerText = "` + locale.getMessage("import-current") + `";
 
             eImportBtn.addEventListener("click", () => {
                 var finput = document.createElement("input");
@@ -192,11 +193,7 @@ waitForElm(".content-wrapper--MF5LS").then((elm) => {
                         items: []
                     }
 
-                    // console.log(xml.response);
-
                     let js = JSON.parse(xml.response);
-
-                    console.log(js)
 
                     js.data.forEach((item) => {
                         history.items.push({
@@ -227,7 +224,7 @@ btnGroup = document.createElement("div");
 btnGroup.classList.add("watchlist-header");
 btnGroup.style.width = "auto";
 
-importBtn = createButton("Import Watchlist", () => {
+importBtn = createButton("` + locale.getMessage("import-watchlist-button") + `", () => {
     var finput = document.createElement("input");
 
     finput.setAttribute("type", "file");
@@ -273,7 +270,7 @@ importCurrent = createButton("Import Current", () => {
     xml.send();
 });
 
-exportBtn = createButton("Export Watchlist", () => {
+exportBtn = createButton("` + locale.getMessage("export-watchlist-button") + `", () => {
     download("watchlist_" + String(getRandomInt(90000)) + ".json", JSON.stringify(watchlist, null, 4));
 });
 
@@ -285,16 +282,16 @@ waitForElm(".watchlist-header").then((elm) => {
     elm.before(btnGroup);
 });
 waitForElm(".erc-empty-list-info-box").then((elm) => {
-    if(window.location.href.includes("history")) return;
     waitForElm(".button").then((elm) => {
+        if(window.location.href.includes("history")) return;
         let eImportBtn = elm.cloneNode(true);
         let eCurrentBtn = elm.cloneNode(true);
 
         eImportBtn.querySelector("a").removeAttribute("href");
         eCurrentBtn.querySelector("a").removeAttribute("href");
 
-        eImportBtn.querySelector("span").innerText = "Import";
-        eCurrentBtn.querySelector("span").innerText = "Import Current";
+        eImportBtn.querySelector("span").innerText = "` + locale.getMessage("import-button") + `";
+        eCurrentBtn.querySelector("span").innerText = "` + locale.getMessage("import-current") + `";
 
         eImportBtn.addEventListener("click", () => {
             var finput = document.createElement("input");
@@ -351,6 +348,10 @@ waitForElm(".erc-empty-list-info-box").then((elm) => {
 
 storage.getUsers((profiles) => {
     storage.get(profiles.current, "profile", (profile, item) => {
+        if(profile === undefined) {
+            patch.init();
+            return;
+        };
         if(profile.profile)
             delete profile.profile;
         
@@ -364,6 +365,8 @@ storage.getUsers((profiles) => {
         patch.patches[3].script = "var watchlist = JSON.parse(atob(`" + btoa(JSON.stringify(watchlist || {}).replaceAll("`", "\\`")) + "`))\n" + importWatchlist;
 
         patch.init();
+
+
     });
 });
 
@@ -373,12 +376,14 @@ const patch = {
             url: URLS.profile.get,
             origin: URLS.profile.activation,
             return: "",
-            script: `
-            const title = document.querySelector(".page-title");
-            const btn = document.querySelectorAll(".button__cta--LOqDH")[1];
-            
-            title.innerText = "Create a new profile!";
-            btn.innerText = "Create profile";
+            script: waitFor + `            
+            waitForElm("div[data-t='submit-btn']").then((elm) => {
+                const title = document.querySelector(".page-title");
+                const btn = elm.querySelector("span");
+
+                title.innerText = "` + locale.getMessage("create-profile-title") + `";
+                btn.innerText = "` + locale.getMessage("create-profile-button") + `";
+            });
             `
         },
         {

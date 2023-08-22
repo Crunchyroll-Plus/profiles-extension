@@ -1,7 +1,3 @@
-function getLocale() {
-    return chrome.i18n.getUILanguage();
-}
-
 class crunchyProfile {
     constructor(data) {
         this.profile = data || {

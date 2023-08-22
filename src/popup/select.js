@@ -18,13 +18,13 @@ function createOption(name, callback) {
     li.className = 'option';
 
     a.innerText = name;
-    a.addEventListener('click', callback);
+    li.addEventListener('click', callback);
 
     li.appendChild(a);
 
     ul.appendChild(li);
 }
 
-createOption('Profiles', function() {
+createOption(locale.getMessage("profile-selection"), function() {
     browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
 });

@@ -10,6 +10,8 @@ request.override([URLS.token], "POST", (info) => {
   
   storage.getUsers((profiles) => {
     storage.get(profiles.current, "profile", (profile, item) => {
+        if(profile === undefined) return;
+
         if(profile.profile)
             delete profile.profile;
         

@@ -1,0 +1,53 @@
+{
+    "extName": {
+        "message": "Crunchyroll Profiles"
+    },
+    "extDescription": {
+        "message": "Allows you to have your own profiles for a personal experience on a shared account"
+    },
+    "profile-selection": {
+        "message": "Profiles"
+    },
+    "who-is-watching": {
+        "message": "Who's watching?"
+    },
+    "add-button": {
+        "message": "Add"
+    },
+    "remove-button": {
+        "message": "Remove"
+    },
+    "done-button": {
+        "message": "Finish"
+    },
+    "import-button": {
+        "message": "Import"
+    },
+    "import-current": {
+        "message": "Import Current"
+    },
+    "create-profile-title": {
+        "message": "Create a new profile!"
+    },
+    "create-profile-button": {
+        "message": "Create Profile"
+    },
+    "import-profile-button": {
+        "message": "Import Profile"
+    },
+    "export-profile-button": {
+        "message": "Export Profile"
+    },
+    "import-history-button": {
+        "message": "Import History"
+    },
+    "export-history-button": {
+        "message": "Export History"
+    },
+    "import-watchlist-button": {
+        "message": "Import Watchlist"
+    },
+    "export-watchlist-button": {
+        "message": "Export Watchlist"
+    }
+}
