@@ -23,8 +23,17 @@
     "import-button": {
         "message": "Import"
     },
+    "export-button": {
+        "message": "Export"
+    },
     "import-current": {
         "message": "Import Current"
+    },
+    "import-current-watchlist": {
+        "message": "Import Original Watchlist"
+    },
+    "import-current-history": {
+        "message": "Import Original History"
     },
     "create-profile-title": {
         "message": "Create a new profile!"

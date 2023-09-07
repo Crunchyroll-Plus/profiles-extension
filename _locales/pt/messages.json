@@ -23,6 +23,15 @@
     "import-button": {
         "message": "Importar"
     },
+    "export-button": {
+        "message": "Exportar"
+    },
+    "import-current-watchlist": {
+        "message": "Importar lista de observação original"
+    },
+    "import-current-history": {
+        "message": "Importar histórico original"
+    },
     "import-current": {
         "message": "Importar Atual"
     },
