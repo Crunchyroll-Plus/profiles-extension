@@ -3,7 +3,7 @@
 */
 
 request.override([URLS.watchlist.get], "GET", (info) => {
-    return storage.get(storage.currentUser, "watchlist", (watchlist) => {
+    return profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
       if(watchlist === undefined) return;
   
       watchlist.items.reverse();
@@ -21,13 +21,14 @@ request.override([URLS.watchlist.get], "GET", (info) => {
             last_modified: "2023-06-23T20:54:00Z"
         })
       }
-  
+      console.log("WATCHLIST")
+      console.log(result)
       return result.stringify();
     })
   })
 
 request.block([URLS.watchlist.save], "POST", (info) => {
-    storage.get(storage.currentUser, "watchlist", (watchlist) => {
+    profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         let toggle = false;
         if(watchlist === undefined) {
             tabExec('document.body.querySelector(".watchlist-toggle--LJPTQ").classList.add("watchlist-toggle--is-active--eu81r")')
@@ -46,7 +47,7 @@ request.block([URLS.watchlist.save], "POST", (info) => {
                 info.body.is_favorite = false;
 
                 watchlist.items.push(info.body)
-                storage.set(storage.currentUser, "watchlist", watchlist);
+                profileDB.stores.watchlist.set(storage.currentUser, "watchlist", watchlist);
             })
 
             return;
@@ -80,7 +81,7 @@ request.block([URLS.watchlist.save], "POST", (info) => {
                 info.body.is_favorite = false;
 
                 watchlist.items.push(info.body)
-                storage.set(storage.currentUser, "watchlist", watchlist);
+                profileDB.stores.watchlist.set(storage.currentUser, "watchlist", watchlist);
             })
         }
     })
@@ -91,7 +92,9 @@ request.block([URLS.watchlist.check_exist], ["GET", "DELETE"], (info) => {
 })
 
 request.override([URLS.watchlist.watchlist], "GET", async (info) => {
-    return storage.get(storage.currentUser, "watchlist", (watchlist) => {
+    let amount = parseInt(info.details.url.split("n=")[1].split("&")[0]);
+    
+    return profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         let data = new crunchyArray();
 
         if(watchlist === undefined)
@@ -100,6 +103,8 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
         watchlist.items.reverse();
 
         for(let i = 0; i < watchlist.items.length; i++) {
+            if(i >= amount) break;
+
             let item = watchlist.items[i];
 
             data.push({
@@ -112,18 +117,21 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
             })
         }
 
+        console.log("WATCHLIST 2")
+        console.log(data);
+
         return data.stringify();
     })
 })
 
-request.block(["https://www.crunchyroll.com/content/v2/*/watchlist/*?preferred_audio_language=*&locale=*"], ["DELETE", "PATCH"], (info) => {
-    storage.get(storage.currentUser, "watchlist", (watchlist) => {
+request.block([URLS.watchlist.set], ["DELETE", "PATCH"], (info) => {
+    profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         let id = info.details.url.split("?")[0].split("").reverse().join("").split("/")[0].split("").reverse().join("");
-        console.log(id, info.details.method);
+
         if(info.details.method === "DELETE") {
             for(let i = 0; i < watchlist.items.length; i++) {
-                if(watchlist.items[i].panel.episode_metadata.series_id == id) {
-                    watchlist.items.pop(i);
+                if(watchlist.items[i].panel.episode_metadata.series_id === id) {
+                    watchlist.items.splice(i, 1);
                     break;
                 }
             }
@@ -140,16 +148,14 @@ request.block(["https://www.crunchyroll.com/content/v2/*/watchlist/*?preferred_a
             }
         }
 
-        console.log(storage.currentUser);
-
-        storage.set(storage.currentUser, "watchlist", watchlist)
+        profileDB.stores.watchlist.set(storage.currentUser, "watchlist", watchlist)
 
         tabExec("");
     })
 })
 
 request.override([URLS.watchlist.history], "GET", async (info) => {
-    return storage.get(storage.currentUser, "watchlist", (watchlist) => {
+    return profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         let data = new crunchyArray();
 
         if(info.details.url.includes("check=false")) 

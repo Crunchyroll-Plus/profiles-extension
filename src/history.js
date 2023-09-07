@@ -4,7 +4,9 @@ instead it saves it to your browser.
 */
 
 request.override([URLS.history.continue_watching], "GET", (info) => {
-  return storage.get(storage.currentUser, "history", (history) => {
+  let amount = parseInt(info.details.url.split("n=")[1].split("&")[0]);
+
+  return profileDB.stores.history.get(storage.currentUser, "episodes").then((history) => {
     let data = new crunchyArray();
 
     if(history === undefined || history.items == undefined){
@@ -16,6 +18,7 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
     var found = []
 
     for(let i = 0; i < history.items.length; i++) {
+      if(i >= amount) break;
       var hitem = history.items[i];
 
       if(found.indexOf(hitem.panel.episode_metadata.series_id) !== -1)
@@ -31,12 +34,16 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
       })
     }
 
+    console.log("CONTONUE")
+
+    console.log(data)
+
     return data.stringify();
-  })
+  });
 })
 
 request.override([URLS.history.watch_history], "GET", (info) => {
-  return storage.get(storage.currentUser, "history", (history) => {
+  return profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
     let data = new crunchyArray();
 
     if(info.details.url.includes("check=false")) 
@@ -70,7 +77,7 @@ request.override([URLS.history.watch_history], "GET", (info) => {
 })
 
 request.block([URLS.history.save_playhead], "POST", (info) => {
-  storage.get(storage.currentUser, "history", (history) => {
+  profileDB.stores.history.get(storage.currentUser, "episodes").then((history) => {
     let postJS = info.body;
 
     if(history === undefined || history.items === undefined){
@@ -91,7 +98,7 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
 
         history.items.push(postJS);
 
-        storage.set(storage.currentUser, "history", history);
+        profileDB.stores.history.set(storage.currentUser, "episodes", history);
 
         found = true;
       }
@@ -108,9 +115,9 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
 
       history.items.push(postJS);
 
-      storage.set(storage.currentUser, "history", history);
+      profileDB.stores.history.set(storage.currentUser, "episodes", history);
 
-      storage.get(storage.currentUser, "watchlist", (watchlist) => {
+      profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         if(watchlist === undefined) return;
         
         for(const item of watchlist.items) {
@@ -122,14 +129,14 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
           }
         }
 
-        storage.set(storage.currentUser, "watchlist", watchlist)
+        profileDB.stores.watchlist.set(storage.currentUser, "watchlist", watchlist);
       })
     })
   })
-})
+});
 
 request.override([URLS.history.playheads], "GET", (info) => {
-  return storage.get(storage.currentUser, "history", (history) => {
+  return profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
     if(history === undefined) return;
 
     history.items.reverse();
@@ -156,7 +163,7 @@ request.override([URLS.history.playheads], "GET", (info) => {
 request.block([URLS.history.delete], "DELETE", (info) => {
   let id = info.details.url.split("watch-history")[1].split("?")[0].split("/")[1];
   
-  return storage.get(storage.currentUser, "history", (history) => {
+  return profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
     if(history === undefined) {
       return;
     }
@@ -168,12 +175,12 @@ request.block([URLS.history.delete], "DELETE", (info) => {
       let item = history.items[i];
       
       if(item.panel.id == id) {
-        history.items.pop(i);
+        history.items.splice(i, 1);
         break;
       }
     }
 
-    storage.set(storage.currentUser, "history", history);
+    profileDB.stores.history.set(storage.currentUser, "episodes", history);
     tabExec("");
   })
 })

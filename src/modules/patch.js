@@ -59,6 +59,14 @@ function createButton(text, callback) {
 
     select.addEventListener("click", callback);
 
+    select.children[0].style.textAlign = "center";
+    select.children[0].style.height = "auto";
+    select.children[0].style.paddingTop = "10px";
+    select.children[0].style.paddingBottom = "10px";
+    select.children[0].style.display = "inline-block";
+    
+    select.style.mariginRight = "10px";
+
     return select;
 }
 `;
@@ -241,7 +249,7 @@ importBtn = createButton("` + locale.messages.import_watchlist_button + `", () =
     };
 });
 
-importCurrent = createButton("Import Current", () => {
+importCurrent = createButton("` + locale.messages.import_current + `", () => {
     let xml = new XMLHttpRequest();
     xml.open("GET", "https://www.crunchyroll.com/content/v2/discover/906995a7-4493-5783-916b-2664b377510e/watchlist?order=desc&n=1000&check=false&locale=` + locale.lang + `");
     xml.setRequestHeader("Authorization", "Bearer " + token);
@@ -281,6 +289,7 @@ importBtn.after(importCurrent);
 waitForElm(".watchlist-header").then((elm) => {
     elm.before(btnGroup);
 });
+
 waitForElm(".erc-empty-list-info-box").then((elm) => {
     waitForElm(".button").then((elm) => {
         if(window.location.href.includes("history")) return;
@@ -345,30 +354,193 @@ waitForElm(".erc-empty-list-info-box").then((elm) => {
 });
 `;
 
+const mainImportButtons = waitFor + download + importScript + sendJson + `
 
-storage.getUsers((profiles) => {
-    storage.get(profiles.current, "profile", (profile, item) => {
-        if(profile === undefined) {
-            patch.init();
-            return;
-        };
-        if(profile.profile)
-            delete profile.profile;
-        
-        let user = item[profiles.current];
+waitForElm("a.erc-user-menu-nav-item[href='/account/preferences']").then((elm) => {
+    waitForElm(":scope .nav-item-description > p").then((_) => {
+        if(document.querySelector(".change-profile-button")) return;
+        let clone = elm.cloneNode(true);
+        elm.classList.add("change-profile-button");
+        let name = clone.querySelector("h5");
+        let description = clone.querySelector("p");
 
-        let history = user.history;
-        let watchlist = user.watchlist;
+        clone.removeAttribute("href");
 
-        patch.patches[1].script = "var profile = JSON.parse(atob(`" + btoa(JSON.stringify(profile || {}).replaceAll("`", "\\`")) + "`))\n" + importProfile;
-        patch.patches[2].script = "var history = JSON.parse(atob(`" + btoa(JSON.stringify(history || {}).replaceAll("`", "\\`")) + "`))\n" + importHistory;
-        patch.patches[3].script = "var watchlist = JSON.parse(atob(`" + btoa(JSON.stringify(watchlist || {}).replaceAll("`", "\\`")) + "`))\n" + importWatchlist;
+        clone.addEventListener("click", () => {
+            window.location.href = "` + browser.extension.getURL("/src/pages/profile/profile.html") + `";
+        });
 
-        patch.init();
+        name.innerText = "Change Profile";
 
+        description.innerText = "Manage your profiles.";
 
+        elm.after(clone);
     });
 });
+
+widgetGroup = document.createElement("div");
+widgetGroup.classList.add("widget-group");
+widgetGroup.classList.add("content-wrapper--MF5LS");
+widgetGroup.classList.add("carousel-scroller__track--43f0L");
+
+
+importHistoryBtn = createButton("` + locale.messages.import_history_button + `", () => {
+    var finput = document.createElement("input");
+
+    finput.setAttribute("type", "file");
+    finput.setAttribute("accept", ".json");
+
+    finput.click();
+
+    finput.onchange = () => {
+        var reader = new FileReader();
+        reader.readAsText(finput.files[0], "UTF-8");
+        reader.onload = function (evt) {
+            sendJson({"type": 2, "value": JSON.parse(evt.target.result)});
+        }
+    };
+});
+
+importCurrentHistory = createButton("` + locale.messages.import_current_history + `", () => {
+    let xml = new XMLHttpRequest();
+    xml.open("GET", "https://www.crunchyroll.com/content/v2/906995a7-4493-5783-916b-2664b377510e/watch-history?page_size=2000&locale=` + locale.lang + `&check=false");
+    xml.setRequestHeader("Authorization", "Bearer " + token);
+    xml.addEventListener("load", () => {
+        let history = {
+            items: []
+        }
+
+        let js = JSON.parse(xml.response);
+
+        js.data.forEach((item) => {
+            history.items.push({
+                content_id: item.content_id,
+                playhead: item.playhead,
+                panel: item.panel,
+            })
+        })
+        
+        history.items.reverse();
+
+        sendJson({type: 2, value: history});
+    });
+    xml.send();
+});
+
+importWatchlistBtn = createButton("` + locale.messages.import_watchlist_button + `", () => {
+    var finput = document.createElement("input");
+
+    finput.setAttribute("type", "file");
+    finput.setAttribute("accept", ".json");
+
+    finput.click();
+
+    finput.onchange = () => {
+        var reader = new FileReader();
+        reader.readAsText(finput.files[0], "UTF-8");
+        reader.onload = function (evt) {
+            sendJson({"type": 3, "value": JSON.parse(evt.target.result)});
+        }
+    };
+});
+
+importCurrentWatchlist = createButton("` + locale.messages.import_current_watchlist + `", () => {
+    let xml = new XMLHttpRequest();
+    xml.open("GET", "https://www.crunchyroll.com/content/v2/discover/906995a7-4493-5783-916b-2664b377510e/watchlist?order=desc&n=1000&check=false&locale=` + locale.lang + `");
+    xml.setRequestHeader("Authorization", "Bearer " + token);
+    xml.addEventListener("load", () => {
+        let watchlist = {
+            items: []
+        }
+
+        let js = JSON.parse(xml.response);
+
+        js.data.forEach((item) => {
+            watchlist.items.push({
+                content_id: item.id,
+                playhead: item.playhead,
+                fully_watched: item.fully_watched,
+                is_favorite: item.is_favorite,
+                never_watched: item.never_watched,
+                panel: item.panel,
+            })
+        })
+        
+        watchlist.items.reverse();
+
+        sendJson({type: 3, value: watchlist});
+    });
+    xml.send();
+});
+
+exportHistoryBtn = createButton("` + locale.messages.export_history_button + `", () => {
+    download("history_" + String(getRandomInt(90000)) + ".json", JSON.stringify(history, null, 4));
+});
+
+exportWatchlistBtn = createButton("` + locale.messages.export_watchlist_button + `", () => {
+    download("watchlist_" + String(getRandomInt(90000)) + ".json", JSON.stringify(watchlist, null, 4));
+});
+
+function createWidget(name, title, components) {
+    if(widgetGroup.querySelector("." + name + "-group")) return;    
+    let widget = document.createElement("div");
+
+    widget.classList.add(name + "-group");
+
+    widget.style.width = "auto";
+    widget.style.padding = "10px 15px 15px 10px";
+    widget.style.marginRight = "5px";
+    widget.style.textAlign = "center";
+
+    let text = document.createElement("span");
+
+    text.innerText = title;
+
+    text.classList.add("heading--nKNOf");
+    text.classList.add("heading--is-m--7bv3g");
+    text.classList.add("heading--is-family-type-two--U8YNl");
+    text.classList.add("feed-header__title--DMRD6");
+
+    text.style.paddingTop = "10px";
+    text.style.paddingLeft = "20px";
+    text.style.paddingRight = "20px";
+
+    let divider = document.createElement("div");
+
+    divider.classList.add("feed-divider--PvnEC");
+    divider.classList.add("feed-divider--is-even--dCcSs");
+    divider.classList.add("feed-header__divider--3SOtg");
+
+    components[0].style.paddingTop = "10px";
+
+    widget.appendChild(text);
+    widget.appendChild(divider);
+
+    for(let component of components) {
+        widget.appendChild(component);
+    }
+
+    widgetGroup.appendChild(widget);
+}
+
+waitForElm(".dynamic-feed-wrapper").then((elm) => {
+    if(document.querySelector(".widget-group")) return;
+    
+    createWidget("import", "` + locale.messages.import_button + `", [
+        importHistoryBtn,
+        importWatchlistBtn,
+        importCurrentHistory,
+        importCurrentWatchlist,
+    ])
+
+    createWidget("export", "` + locale.messages.export_button + `", [
+        exportHistoryBtn,
+        exportWatchlistBtn,
+    ])
+
+    elm.before(widgetGroup);
+})
+`;
 
 const patch = { 
     patches: [
@@ -399,14 +571,21 @@ const patch = {
         {
             url: URLS.watchlist.history,
             origin: ["https://www.crunchyroll.com/", "https://www.crunchyroll.com/watchlist", "https://www.crunchyroll.com/history", "https://www.crunchyroll.com/crunchylists"]
+        },
+        {
+            url: ["https://www.crunchyroll.com/*", "https://eec.crunchyroll.com/*"],
+            origin: ""
         }
     ],
     init: () => {
+        console.log("init called for patch")
         patch.patches.forEach((patch) => {
-            request.override([patch.url], "GET", (info) => {
+            request.override(typeof(patch.url) === "string" ? [patch.url] : patch.url, "GET", (info) => {
                 let result = info.array;
-                console.log(info.details.originUrl);
-                if(typeof(patch.origin) === "string" && info.details.originUrl === patch.origin || patch.origin.includes(info.details.originUrl)) {
+                
+                if(info.details.originUrl !== undefined && info.details.originUrl.includes("moz-extension")) return result;
+
+                if(typeof(patch.origin) === "string" && info.details.originUrl === patch.origin || patch.origin == "" || patch.origin.includes(info.details.originUrl)) {
                     result = patch.return || result;
 
                     let script = `var token="` + crunchyroll.token + `"\n` +patch.script;

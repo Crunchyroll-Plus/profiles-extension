@@ -6,7 +6,7 @@ const message_handler = {
     get(target, key, receiver) {
         key = key.replaceAll("_", "-")
         let result = locale_tmp.getMessage(key);
-        if (result !== key) return result;
+        return result !== key ? result : key.replaceAll("-", " ");
     }
 }
 

@@ -14,14 +14,14 @@ function tabExec(script) {
 }
 
 request.block([URLS.profile.get], "PATCH", (info) => {
-  storage.get(storage.currentUser, "profile", (profile) => {
+  profileDB.stores.profile.get(storage.currentUser, "profile", (profile) => {
     let data = info.body;
 
     for(let key of Object.keys(data)){
       profile[key] = data[key];
     }
 
-    storage.set(storage.currentUser, "profile", profile);
+    profileDB.stores.profile.set(storage.currentUser, "profile", profile);
     tabExec("window.location.reload();");
   })
 })
@@ -43,13 +43,12 @@ request.override([URLS.profile.get], "GET", async (info) => {
 
   if(info.details.originUrl === URLS.profile.activation)
     return "";
-
-  return storage.getUsers((profiles) => {    
-    storage.currentUser = profiles.current
-
-    return storage.get(storage.currentUser, "profile", (profile, item) => {
+  
+  return profileDB.stores.profile.get("meta", "current").then(id => {
+    storage.currentUser = id;
+    return profileDB.stores.profile.get(id, "profile").then(profile => {
       browser.storage.local.set({original_profile: info.body});
-        
+      
       if(profile === undefined) {
         // TODO: Finish "Who is watching?" page.
         let profile_window = browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
@@ -68,5 +67,5 @@ request.override([URLS.profile.get], "GET", async (info) => {
       
       return JSON.stringify(profile);
     })
-  })
+  });
 })
