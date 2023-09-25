@@ -1,15 +1,15 @@
 {
     "extName": {
-        "message": "Crunchyroll-Profile"
+        "message": "Crunchyroll Profile"
     },
     "extDescription": {
-        "message": "Ermöglicht Ihnen die Erstellung eigener Profile für ein personalisiertes Erlebnis auf einem gemeinsamen Konto."
+        "message": "Ermöglicht das erstellen eigener Profile für personalisierte Erlebnise auf einem Konto."
     },
     "profile-selection": {
         "message": "Profile"
     },
     "who-is-watching": {
-        "message": "Wer schaut zu"
+        "message": "Wer schaut gerade?"
     },
     "add-button": {
         "message": "Erstellen"
@@ -18,45 +18,45 @@
         "message": "Löschen"
     },
     "done-button": {
-        "message": "Schließen"
+        "message": "Fertig"
     },
     "import-button": {
         "message": "Importieren"
     },
     "export-button": {
-        "message": "Export"
+        "message": "Exportieren"
     },
     "import-current": {
-        "message": "Alt Importieren"
+        "message": "Aktuelles importieren"
     },
     "import-current-watchlist": {
-        "message": "Original-Watchlist importieren"
+        "message": "Originale Watchliste Importieren"
     },
     "import-current-history": {
-        "message": "Originalverlauf importieren"
+        "message": "Originalen Verlauf importieren"
     },
     "create-profile-title": {
-        "message": "Erstellen Sie ein neues Profil!"
+        "message": "Neues Profil erstellen"
     },
     "create-profile-button": {
         "message": "Profil erstellen"
     },
     "import-profile-button": {
-        "message": "Importprofil"
+        "message": "Profil importieren"
     },
     "export-profile-button": {
-        "message": "Exportprofil"
+        "message": "Profil exportieren"
     },
     "import-history-button": {
-        "message": "Importhistorie"
+        "message": "Historie importieren"
     },
     "export-history-button": {
-        "message": "Exporthistorie"
+        "message": "Historie exportieren"
     },
     "import-watchlist-button": {
-        "message": "Merkliste importieren"
+        "message": "Watchliste importieren"
     },
     "export-watchlist-button": {
-        "message": "Beobachtungsliste exportieren"
+        "message": "Watchliste exportieren"
     }
 }
