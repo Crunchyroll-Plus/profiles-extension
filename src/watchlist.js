@@ -21,8 +21,7 @@ request.override([URLS.watchlist.get], "GET", (info) => {
             last_modified: "2023-06-23T20:54:00Z"
         })
       }
-      console.log("WATCHLIST")
-      console.log(result)
+ 
       return result.stringify();
     })
   })
@@ -53,14 +52,14 @@ request.block([URLS.watchlist.save], "POST", (info) => {
             return;
         }
 
-        let count = -1;
+        let count = 0;
         
         for(const item of watchlist.items) {
             if(item.panel.episode_metadata.series_id == info.body.content_id) {
                 toggle = true;
-                count++;
                 break;
             }
+            count++;
         }
 
         if(toggle === true) {
@@ -102,8 +101,9 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
 
         watchlist.items.reverse();
 
+
         for(let i = 0; i < watchlist.items.length; i++) {
-            if(i >= amount) break;
+            if(data.result.data.length >= amount) break;
 
             let item = watchlist.items[i];
 
@@ -116,9 +116,6 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
                 panel: item.panel
             })
         }
-
-        console.log("WATCHLIST 2")
-        console.log(data);
 
         return data.stringify();
     })

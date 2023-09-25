@@ -18,10 +18,10 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
     var found = []
 
     for(let i = 0; i < history.items.length; i++) {
-      if(i >= amount) break;
+      if(data.result.data.length >= amount) break;
       var hitem = history.items[i];
-
-      if(found.indexOf(hitem.panel.episode_metadata.series_id) !== -1)
+      
+      if(hitem.panel === undefined || found.indexOf(hitem.panel.episode_metadata.series_id) !== -1)
         continue
       
       found.push(hitem.panel.episode_metadata.series_id)
@@ -58,6 +58,8 @@ request.override([URLS.history.watch_history], "GET", (info) => {
     for(let i = 0; i < history.items.length; i++) {
       let hitem = history.items[i];
 
+      if(hitem.panel === undefined) continue;
+
       data.push({
         playhead: hitem.playhead,
         fully_watched: hitem.panel.episode_metadata.duration_ms / 1000 <= hitem.playhead,
@@ -88,11 +90,12 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
     
     for(let i = 0; i < history.items.length; i++) {
       let item = history.items[i];
+
+      if(item.panel === undefined || item.panel === null)
+          break;
+      
       if(item.panel.id == postJS.content_id) {
         history.items.pop(i);
-
-        if(item.panel === undefined || item.panel === null)
-          break;
 
         postJS.panel = item.panel;
 
@@ -121,6 +124,7 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
         if(watchlist === undefined) return;
         
         for(const item of watchlist.items) {
+          if(item.panel === undefined) continue;
           if(item.panel.episode_metadata.series_id === postJS.panel.episode_metadata.series_id) {
             item.playhead = postJS.playhead;
             item.fully_watched = postJS.fully_watched;
@@ -146,7 +150,7 @@ request.override([URLS.history.playheads], "GET", (info) => {
     let result = new crunchyArray();
 
     for(let item of history.items) {
-      if(ids.indexOf(item.panel.id) === -1) continue;
+      if(item.panel === undefined || ids.indexOf(item.panel.id) === -1) continue;
 
       result.push({
           playhead: item.playhead | 0,
@@ -173,7 +177,7 @@ request.block([URLS.history.delete], "DELETE", (info) => {
 
     for(let i = 0; i < history.items.length; i++) {
       let item = history.items[i];
-      
+      if(item.panel === undefined) continue;
       if(item.panel.id == id) {
         history.items.splice(i, 1);
         break;

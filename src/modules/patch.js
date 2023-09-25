@@ -2,7 +2,7 @@ const sendJson = `
 function sendJson(object) {
     let xml = new XMLHttpRequest();
 
-    xml.open("GET", "` + URLS.message.replace("*", "") + `?message=" + JSON.stringify(object).replaceAll(",", "$LERE").replaceAll("}", "$LCASE").replaceAll("&", "$AND") + "&type=1");
+    xml.open("GET", encodeURI("` + URLS.message.replace("*", "") + `?message=" + JSON.stringify(object).replaceAll(",", "$LERE").replaceAll("}", "$LCASE").replaceAll("&", "$AND") + "&type=1"));
 
     xml.send();
 }
@@ -74,6 +74,7 @@ function createButton(text, callback) {
 var importProfile = download + waitFor + sendJson + importScript + `
 
 waitForElm(".erc-account-user-info").then(user_info => {
+    if(document.body.querySelector(".import-btn")) return;
     importBtn = createButton("` + locale.messages.import_profile_button + `", () => {
         var finput = document.createElement("input");
 
@@ -90,6 +91,8 @@ waitForElm(".erc-account-user-info").then(user_info => {
             }
         };
     });
+
+    importBtn.classList.add("import-btn");
 
     exportBtn = createButton("` + locale.messages.export_profile_button + `", () => {
         download("profile_" + String(getRandomInt(90000)) + ".json", JSON.stringify(profile, null, 4));

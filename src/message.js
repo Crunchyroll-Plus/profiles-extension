@@ -3,7 +3,7 @@
 */
 
 request.block([URLS.message], "GET", (info) => {
-    let messages = info.details.url.split("message=")[1].split("&")[0].split(",");
+    let messages = decodeURI(info.details.url.split("message=")[1].split("&")[0].split(","));
     let type = info.details.url.split("type=")[1].split("&")[0];
   
     type = parseInt(type);
@@ -29,15 +29,6 @@ request.block([URLS.message], "GET", (info) => {
             url = browser.extension.getURL("/src/pages/profile/profile.html")
             tabExec('window.location.href = "' + url + '"');
         });
-
-        // storage.getUsers((profiles) => {
-          
-        //   console.log("WHAT THE FUCK")
-        //   profiles.current = count;
-        //   profiles.others.push(count);
-  
-        //   storage.set(count, "profile", profile);
-        // })
         break;
       case 1:
         let msg = messages[0].replaceAll("$LERE", ",").replaceAll("%27", "'").replaceAll("%22", "\"").replaceAll("$LCASE", "}").replaceAll("%20", " ").replaceAll("$AND", "&")
