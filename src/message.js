@@ -3,7 +3,7 @@
 */
 
 request.block([URLS.message], "GET", (info) => {
-    let messages = decodeURI(info.details.url.split("message=")[1].split("&")[0].split(","));
+    let messages = info.details.url.split("message=")[1].split("&")[0].split(",");
     let type = info.details.url.split("type=")[1].split("&")[0];
   
     type = parseInt(type);
@@ -19,9 +19,7 @@ request.block([URLS.message], "GET", (info) => {
         profile.username = username;
         if(profile.profile)
           delete profile.profile;
-
-        console.log("CREATE NEW PROFILE");
-
+        
         profileDB.stores.profile.getAll().then((values) => {
             var user = values.length === 0 ? values.length + 1 : values.length;
             profileDB.stores.profile.set(user, "profile", profile)
@@ -32,7 +30,6 @@ request.block([URLS.message], "GET", (info) => {
         break;
       case 1:
         let msg = messages[0].replaceAll("$LERE", ",").replaceAll("%27", "'").replaceAll("%22", "\"").replaceAll("$LCASE", "}").replaceAll("%20", " ").replaceAll("$AND", "&")
-        console.log(msg);
         let js = JSON.parse(msg);
 
         switch(js.type){

@@ -287,7 +287,7 @@ const profileDB = new ProfileDB(() => {
 
                     profileDB.stores.profile.set("meta", "current", id);
                     storage.currentUser = id;
-                    // storage.set(id, "profile", undefined);
+                    storage.set(id, "profile", undefined);
                 })
             })
 
@@ -296,7 +296,7 @@ const profileDB = new ProfileDB(() => {
                 profileDB.stores.history.get(id, "episodes").then((_history) => {
                     if(_history !== undefined) return;
                     profileDB.stores.history.set(id, "episodes", history);
-                    // storage.set(id, "history", undefined);
+                    storage.set(id, "history", undefined);
                 })
             })
 
@@ -305,80 +305,21 @@ const profileDB = new ProfileDB(() => {
                 profileDB.stores.watchlist.get(id, "watchlist").then(_watchlist => {
                     if(_watchlist !== undefined) return;
                     profileDB.stores.watchlist.set(id, "watchlist", watchlist);
-                    // storage.set(id, "watchlist", undefined);
+                    storage.set(id, "watchlist", undefined);
                 });
             })
         }
 
-        // info = {};
-        profileDB.stores.profile.get("meta", "current").then((id) => {
-            console.log("Setting current profile id: " + id);
-            storage.currentUser = id;
-            profileDB.stores.profile.get(storage.currentUser, "profile").then(profile => {
-                if(profile !== undefined && profile.profile)
-                    delete profile.profile;
-                try {
-                    if(profile !== undefined)
-                        patch.patches[1].script = "var profile = JSON.parse(atob(`" + btoa(JSON.stringify(profile || {}).replaceAll("`", "\\`")) + "`))\n" + importProfile;
-                    else profile = {}
-                } catch (e) {
-                    profile = {};
-                }
-    
-                profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
-                    try {
-                        if(history !== undefined)
-                            patch.patches[2].script = "var history = JSON.parse(atob(`" + btoa(JSON.stringify(history || {}).replaceAll("`", "\\`")) + "`))\n" + importHistory;
-                        else history = {}
-                    } catch (e) {
-                        history = {}
-                    }
-    
-                    profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
-                        try {
-                            if(watchlist !== undefined)
-                                patch.patches[3].script = "var watchlist = JSON.parse(atob(`" + btoa(JSON.stringify(watchlist || {}).replaceAll("`", "\\`")) + "`))\n" + importWatchlist;
-                            else watchlist = {}
-                        } catch (e) {
-                            watchlist = {};
-                        }
-                        
-                        patch.patches[4].script = "var profile = JSON.parse(atob(`" + btoa(JSON.stringify(profile || {}).replaceAll("`", "\\`")) + "`))\nvar history = JSON.parse(atob(`" + btoa(JSON.stringify(history || {}).replaceAll("`", "\\`")) + "`))\nvar watchlist = JSON.parse(atob(`" + btoa(JSON.stringify(watchlist || {}).replaceAll("`", "\\`")) + "`))\n" + mainImportButtons
-                        patch.init();
-                    });
-                });
-            });
-        });
+        profileDB.stores.profile.get("meta", "current").then(setCurrent);
         return
     })
 
-    profileDB.stores.profile.get("meta", "current").then((id) => {
-        console.log("Setting current profile id: " + id);
-        storage.currentUser = id;
-        console.log("Setting patch scripts...");
-        profileDB.stores.profile.get(storage.currentUser, "profile").then(profile => {
-            if(profile !== undefined && profile.profile)
-                delete profile.profile;
-    
-            if(profile !== undefined)
-                patch.patches[1].script = "var profile = JSON.parse(atob(`" + btoa(JSON.stringify(profile || {}).replaceAll("`", "\\`")) + "`))\n" + importProfile;
-            else profile = {}
-    
-            profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
-                if(history !== undefined)
-                    patch.patches[2].script = "var history = JSON.parse(atob(`" + btoa(JSON.stringify(history || {}).replaceAll("`", "\\`")) + "`))\n" + importHistory;
-                else history = {}
-    
-                profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
-                    if(watchlist !== undefined)
-                        patch.patches[3].script = "var watchlist = JSON.parse(atob(`" + btoa(JSON.stringify(watchlist || {}).replaceAll("`", "\\`")) + "`))\n" + importWatchlist;
-                    else watchlist = {}
-                    
-                    patch.patches[4].script = "var profile = JSON.parse(atob(`" + btoa(JSON.stringify(profile || {}).replaceAll("`", "\\`")) + "`))\nvar history = JSON.parse(atob(`" + btoa(JSON.stringify(history || {}).replaceAll("`", "\\`")) + "`))\nvar watchlist = JSON.parse(atob(`" + btoa(JSON.stringify(watchlist || {}).replaceAll("`", "\\`")) + "`))\n" + mainImportButtons
-                    patch.init();
-                });
-            });
-        });
-    })
-    // Set current profile id
+    profileDB.stores.profile.get("meta", "current").then(setCurrent)
 });
+
+
+setCurrent = (id) => {
+    if(storage.currentUser===id) return;
+    console.log("Setting current profile id: " + id);
+    storage.currentUser = id;
+}

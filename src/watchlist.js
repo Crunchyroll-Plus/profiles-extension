@@ -155,7 +155,7 @@ request.override([URLS.watchlist.history], "GET", async (info) => {
     return profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         let data = new crunchyArray();
 
-        if(info.details.url.includes("check=false")) 
+        if(info.details.url.includes("check")) 
             return info.body;
 
         if(watchlist === undefined)

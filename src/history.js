@@ -1,6 +1,6 @@
 /*
-Prevents your history from being saved to any crunchyroll server,
-instead it saves it to your browser.
+  Prevents your history from being saved to any crunchyroll server,
+  instead it saves it to your browser.
 */
 
 request.override([URLS.history.continue_watching], "GET", (info) => {
@@ -33,11 +33,7 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
         panel: hitem.panel
       })
     }
-
-    console.log("CONTONUE")
-
-    console.log(data)
-
+    
     return data.stringify();
   });
 })
@@ -46,7 +42,7 @@ request.override([URLS.history.watch_history], "GET", (info) => {
   return profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
     let data = new crunchyArray();
 
-    if(info.details.url.includes("check=false")) 
+    if(info.details.url.includes("check")) 
       return info.body;
     
     if(history === undefined || history.items === undefined){

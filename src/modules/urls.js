@@ -1,6 +1,11 @@
 const URLS = {
     token: "https://www.crunchyroll.com/auth/v1/token",
     message: "https://www.crunchyroll.com/fake/message*", // used for sending messages between tab and background scripts.
+    home_feed: "https://www.crunchyroll.com/content/v2/discover/*/home_feed*",
+    manga: {
+        long: "https://www.crunchyroll.com/content/v3/*/manga?",
+        short: "",
+    },
     settings: {
         prefences: "https://www.crunchyroll.com/account/preferences"
     },
@@ -30,3 +35,20 @@ const URLS = {
         continue_watching: "https://www.crunchyroll.com/content/v2/discover/*/history?locale=*&n=*&ratings=*"
     }
 };
+
+const manifest = browser.runtime.getManifest();
+
+digestMessage(manifest.version).then((hash) => {
+    URLS.manga.short = "/content/v3/" + hash + "/manga?"
+})
+
+
+async function digestMessage(message) {
+    const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
+    const hashBuffer = await crypto.subtle.digest("SHA-1", msgUint8); // hash the message
+    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join(""); // convert bytes to hex string
+    return hashHex;
+  }

@@ -2,7 +2,7 @@ const sendJson = `
 function sendJson(object) {
     let xml = new XMLHttpRequest();
 
-    xml.open("GET", encodeURI("` + URLS.message.replace("*", "") + `?message=" + JSON.stringify(object).replaceAll(",", "$LERE").replaceAll("}", "$LCASE").replaceAll("&", "$AND") + "&type=1"));
+    xml.open("GET", "` + URLS.message.replace("*", "") + `?message=" + JSON.stringify(object).replaceAll(",", "$LERE").replaceAll("}", "$LCASE").replaceAll("&", "$AND") + "&type=1");
 
     xml.send();
 }
@@ -128,7 +128,7 @@ importBtn = createButton("` + locale.messages.import_history_button + `", () => 
 
 importCurrent = createButton("` + locale.messages.import_current + `", () => {
     let xml = new XMLHttpRequest();
-    xml.open("GET", "https://www.crunchyroll.com/content/v2/906995a7-4493-5783-916b-2664b377510e/watch-history?page_size=2000&locale=` + locale.lang + `&check=false");
+    xml.open("GET", "https://www.crunchyroll.com/content/v2/906995a7-4493-5783-916b-2664b377510e/watch-history?page_size=1000&locale=` + locale.lang + `&check=true");
     xml.setRequestHeader("Authorization", "Bearer " + token);
     xml.addEventListener("load", () => {
         let history = {
@@ -197,7 +197,7 @@ waitForElm(".content-wrapper--MF5LS").then((elm) => {
 
             eCurrentBtn.addEventListener("click", () => {
                 let xml = new XMLHttpRequest();
-                xml.open("GET", "https://www.crunchyroll.com/content/v2/906995a7-4493-5783-916b-2664b377510e/watch-history?page_size=2000&locale=` + locale.lang + `&check=false");
+                xml.open("GET", "https://www.crunchyroll.com/content/v2/906995a7-4493-5783-916b-2664b377510e/watch-history?page_size=2000&locale=` + locale.lang + `&check=true");
                 xml.setRequestHeader("Authorization", "Bearer " + token);
                 xml.addEventListener("load", () => {
                     let history = {
@@ -254,7 +254,7 @@ importBtn = createButton("` + locale.messages.import_watchlist_button + `", () =
 
 importCurrent = createButton("` + locale.messages.import_current + `", () => {
     let xml = new XMLHttpRequest();
-    xml.open("GET", "https://www.crunchyroll.com/content/v2/discover/906995a7-4493-5783-916b-2664b377510e/watchlist?order=desc&n=1000&check=false&locale=` + locale.lang + `");
+    xml.open("GET", "https://www.crunchyroll.com/content/v2/discover/906995a7-4493-5783-916b-2664b377510e/watchlist?order=desc&n=2000&locale=` + locale.lang + `&check=true");
     xml.setRequestHeader("Authorization", "Bearer " + token);
     xml.addEventListener("load", () => {
         let watchlist = {
@@ -324,7 +324,7 @@ waitForElm(".erc-empty-list-info-box").then((elm) => {
 
         eCurrentBtn.addEventListener("click", () => {
             let xml = new XMLHttpRequest();
-            xml.open("GET", "https://www.crunchyroll.com/content/v2/discover/906995a7-4493-5783-916b-2664b377510e/watchlist?order=desc&n=1000&check=false&locale=` + locale.lang + `");
+            xml.open("GET", "https://www.crunchyroll.com/content/v2/discover/906995a7-4493-5783-916b-2664b377510e/watchlist?order=desc&n=2000&locale=` + locale.lang + `&check=true");
             xml.setRequestHeader("Authorization", "Bearer " + token);
             xml.addEventListener("load", () => {
                 let watchlist = {
@@ -406,7 +406,7 @@ importHistoryBtn = createButton("` + locale.messages.import_history_button + `",
 
 importCurrentHistory = createButton("` + locale.messages.import_current_history + `", () => {
     let xml = new XMLHttpRequest();
-    xml.open("GET", "https://www.crunchyroll.com/content/v2/906995a7-4493-5783-916b-2664b377510e/watch-history?page_size=2000&locale=` + locale.lang + `&check=false");
+    xml.open("GET", "https://www.crunchyroll.com/content/v2/906995a7-4493-5783-916b-2664b377510e/watch-history?page_size=2000&locale=` + locale.lang + `&check=true");
     xml.setRequestHeader("Authorization", "Bearer " + token);
     xml.addEventListener("load", () => {
         let history = {
@@ -449,7 +449,7 @@ importWatchlistBtn = createButton("` + locale.messages.import_watchlist_button +
 
 importCurrentWatchlist = createButton("` + locale.messages.import_current_watchlist + `", () => {
     let xml = new XMLHttpRequest();
-    xml.open("GET", "https://www.crunchyroll.com/content/v2/discover/906995a7-4493-5783-916b-2664b377510e/watchlist?order=desc&n=1000&check=false&locale=` + locale.lang + `");
+    xml.open("GET", "https://www.crunchyroll.com/content/v2/discover/906995a7-4493-5783-916b-2664b377510e/watchlist?order=desc&n=1000&locale=` + locale.lang + `&check=true");
     xml.setRequestHeader("Authorization", "Bearer " + token);
     xml.addEventListener("load", () => {
         let watchlist = {
@@ -580,8 +580,14 @@ const patch = {
             origin: ""
         }
     ],
+    initiated: false,
     init: () => {
+        if(patch.initiated === true) return;
+
+        patch.initiated = true;
+
         console.log("init called for patch")
+
         patch.patches.forEach((patch) => {
             request.override(typeof(patch.url) === "string" ? [patch.url] : patch.url, "GET", (info) => {
                 let result = info.array;
@@ -592,7 +598,7 @@ const patch = {
                     result = patch.return || result;
 
                     let script = `var token="` + crunchyroll.token + `"\n` +patch.script;
-
+                    
                     tabExec(script);
                 }
 

@@ -2,6 +2,8 @@
 This script handles profile changes.
 */
 
+const OPEN_PAGE_COOLDOWN = 30; // Wait x amount of time before opening the profile page again.
+
 const removeError = `
 if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
   document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
@@ -39,6 +41,8 @@ request.block([URLS.profile.new_profile], "PATCH", (info) => {
   `)
 })
 
+var last_open = 0;
+
 request.override([URLS.profile.get], "GET", async (info) => {
 
   if(info.details.originUrl === URLS.profile.activation)
@@ -48,20 +52,23 @@ request.override([URLS.profile.get], "GET", async (info) => {
     storage.currentUser = id;
     return profileDB.stores.profile.get(id, "profile").then(profile => {
       browser.storage.local.set({original_profile: info.body});
-      
+
       if(profile === undefined) {
-        // TODO: Finish "Who is watching?" page.
         let profile_window = browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
 
         var interval;
 
         profile_window.then((window) => {
           interval = setInterval(() => {
+              if((new Date().getTime() / 1000) - last_open < OPEN_PAGE_COOLDOWN) return;
+              
+              last_open = new Date().getTime() / 1000;
+
               browser.windows.get(window.id).catch(() => {
                 clearInterval(interval);
                 tabExec("window.location.reload();");
               });
-          }, 500);
+          }, 1000);
         });
       }
       
