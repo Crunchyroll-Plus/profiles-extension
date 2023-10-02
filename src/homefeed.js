@@ -26,8 +26,8 @@ const home_feed = {
     sort: async (sort_type, sort_items) => {
         switch(sort_type) {
             default:
-                let sorted = [];
-                let unsorted = [];
+                var sorted = [];
+                var unsorted = [];
 
                 if(sort_items.length !== undefined) {
                     for(let fitem of sort_items) {
@@ -40,23 +40,25 @@ const home_feed = {
 
                         try {
                             await profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
-                                history.items.forEach((hitem) => {
-                                    if(id !== hitem.panel.episode_metadata.series_id) return;
+                                for(let hitem of history.items){
+                                    if(id !== hitem.panel.episode_metadata.series_id) continue;
                                     found = true;
                                     sorted.push(fitem);
-                                })
+                                    break;
+                                }
                             });
                         } catch (error) { };
-            
+
                         if(found) continue;
             
                         try {
                             await profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
-                                watchlist.items.forEach((witem) => {
-                                    if(id !== witem.content_id) return;
+                                for(let witem of watchlist.items){
+                                    if(id !== witem.content_id) continue;
                                     found = true;
                                     sorted.push(fitem);
-                                })
+                                    break;
+                                }
                             });
                         }
                         catch(error) { };
@@ -94,7 +96,7 @@ const resource_callbacks = {
         item.items = await home_feed.sort("hero_carousel", item.items)
     },
     curated_collection: async (item) => {
-        item.items = await home_feed.sort("curated_collection", item.ids)
+        item.ids = await home_feed.sort("curated_collection", item.ids)
     },
     dynamic_collection: async (item) => {
         request.override(["https://www.crunchyroll.com" + item.link + "*"], "GET", async (info) => {
@@ -132,8 +134,6 @@ request.override([URLS.home_feed], "GET", async (info) => {
         if(callback === undefined) continue;
 
         await callback(item);
-
-        // console.log(item);
     }
 
     return JSON.stringify(data);
