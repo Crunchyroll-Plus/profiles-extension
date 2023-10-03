@@ -76,3 +76,9 @@ request.override([URLS.profile.get], "GET", async (info) => {
     })
   });
 })
+
+request.override([URLS.locale], "GET", (info) => {
+  crunchyroll.locale = JSON.parse(info.body);
+
+  return info.body;
+})

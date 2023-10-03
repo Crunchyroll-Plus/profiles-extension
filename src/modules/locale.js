@@ -11,7 +11,7 @@ const message_handler = {
 }
 
 let locale_tmp = {
-    get: () => chrome.i18n.getUILanguage(),
+    get: () => i18n.getUILanguage(),
     getMessage: (key, def) => i18n.getMessage(key) || def,
     messages: new Proxy(messages_temp, message_handler)
 }

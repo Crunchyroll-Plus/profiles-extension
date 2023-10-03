@@ -99,29 +99,29 @@ const resource_callbacks = {
         item.ids = await home_feed.sort("curated_collection", item.ids)
     },
     dynamic_collection: async (item) => {
+        if(item.response_type === "because_you_watched") {
+            let replacement = await profileDB.stores.history.get(storage.currentUser, "episodes")
+            if(replacement !== undefined && replacement.items !== undefined) {
+                replacement.items.reverse();
+                replacement = replacement.items[byu_counter];
+                if(replacement.panel !== undefined && replacement.panel.episode_metadata.series_title !== item.source_media_title) {
+                    item.title = item.title.replace(item.source_media_title, replacement.panel.episode_metadata.series_title);
+                    item.source_media_title = replacement.panel.episode_metadata.series_title;
+                    item.query_params.guid = replacement.panel.episode_metadata.series_id;
+                    item.link = item.link.replace(item.source_media_id, replacement.panel.episode_metadata.series_id)
+                    item.source_media_id = replacement.panel.episode_metadata.series_id;
+
+                    byu_counter++;
+                }
+            }
+        }
+
         request.override(["https://www.crunchyroll.com" + item.link + "*"], "GET", async (info) => {
             let json = JSON.parse(info.body);
-
             json.data = await home_feed.sort(item.link, json.data)
 
             return JSON.stringify(json);
         })
-
-        if(item.response_type === "because_you_watched") {
-            let replacement = await profileDB.stores.history.get(storage.currentUser, "episodes")
-            replacement.items.reverse();
-            replacement = replacement.items[byu_counter];
-            
-            if(replacement.panel.episode_metadata.series_title === item.source_media_title) return;
-
-            item.title = item.title.replace(item.source_media_title, replacement.panel.episode_metadata.series_title);
-            item.source_media_title = replacement.panel.episode_metadata.series_title;
-            item.query_params.guid = replacement.panel.episode_metadata.series_id;
-            item.link = item.link.replace(item.source_media_id, replacement.panel.episode_metadata.series_id)
-            item.source_media_id = replacement.panel.episode_metadata.series_id;
-
-            byu_counter++;
-        }
     }
 }
 
@@ -130,11 +130,18 @@ request.override([URLS.home_feed], "GET", async (info) => {
 
     for(let item of data.data) {
         let callback = resource_callbacks[item.resource_type];
-
+        
         if(callback === undefined) continue;
 
         await callback(item);
     }
+
+    return JSON.stringify(data);
+})
+
+request.override([URLS.categories], "GET", async (info) => {
+    let data = JSON.parse(info.body);
+
 
     return JSON.stringify(data);
 })

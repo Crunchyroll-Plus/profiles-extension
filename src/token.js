@@ -1,5 +1,5 @@
 /*
-This script saves the token for later use in the crunchyroll API and updates the buttons.
+    This script saves the token for later use in the crunchyroll API and updates the buttons.
 */
 
 request.override([URLS.token], "POST", (info) => {

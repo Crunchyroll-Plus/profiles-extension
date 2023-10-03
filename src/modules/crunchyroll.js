@@ -69,6 +69,31 @@ class crunchyArray {
 
 const crunchyroll = {
     token: "",
+    locale: {},
+    categories: [
+        "drama",
+        "comedy",
+        "romance",
+        "harem",
+        "sci-fi",
+        "action",
+        "adventure",
+        "fantasy",
+        "music",
+        "seinen",
+        "shojo",
+        "shonen",
+        "slice of life",
+        "sports",
+        "supernatural",
+        "thriller",
+        "historical",
+        "isekai",
+        "mystery",
+        "idols",
+        "mecha",
+        "post-apocalyptic"
+    ], // Some categories are missing from the response so I'm going to have to type them in manually.
     send: (info, callback) => {
         request.send(
             info,

@@ -6,6 +6,8 @@ const URLS = {
         long: "https://www.crunchyroll.com/content/v3/*/manga?",
         short: "",
     },
+    categories: "https://www.crunchyroll.com/content/v2/discover/categories?locale=*",
+    locale: "https://static.crunchyroll.com/i18n/cxweb/*.json",
     settings: {
         prefences: "https://www.crunchyroll.com/account/preferences"
     },
