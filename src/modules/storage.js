@@ -317,9 +317,9 @@ const profileDB = new ProfileDB(() => {
     profileDB.stores.profile.get("meta", "current").then(setCurrent)
 });
 
-
 setCurrent = (id) => {
     if(storage.currentUser===id) return;
+    
     console.log("Setting current profile id: " + id);
     storage.currentUser = id;
 }

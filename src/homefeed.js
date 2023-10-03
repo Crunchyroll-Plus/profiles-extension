@@ -9,8 +9,7 @@ const home_feed = {
             case "dynamic_collection":
                 return {
                     title: data.title,
-                    id: "dynamic_collection-1",
-                    resource_type: data.type,
+                    resource_type: "dynamic_collection",
                     display_type: data.display_type === undefined ? "shelf" : data.display_type,
                     response_type: "recommendations",
                     description: data.description,
@@ -21,6 +20,13 @@ const home_feed = {
                     position: data.position,
                 }
         }
+    },
+    add_feed: (id, data) => {
+        data.id = data.resource_type + "-" + id;
+        console.log(data.id, home_feed.feed.find(item => item.id === data.id))
+        if(home_feed.feed.find(item => item.id === data.id) !== undefined) return;
+
+        home_feed.feed.push(data);
     },
     feed: [],
     sort: async (sort_type, sort_items) => {
@@ -76,18 +82,7 @@ const home_feed = {
     }
 }
 
-home_feed.feed.push(
-    home_feed.create({
-        type: "dynamic_collection",
-        title: "Continue Reading",
-        description: "Continue reading where you left off on VIZ.",
-        link: URLS.manga.short + "",
-        position: 3,
-        query_params: {
-            n: 5
-        }
-    })
-)
+// home_feed.feed.push()
 
 var byu_counter = 0;
 
@@ -127,21 +122,23 @@ const resource_callbacks = {
 
 request.override([URLS.home_feed], "GET", async (info) => {
     let data = JSON.parse(info.body);
+    let start = parseInt(info.details.url.split("start=")[1].split("&")[0]);
+    let size = parseInt(info.details.url.split("n=")[1].split("&")[0]);
+    home_feed.feed.reverse()
+    for(const feed of home_feed.feed) {
+        if(start <= feed.position + 1 & feed.position <= start + size) data.data.splice(((feed.position - start) + 1), 0, feed)
+    }
+    home_feed.feed.reverse()
 
     for(let item of data.data) {
         let callback = resource_callbacks[item.resource_type];
-        
+
         if(callback === undefined) continue;
 
         await callback(item);
     }
 
-    return JSON.stringify(data);
-})
-
-request.override([URLS.categories], "GET", async (info) => {
-    let data = JSON.parse(info.body);
-
+    console.log(data);
 
     return JSON.stringify(data);
 })

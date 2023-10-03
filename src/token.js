@@ -12,7 +12,7 @@ request.override([URLS.token], "POST", (info) => {
   let headers = [];
 
   byu_counter = 0
-
+  
   profileDB.stores.profile.get(storage.currentUser, "profile").then(profile => {
     if(profile !== undefined) {
         delete profile.profile;
@@ -27,6 +27,86 @@ request.override([URLS.token], "POST", (info) => {
             patch.patches[2].script = headers[1] + importHistory;
         }
         else history = {}
+        
+        if(history.items !== undefined) {
+            history.items.reverse();
+            let ids = []
+
+            for(let item of history.items) {
+                ids.push(item.panel.episode_metadata.series_id);
+            }
+
+            crunchyroll.send({
+                method: "GET",
+                url: "https://www.crunchyroll.com/content/v2/cms/objects/" + ids.join(",") + "?ratings=true&preferred_audio_language=" + profile.preferred_content_audio_language + "&locale=" + profile.preferred_communication_language
+            }, (xml) => {
+                let vote = {
+
+                }
+
+                for(const series of JSON.parse(xml.response).data) {
+                    for(let tag of series.series_metadata.tenant_categories) {
+                        if(vote[tag] === undefined) vote[tag] = 0
+                        vote[tag] += 1
+                    }
+                }
+
+                let tags = [
+                    []
+                ];
+                let caps = [
+                    []
+                ];
+
+                for(const [tag, count] of Object.entries(vote)) {
+                    if(count >= 2) {
+                        caps[caps.length - 1].push(tag)
+                        tags[tags.length - 1].push(tag.toLowerCase())
+                    }
+
+                    if(tags[tags.length - 1].length === 2) {
+                        tags.push([])
+                        caps.push([])
+                    };
+                }
+
+                let counter = 0;
+                let index = 0;
+
+                for(let tag of tags) {
+
+                    let position = 5 + index;
+
+                    home_feed.add_feed((11 + counter).toString(), home_feed.create({
+                        type: "dynamic_collection",
+                        title: "Popular: " + caps[index].join(", "),
+                        description: "Based off of your watch history you may like these popular series.",
+                        link: "/content/v2/discover/browse?categories=" + tag.join(",") + "&sort_by=popularity&n=20&locale=en-US",
+                        position: position,
+                        query_params: {
+                            n: 20
+                        }
+                    }))
+
+                    counter++;
+
+                    home_feed.add_feed((11 + counter).toString(), home_feed.create({
+                        type: "dynamic_collection",
+                        title: "Newly Added: " + caps[index].join(", "),
+                        description: "Based off of your watch history you may like these newly updated series.",
+                        link: "/content/v2/discover/browse?categories=" + tag.join(",") + "&sort_by=newly_added&n=20&locale=en-US",
+                        position: position,
+                        query_params: {
+                            n: 20
+                        }
+                    }))
+
+                    index++;
+
+                    counter++;
+                }
+            })
+        }
 
         profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
             if(watchlist !== undefined) {
