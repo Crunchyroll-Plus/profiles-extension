@@ -206,7 +206,7 @@ list_panel = (ret, info) => {
             info.sort_type = sort_type;
           })
 
-          createDropdown(locale.message.dropdown_seasonal_tags, names, (seasonal_tag) => {
+          createDropdown(locale.messages.dropdown_seasonal_tags, names, (seasonal_tag) => {
             seasonal_tag = ids[seasonal_tag];
             info.seasonal_tag = seasonal_tag
           })
