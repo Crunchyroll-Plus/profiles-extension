@@ -2,7 +2,7 @@
     This script saves the token for later use in the crunchyroll API and updates the buttons.
 */
 
-request.override([URLS.token], "POST", (info) => {
+request.override([URLS.token], "POST", async (info) => {
   let data = JSON.parse(info.body);
 
   crunchyroll.token = data.access_token;
@@ -12,8 +12,14 @@ request.override([URLS.token], "POST", (info) => {
   let headers = [];
 
   byu_counter = 0
-  
-  profileDB.stores.profile.get(storage.currentUser, "profile").then(profile => {
+
+  profileDB.stores.profile.get(storage.currentUser, "profile").then(async profile => {
+    storage.settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
+
+    storage.settings = storage.settings === undefined ? {
+        genreFeed: true
+    } : storage.settings;
+
     if(profile !== undefined) {
         delete profile.profile;
         headers[0] = "var profile = JSON.parse('" + encodeJS(profile || {}) + "')\n";
@@ -28,9 +34,10 @@ request.override([URLS.token], "POST", (info) => {
         }
         else history = {}
         
-        if(history.items !== undefined) {
+        if(history.items !== undefined && storage.settings.genreFeed === true) {
             history.items.reverse();
             let ids = []
+            home_feed.feed = []
 
             for(let item of history.items) {
                 ids.push(item.panel.episode_metadata.series_id);
@@ -58,7 +65,8 @@ request.override([URLS.token], "POST", (info) => {
                     []
                 ];
 
-                for(const [tag, count] of Object.entries(vote)) {
+
+                for(const [tag, count] of shuffleArr(Object.entries(vote))) {
                     if(count >= 2) {
                         caps[caps.length - 1].push(tag)
                         tags[tags.length - 1].push(tag.toLowerCase())
@@ -79,6 +87,7 @@ request.override([URLS.token], "POST", (info) => {
 
                     home_feed.add_feed((11 + counter).toString(), home_feed.create({
                         type: "dynamic_collection",
+                        feed_type: "genre_recommendations",
                         title: "Popular: " + caps[index].join(", "),
                         description: "Based off of your watch history you may like these popular series.",
                         link: "/content/v2/discover/browse?categories=" + tag.join(",") + "&sort_by=popularity&n=20&locale=en-US",
@@ -93,6 +102,7 @@ request.override([URLS.token], "POST", (info) => {
                     home_feed.add_feed((11 + counter).toString(), home_feed.create({
                         type: "dynamic_collection",
                         title: "Newly Added: " + caps[index].join(", "),
+                        feed_type: "genre_recommendations",
                         description: "Based off of your watch history you may like these newly updated series.",
                         link: "/content/v2/discover/browse?categories=" + tag.join(",") + "&sort_by=newly_added&n=20&locale=en-US",
                         position: position,
@@ -127,3 +137,12 @@ request.override([URLS.token], "POST", (info) => {
 function encodeJS(obj){
     return JSON.stringify(obj).replace(/\\/g,'\\\\').replace(/'/g,"\\'")
 }
+
+const shuffleArr = arr => {
+    const newArr = arr.slice()
+    for (let i = newArr.length - 1; i > 0; i--) {
+        const rand = Math.floor(Math.random() * (i + 1));
+        [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
+    }
+    return newArr
+};

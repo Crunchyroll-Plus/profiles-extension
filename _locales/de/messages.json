@@ -8,6 +8,12 @@
     "profile-selection": {
         "message": "Profile"
     },
+    "settings-selection": {
+        "message": "Einstellungen"
+    },
+    "genre-feed-settings": {
+        "message": "Genre Empfehlungen"
+    },
     "who-is-watching": {
         "message": "Wer schaut gerade?"
     },
@@ -58,5 +64,35 @@
     },
     "export-watchlist-button": {
         "message": "Watchliste exportieren"
+    },
+    "text-input-title": {
+        "message": "Titel"
+    },
+    "text-input-amount": {
+        "message": "Menge"
+    },
+    "text-input-position": {
+        "message": "Position"
+    },
+    "dropdown-type": {
+        "message": "Typ"
+    },
+    "dropdown-sort-by": {
+        "message": "Sort By"
+    },
+    "dropdown-seasonal-tags": {
+        "message": "Seasonal Tags"
+    },
+    "create-list-button": {
+        "message": "Erstelle Liste"
+    },
+    "edit-list-button": {
+        "message": "Liste bearbeiten"
+    },
+    "delete-list-button": {
+        "message": "Liste löschen"
+    },
+    "lists-option": {
+        "message": "Listen"
     }
 }
