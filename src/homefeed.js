@@ -25,7 +25,19 @@ const home_feed = {
     add_feed: (id, data) => {
         data.id = data.resource_type + "-" + id;
 
-        if(home_feed.feed.find(item => item.id === data.id) !== undefined) return;
+        let index = -1;
+
+        for(let i in home_feed.feed) {
+            let item = home_feed.feed[i];
+            if(item.id !== data.id) continue;
+            index = i;
+            break;
+        }
+        
+
+        if( index > -1) { 
+            home_feed.feed.splice(index, 1)
+        };
 
         home_feed.feed.push(data);
     },
@@ -125,11 +137,14 @@ var base_browse = "";
 
 createLink = (list) => {
     var url = base_browse + "&n=" + list.amount + "&type=" + list.type;
+
     if(list.sort_type !== undefined){
         url += "&sort_by=" + list.sort_type
     }
-
-    url += "&categories=" + list.genres.join(",")
+    
+    if(list.genres.length > 0) {
+        url += "&categories=" + list.genres.join(",")
+    }
 
     return url;
 }
@@ -163,26 +178,37 @@ request.override([URLS.home_feed], "GET", async (info) => {
                     n: list.amount,
                 }
             }))
+
         })
     }
 
     home_feed.feed.sort((item1, item2) => item1.position - item2.position)
 
     home_feed.feed.reverse()
-
+    let index = 0;
+    let remove = [];
     for(const feed of home_feed.feed) {
 
         switch(feed.feed_type) {
             case "genre_recommendations":
                 if(storage.settings.genreFeed === true) break;
+                index++;
                 continue;
+        }
 
-            default:
-                break;
+        if(feed.feed_type === "custom_list" && lists.items !== undefined && lists.items.find(item => item.id === parseInt(feed.id.replace("dynamic_collection-", ""))) === undefined) {
+            remove.push(index);
+            index++;
+            continue
         }
 
         if(start <= feed.position + 1 && feed.position <= start + size) data.data.splice(((feed.position - start) + 1), 0, feed)
+        index++;
     }
+
+    remove.forEach((index) => {
+        home_feed.feed.splice(index, 1);
+    })
 
     home_feed.feed.reverse()
 

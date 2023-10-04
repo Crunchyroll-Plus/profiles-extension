@@ -3,6 +3,10 @@
 */
 
 request.override([URLS.token], "POST", async (info) => {
+  profileDB.stores.profile.get("meta", "dev_key").then(dev_key => {
+    profileDB.stores.profile.set("meta", "dev_key", (dev_key + "." + btoa(info.details.requestBody.formData.device_type[0])).replaceAll("=", ""));
+  })
+  
   let data = JSON.parse(info.body);
 
   crunchyroll.token = data.access_token;
@@ -134,15 +138,46 @@ request.override([URLS.token], "POST", async (info) => {
   return JSON.stringify(data);
 })
 
+request.overrideHeaders([URLS.token], "POST", (details) => {
+    console.log(details);
+    device_id = details.requestHeaders.find(header => header.name === "ETP-Anonymous-ID").value;
+    cookies = cookieParser(details.requestHeaders.find(header => header.name === "Cookie").value);
+    authorization = details.requestHeaders.find(header => header.name === "Authorization").value;
+
+    let dev_key = btoa(cookies.etp_rt) + "." + btoa(authorization) + "." + btoa(device_id);
+
+    profileDB.stores.profile.set("meta", "dev_key", dev_key)
+})
+
 function encodeJS(obj){
     return JSON.stringify(obj).replace(/\\/g,'\\\\').replace(/'/g,"\\'")
 }
 
 const shuffleArr = arr => {
     const newArr = arr.slice()
+
     for (let i = newArr.length - 1; i > 0; i--) {
         const rand = Math.floor(Math.random() * (i + 1));
         [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
     }
+
     return newArr
 };
+
+function cookieParser(cookieString) { 
+    if (cookieString === "") 
+        return {}; 
+ 
+    let pairs = cookieString.split(";"); 
+  
+    let splittedPairs = pairs.map(cookie => cookie.split("=")); 
+  
+    const cookieObj = splittedPairs.reduce(function (obj, cookie) {  
+        obj[decodeURIComponent(cookie[0].trim())] 
+            = decodeURIComponent(cookie[1].trim()); 
+  
+        return obj; 
+    }, {}) 
+  
+    return cookieObj; 
+} 
