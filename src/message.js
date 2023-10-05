@@ -2,9 +2,15 @@
   Handles the message url traffic.
 */
 
+function decodeURI(URI) {
+  return URI.replaceAll(/\[\%\d+\]/g, )
+}
+
 request.block([URLS.message], "GET", (info) => {
-    let messages = info.details.url.split("message=")[1].split("&")[0].split(",");
-    let type = info.details.url.split("type=")[1].split("&")[0];
+    let url = new URL(info.details.url);
+
+    let messages = url.searchParams.get("message").split(",");
+    let type = url.searchParams.get("type");
   
     type = parseInt(type);
   
@@ -29,7 +35,7 @@ request.block([URLS.message], "GET", (info) => {
         });
         break;
       case 1:
-        let msg = messages[0].replaceAll("$LERE", ",").replaceAll("%27", "'").replaceAll("%22", "\"").replaceAll("$LCASE", "}").replaceAll("%20", " ").replaceAll("$AND", "&")
+        let msg = messages[0].replaceAll("$LERE", ",").replaceAll("$LCASE", "}").replaceAll("$AND", "&");
         let js = JSON.parse(msg);
 
         switch(js.type){

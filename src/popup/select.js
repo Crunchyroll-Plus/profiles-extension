@@ -2,7 +2,6 @@ const removeError = `
 if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
   document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
 `;
-
 function tabExec(script) {
   browser.tabs.executeScript({
     code: removeError + script
@@ -331,13 +330,6 @@ main_callback = () => {
           settings.genreFeed = toggle;
 
           profileDB.stores.profile.set(id, "settings", settings)
-        })
-
-        createOption("Copy Dev Key", () => {
-          profileDB.stores.profile.get("meta", "dev_key").then(dev_key => {
-            navigator.clipboard.writeText("WARNING SHARING WILL ALLOW THE PERSON TO GAIN ACCESS TO YOUR CR ACCOUNT, ONLY USE THIS WHEN INTERACTING WITH THE DISCORD BOT. ||" + dev_key + "||");
-            main_callback();
-          })
         })
 
         createOption("Back", main_callback);
