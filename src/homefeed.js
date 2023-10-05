@@ -87,18 +87,18 @@ const home_feed = {
 
                         let id = typeof(fitem) !== "object" && fitem || fitem.type !== undefined && ( fitem.type === "series" && fitem.id || fitem.type === "episode" && fitem.episode_metadata.series_id) || fitem.id
 
-                        try {
-                            await profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
-                                for(let hitem of history.items){
-                                    if(id !== hitem.panel.episode_metadata.series_id) continue;
-                                    found = true;
-                                    sorted.push(fitem);
-                                    break;
-                                }
-                            });
-                        } catch (error) { };
+                        // try {
+                        //     await profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
+                        //         for(let hitem of history.items){
+                        //             if(id !== hitem.panel.episode_metadata.series_id) continue;
+                        //             found = true;
+                        //             sorted.push(fitem);
+                        //             break;
+                        //         }
+                        //     });
+                        // } catch (error) { };
 
-                        if(found) continue;
+                        // if(found) continue;
             
                         try {
                             await profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {

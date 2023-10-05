@@ -39,8 +39,9 @@ request.override([URLS.token], "POST", async (info) => {
             history.items.reverse();
             let ids = []
             home_feed.feed = []
-
+            
             for(let item of history.items) {
+                if(item.panel === undefined) continue;
                 ids.push(item.panel.episode_metadata.series_id);
             }
 
@@ -53,7 +54,8 @@ request.override([URLS.token], "POST", async (info) => {
                 }
 
                 for(const series of JSON.parse(xml.response).data) {
-                    for(let tag of series.series_metadata.tenant_categories) {
+                    console.log(series)
+                    for(let tag of series.series_metadata.tenant_categories || []) {
                         if(vote[tag] === undefined) vote[tag] = 0
                         vote[tag] += 1
                     }
