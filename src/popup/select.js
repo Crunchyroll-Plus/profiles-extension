@@ -149,6 +149,7 @@ list_panel = (ret, info) => {
     sort_type: "newly_added",
     seasonal_tag: undefined,
     id: getRandomInt(10000),
+    query: undefined,
     genres: []
   } : info
 
@@ -156,6 +157,10 @@ list_panel = (ret, info) => {
   createTextInput(locale.messages.text_input_title, "My New List", (title) => {
     info.title = title;
   }).value = info.title;
+
+  createTextInput("Search", "Query", (query) => {
+    info.query = query;
+  }).value = info.query !== undefined ? info.query : "";
 
   createTextInput(locale.messages.text_input_amount, "5", (amount) => {
     amount = parseInt(amount);

@@ -4,14 +4,44 @@
 
 
 const home_feed = {
+    responseTypes: [
+        "recommendations",
+        "history",
+        "watchlist",
+        "browse",
+        "because_you_watched",
+        "news_feed",
+        "series",
+        "artist",
+        "music_video",
+        "concert",
+        "music_media_mixed",
+        "recent_episodes"
+    ],
+    resourceTypes: [
+        "panel",
+        "continue_watching",
+        "dynamic_collection",
+        "curated_collection",
+        "dynamic_watchlist",
+        "music_videos_collection",
+        "concerts_collection",
+        "artists_collection",
+        "artist",
+        "music_video",
+        "music_concert",
+        "hero_carousel",
+        "games_collection",
+        "in_feed_banner"
+    ],
     create: (data) => {
         switch(data.type) {
             case "dynamic_collection":
                 return {
                     title: data.title,
-                    resource_type: "dynamic_collection",
+                    resource_type: data.type,
                     display_type: data.display_type === undefined ? "shelf" : data.display_type,
-                    response_type: data.feed_type === undefined ? "recommendations" : data.feed_type,
+                    response_type: data.response_type === undefined ? "recommendations" : data.response_type,
                     description: data.description,
                     source_media_id: "",
                     feed_type: data.feed_type,
@@ -138,13 +168,14 @@ var base_browse = "";
 createLink = (list) => {
     var url = base_browse + "&n=" + list.amount + "&type=" + list.type;
 
-    if(list.sort_type !== undefined){
-        url += "&sort_by=" + list.sort_type
-    }
-    
-    if(list.genres.length > 0) {
-        url += "&categories=" + list.genres.join(",")
-    }
+    if(list.sort_type !== undefined)
+        url += "&sort_by=" + list.sort_type;
+
+    if(list.genres.length > 0)
+        url += "&categories=" + list.genres.join(",");
+
+    if(list.query !== undefined)
+        url += "&q=" + list.query;
 
     return url;
 }
@@ -171,6 +202,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
                 type: "dynamic_collection",
                 feed_type: "custom_list",
                 title: list.title,
+                response_type: list.type === "episode" ? "browse" : "custom_list",
                 description: "Your custom list!",
                 position: list.position,
                 link: link,
