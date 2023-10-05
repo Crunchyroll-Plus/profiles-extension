@@ -328,13 +328,20 @@ main_callback = () => {
     profileDB.stores.profile.get("meta", "current").then(id => {
       profileDB.stores.profile.get(id, "settings").then(settings => {
         settings = settings === undefined ? {
-          genreFeed: true
+          genreFeed: true,
+          compactHistory: false
         } : settings
 
         createToggle(locale.messages.genre_feed_settings, settings.genreFeed, (toggle) => {
           settings.genreFeed = toggle;
 
-          profileDB.stores.profile.set(id, "settings", settings)
+          profileDB.stores.profile.set(id, "settings", settings);
+        })
+
+        createToggle("Compact History", settings.compactHistory, (toggle) => {
+          settings.compactHistory = toggle;
+
+          profileDB.stores.profile.set(id, "settings", settings);
         })
 
         createOption("Back", main_callback);

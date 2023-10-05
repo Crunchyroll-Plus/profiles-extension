@@ -2,7 +2,7 @@
 This script handles profile changes.
 */
 
-const OPEN_PAGE_COOLDOWN = 30; // Wait x amount of time before opening the profile page again.
+const OPEN_PAGE_COOLDOWN = 3; // Wait x amount of time before opening the profile page again.
 
 const removeError = `
 if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
@@ -55,13 +55,13 @@ request.override([URLS.profile.get], "GET", async (info) => {
 
       if(profile === undefined) {
         let profile_window = browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
-
+              
         var interval;
 
         profile_window.then((window) => {
           interval = setInterval(() => {
               if((new Date().getTime() / 1000) - last_open < OPEN_PAGE_COOLDOWN) return;
-              
+
               last_open = new Date().getTime() / 1000;
 
               browser.windows.get(window.id).catch(() => {
@@ -71,9 +71,8 @@ request.override([URLS.profile.get], "GET", async (info) => {
           }, 1000);
         });
       }
-      
 
-      base_browse = "/content/v2/discover/browse?locale=" + profile.preferred_communication_language + "&preferred_audio_language=" + profile.preferred_content_audio_language;
+      if(profile !== undefined) base_browse = "/content/v2/discover/browse?locale=" + profile.preferred_communication_language + "&preferred_audio_language=" + profile.preferred_content_audio_language;
       
       return JSON.stringify(profile);
     })

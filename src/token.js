@@ -17,7 +17,8 @@ request.override([URLS.token], "POST", async (info) => {
     storage.settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
 
     storage.settings = storage.settings === undefined ? {
-        genreFeed: true
+        genreFeed: true,
+        compactHistory: false
     } : storage.settings;
 
     if(profile !== undefined) {

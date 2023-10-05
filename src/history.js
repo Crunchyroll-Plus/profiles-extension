@@ -39,8 +39,15 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
 })
 
 request.override([URLS.history.watch_history], "GET", (info) => {
-  return profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
+  return profileDB.stores.history.get(storage.currentUser, "episodes").then(async history => {
     let data = new crunchyArray();
+
+    let settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
+
+    settings = settings === undefined ? {
+      genreFeed: true,
+      compactHistory: false
+    } : settings
 
     if(info.details.url.includes("check")) 
       return info.body;
@@ -51,10 +58,16 @@ request.override([URLS.history.watch_history], "GET", (info) => {
 
     history.items.reverse();
 
+    let used_series = [];
+
     for(let i = 0; i < history.items.length; i++) {
       let hitem = history.items[i];
 
-      if(hitem.panel === undefined) continue;
+      if(hitem.panel === undefined || used_series.find(id => id === hitem.panel.episode_metadata.series_id) !== undefined) continue;
+
+      if(settings.compactHistory === true) {
+        used_series.push(hitem.panel.episode_metadata.series_id);
+      }
 
       data.push({
         playhead: hitem.playhead,
