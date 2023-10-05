@@ -3,6 +3,9 @@
   instead it saves it to your browser.
 */
 
+const MIN_MINUTES_LEFT = 3; // Minimum amount of minutes left of a show.
+const MAX_NEW_DAYS = 7; // Minimum amount of days before an episode is no longer new.
+
 request.override([URLS.history.continue_watching], "GET", (info) => {
   let amount = parseInt(info.details.url.split("n=")[1].split("&")[0]);
 
@@ -17,22 +20,35 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
 
     var found = []
 
-    for(let i = 0; i < history.items.length; i++) {
+    for(const hitem of history.items) {
       if(data.result.data.length >= amount) break;
-      var hitem = history.items[i];
       
-      if(hitem.panel === undefined || found.indexOf(hitem.panel.episode_metadata.series_id) !== -1)
+      if(hitem.panel === undefined || hitem.playhead >= hitem.panel.episode_metadata.duration_ms / 1000)
         continue
-      
-      found.push(hitem.panel.episode_metadata.series_id)
+
+      const episode_metadata = hitem.panel.episode_metadata;
+
+      if(((episode_metadata.duration_ms / 1000) - hitem.playhead) / 60 < MIN_MINUTES_LEFT) {
+        hitem.playhead = episode_metadata.duration_ms / 1000;
+        continue;
+      };
+
+      if(found.indexOf(episode_metadata.series_id) !== -1)
+        continue;
+
+      found.push(episode_metadata.series_id)
 
       data.push({
         playhead: hitem.playhead,
-        fully_watched: hitem.panel.episode_metadata.duration_ms / 1000 <= hitem.playhead,
+        fully_watched: false, // Fully watched show get purged so this is going to always be false.
         new: false,
         panel: hitem.panel
       })
     }
+
+    history.items.reverse();
+    
+    profileDB.stores.history.set(storage.currentUser, "episodes", history);
     
     return data.stringify();
   });
@@ -60,8 +76,7 @@ request.override([URLS.history.watch_history], "GET", (info) => {
 
     let used_series = [];
 
-    for(let i = 0; i < history.items.length; i++) {
-      let hitem = history.items[i];
+    for(const hitem of history.items) {
 
       if(hitem.panel === undefined || used_series.find(id => id === hitem.panel.episode_metadata.series_id) !== undefined) continue;
 
@@ -104,7 +119,7 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
           break;
       
       if(item.panel.id == postJS.content_id) {
-        history.items.pop(i);
+        history.items.splice(i, 1);
 
         postJS.panel = item.panel;
 
@@ -158,7 +173,7 @@ request.override([URLS.history.playheads], "GET", (info) => {
 
     let result = new crunchyArray();
 
-    for(let item of history.items) {
+    for(const item of history.items) {
       if(item.panel === undefined || ids.indexOf(item.panel.id) === -1) continue;
 
       result.push({

@@ -79,8 +79,46 @@ request.override([URLS.profile.get], "GET", async (info) => {
   });
 })
 
-request.override([URLS.locale], "GET", (info) => {
-  crunchyroll.locale = JSON.parse(info.body);
+request.override([URLS.me], "GET", (info) => {
+  let user_data = JSON.parse(info.body);
+
+  browser.storage.local.set({user_data: user_data})
+
+  user_data.created = new Date(user_data.created);
+
+  crunchyroll.user = user_data;
+
+  return JSON.stringify(user_data);
+})
+
+request.override([URLS.benefits], "GET", (info) => {
+  let data = JSON.parse(info.body).items;
+
+  data.forEach(item => {
+    if(item.__class__ !== "benefit") return;
+
+
+    if(item.benefit.indexOf(".") !== -1) {
+      const name = item.benefit.split(".")[0].replace("cr_", "");
+      var value = item.benefit.split(".")[1];
+
+      try { value = parseInt(value); } catch { };
+
+      crunchyroll.benefits[name] = value;
+      return;
+    }
+
+
+    crunchyroll.benefits[item.benefit.replace("cr_", "")] = true;
+
+    browser.storage.local.set({benefits: crunchyroll.benefits});
+  });
 
   return info.body;
 })
+
+// request.override([URLS.locale], "GET", (info) => {
+//   crunchyroll.locale = JSON.parse(info.body);
+
+//   return info.body;
+// })

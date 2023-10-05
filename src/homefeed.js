@@ -127,6 +127,8 @@ const home_feed = {
 
 var byu_counter = 0;
 
+const used_urls = [];
+
 const resource_callbacks = {
     hero_carousel: async (item) => {
         item.items = await home_feed.sort("hero_carousel", item.items)
@@ -152,6 +154,9 @@ const resource_callbacks = {
                     }
                 }
         }
+
+        if(used_urls.indexOf(item.link) !== -1) return;
+        used_urls.push(item.link)
 
         request.override(["https://www.crunchyroll.com" + item.link + "*"], "GET", async (info) => {
             let json = JSON.parse(info.body);

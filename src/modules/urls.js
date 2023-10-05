@@ -2,12 +2,14 @@ const URLS = {
     token: "https://www.crunchyroll.com/auth/v1/token",
     message: "https://www.crunchyroll.com/fake/message*", // used for sending messages between tab and background scripts.
     home_feed: "https://www.crunchyroll.com/content/v2/discover/*/home_feed*",
+    benefits: "https://www.crunchyroll.com/subs/v1/subscriptions/*/benefits",
     manga: {
         long: "https://www.crunchyroll.com/content/v3/*/manga?",
         short: "",
     },
     browse: "https://www.crunchyroll.com/content/v2/discover/browse",
     categories: "https://www.crunchyroll.com/content/v2/discover/categories?locale=*",
+    me: "https://www.crunchyroll.com/accounts/v1/me",
     locale: "https://static.crunchyroll.com/i18n/cxweb/*.json",
     settings: {
         prefences: "https://www.crunchyroll.com/account/preferences"

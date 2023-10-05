@@ -2,10 +2,6 @@
   Handles the message url traffic.
 */
 
-function decodeURI(URI) {
-  return URI.replaceAll(/\[\%\d+\]/g, )
-}
-
 request.block([URLS.message], "GET", (info) => {
     let url = new URL(info.details.url);
 

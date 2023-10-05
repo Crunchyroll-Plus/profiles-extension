@@ -12,7 +12,7 @@ request.override([URLS.watchlist.get], "GET", (info) => {
   
       let result = new crunchyArray();
   
-      for(let item of watchlist.items) {
+      for(const item of watchlist.items) {
         if(ids.indexOf(item.panel.id) === -1) continue;
   
         result.push({
@@ -42,10 +42,10 @@ request.block([URLS.watchlist.save], "POST", (info) => {
                 info.body.panel = data.panel;
                 info.body.playhead = data.playhead;
                 info.body.never_watched = data.never_watched;
-                info.body.fully_watched = data.fully_watched
+                info.body.fully_watched = data.fully_watched;
                 info.body.is_favorite = false;
 
-                watchlist.items.push(info.body)
+                watchlist.items.push(info.body);
                 profileDB.stores.watchlist.set(storage.currentUser, "watchlist", watchlist);
             })
 
@@ -101,11 +101,8 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
 
         watchlist.items.reverse();
 
-
-        for(let i = 0; i < watchlist.items.length; i++) {
+        for(const item of watchlist.items) {
             if(data.result.data.length >= amount) break;
-
-            let item = watchlist.items[i];
 
             data.push({
                 playhead: item.playhead,
@@ -163,9 +160,7 @@ request.override([URLS.watchlist.history], "GET", async (info) => {
 
         watchlist.items.reverse();
 
-        for(let i = 0; i < watchlist.items.length; i++) {
-            let item = watchlist.items[i];
-
+        for(const item of watchlist.items) {
             data.push({
                 playhead: item.playhead,
                 fully_watched: item.fully_watched,

@@ -70,6 +70,7 @@ class crunchyArray {
 const crunchyroll = {
     token: "",
     locale: {},
+    benefits: {},
     categories: [
         "drama",
         "comedy",
@@ -125,4 +126,16 @@ const crunchyroll = {
 
 browser.storage.local.get("access").then(item => {
     crunchyroll.token = item.access;
+})
+
+browser.storage.local.get("benefits").then(item => {
+    crunchyroll.benefits = item.benefits || {};
+})
+
+browser.storage.local.get("user_data").then(item => {
+    const user_data = item.user_data || {};
+
+    user_data.created = new Date(user_data.created);
+
+    crunchyroll.user = user_data;
 })
