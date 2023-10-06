@@ -3,6 +3,7 @@ const URLS = {
     message: "https://www.crunchyroll.com/fake/message*", // used for sending messages between tab and background scripts.
     home_feed: "https://www.crunchyroll.com/content/v2/discover/*/home_feed*",
     benefits: "https://www.crunchyroll.com/subs/v1/subscriptions/*/benefits",
+    episode: "https://www.crunchyroll.com/content/v2/cms/objects/*?ratings=*&locale=*",
     manga: {
         long: "https://www.crunchyroll.com/content/v3/*/manga?",
         short: "",

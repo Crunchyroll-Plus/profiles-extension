@@ -4,10 +4,10 @@
 */
 
 const MIN_MINUTES_LEFT = 3; // Minimum amount of minutes left of a show.
-const MAX_NEW_DAYS = 7; // Minimum amount of days before an episode is no longer new.
 
 request.override([URLS.history.continue_watching], "GET", (info) => {
-  let amount = parseInt(info.details.url.split("n=")[1].split("&")[0]);
+  let url = new URL(info.details.url);
+  let amount = parseInt(url.searchParams.get("n"));
 
   return profileDB.stores.history.get(storage.currentUser, "episodes").then((history) => {
     let data = new crunchyArray();
@@ -21,7 +21,7 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
     var found = []
 
     for(const hitem of history.items) {
-      if(data.result.data.length >= amount) break;
+      if([...data].length >= amount) break;
       
       if(hitem.panel === undefined || hitem.playhead >= hitem.panel.episode_metadata.duration_ms / 1000)
         continue
@@ -50,7 +50,7 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
     
     profileDB.stores.history.set(storage.currentUser, "episodes", history);
     
-    return data.stringify();
+    return data.toString();
   });
 })
 
@@ -69,7 +69,7 @@ request.override([URLS.history.watch_history], "GET", (info) => {
       return info.body;
     
     if(history === undefined || history.items === undefined){
-      return data.stringify();
+      return data.toString();
     }
 
     history.items.reverse();
@@ -98,7 +98,7 @@ request.override([URLS.history.watch_history], "GET", (info) => {
 
     tabExec("");
 
-    return data.stringify();
+    return data.toString();
   })
 })
 
@@ -106,17 +106,13 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
   profileDB.stores.history.get(storage.currentUser, "episodes").then((history) => {
     let postJS = info.body;
 
-    if(history === undefined || history.items === undefined){
-      history = {items: []};
-    }
-
     let found = false;
     
     for(let i = 0; i < history.items.length; i++) {
       let item = history.items[i];
 
       if(item.panel === undefined || item.panel === null)
-          break;
+          continue;
       
       if(item.panel.id == postJS.content_id) {
         history.items.splice(i, 1);
@@ -133,12 +129,8 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
 
     if(found === true) return; 
 
-
-    crunchyroll.send({
-      url: "https://www.crunchyroll.com/content/v2/cms/objects/" + postJS.content_id + "?ratings=true&locale="+getLocale(),
-      method: "GET"
-    }, (xml) => {
-      postJS.panel = JSON.parse(xml.responseText).data[0];
+    crunchyroll.content.getObjects(postJS.content_id).then((data) => {
+      postJS.panel = [...data][0];
 
       history.items.push(postJS);
 
@@ -184,7 +176,7 @@ request.override([URLS.history.playheads], "GET", (info) => {
       })
     }
 
-    return result.stringify();
+    return result.toString();
   })
 })
 

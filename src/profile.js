@@ -73,7 +73,7 @@ request.override([URLS.profile.get], "GET", async (info) => {
       }
 
       if(profile !== undefined) base_browse = "/content/v2/discover/browse?locale=" + profile.preferred_communication_language + "&preferred_audio_language=" + profile.preferred_content_audio_language;
-      
+
       return JSON.stringify(profile);
     })
   });

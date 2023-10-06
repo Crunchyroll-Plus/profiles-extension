@@ -22,7 +22,7 @@ request.override([URLS.watchlist.get], "GET", (info) => {
         })
       }
  
-      return result.stringify();
+      return result.toString();
     })
   })
 
@@ -97,12 +97,12 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
         let data = new crunchyArray();
 
         if(watchlist === undefined)
-            return data.stringify();
+            return data.toString();
 
         watchlist.items.reverse();
 
         for(const item of watchlist.items) {
-            if(data.result.data.length >= amount) break;
+            if([...data].length >= amount) break;
 
             data.push({
                 playhead: item.playhead,
@@ -114,7 +114,7 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
             })
         }
 
-        return data.stringify();
+        return data.toString();
     })
 })
 
@@ -156,7 +156,7 @@ request.override([URLS.watchlist.history], "GET", async (info) => {
             return info.body;
 
         if(watchlist === undefined)
-            return data.stringify();
+            return data.toString();
 
         watchlist.items.reverse();
 
@@ -171,6 +171,6 @@ request.override([URLS.watchlist.history], "GET", async (info) => {
             })
         }
         
-        return data.stringify();
+        return data.toString();
     })
 })

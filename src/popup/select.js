@@ -96,6 +96,31 @@ function createDropdown(name, options, callback) {
   return dropdown
 }
 
+function createSeriesSelect(callback) {
+  var query = "";
+
+  createTextInput("Search", "Show title", (search) => {
+    query = search;
+  });
+
+  profileDB.stores.profile.get("meta", "current").then(id => {
+    profileDB.stores.profile.get(id, "profile").then(profile => {
+      browser.storage.local.get("access").then(item => {
+        crunchyroll.token = item.access;
+        
+        crunchyroll.send({
+          method: "GET",
+          url: "https://www.crunchyroll.com/content/v2/discover/browse?type=series&q=" + encodeURIComponent(query) + "&locale=" + profile.preferred_communication_language + "&preferred_audio_language=" + profile.preferred_content_audio_language
+        }, (xml) => {
+          let data = JSON.parse(xml.response);
+
+          console.log(data);
+        });
+      });
+    });
+  });
+}
+
 function createToggle(name, value, callback) {
   var div = document.createElement("div");
   var body = document.createElement("label");
@@ -135,24 +160,53 @@ function createToggle(name, value, callback) {
   return checkbox
 }
 
-list_panel = (ret, info) => {
+curated_collection_panel = (ret, info) => {
   ul.innerHTML = "";
   document.body.style.width = "300px";
 
   og_info = info;
 
   info = info === undefined ? {
+    list_type: "curated_collection",
+    title: "",
+    description: "",
+    position: 5,
+    id: getRandomInt(10000000),
+    ids: []
+  } : info;
+
+  createTextInput(locale.messages.text_input_title, "My New List", (title) => {
+    info.title = title;
+  }).value = info.title;
+
+  createTextInput("Description", "", (description) => {
+    info.description = description;
+  }).value = info.description !== undefined ? info.description : "";
+
+  createTextInput(locale.messages.text_input_position, "5", (position) => {
+    position = parseInt(position);
+    info.position = position;
+  }).value = info.position.toString();
+}
+
+dynamic_collection_panel = (ret, info) => {
+  ul.innerHTML = "";
+  document.body.style.width = "300px";
+
+  og_info = info;
+
+  info = info === undefined ? {
+    list_type: "dynamic_collection",
     title: "",
     amount: 20,
     position: 5,
     type: "series",
     sort_type: "newly_added",
     seasonal_tag: undefined,
-    id: getRandomInt(10000),
+    id: getRandomInt(10000000),
     query: undefined,
     genres: []
   } : info
-
 
   createTextInput(locale.messages.text_input_title, "My New List", (title) => {
     info.title = title;
@@ -190,8 +244,9 @@ list_panel = (ret, info) => {
             names.push(tag.localization.title)
             ids[tag.localization.title] = tag.id;
           }
+
           createDropdown(locale.messages.dropdown_type, ["Episode", "Series"], (type) => {
-            type = type.toLowerCase();
+            type = type.toLowerCase().replaceAll(" ", "_");
             info.type = type;
           })
         
@@ -276,7 +331,10 @@ main_callback = () => {
     createOption(locale.messages.create_list_button, () => {
       ul.innerHTML = "";
 
-      list_panel(lists_callback);
+      createOption("Dynamic Collection", () => {
+        ul.innerHTML = "";
+        dynamic_collection_panel(lists_callback);
+      })
     })
 
     createOption(locale.messages.edit_list_button, () => {
@@ -285,7 +343,12 @@ main_callback = () => {
         profileDB.stores.profile.get(id, "lists").then(lists => {
           for(let list of lists.items) {
             createOption(list.title, () => {
-              list_panel(lists_callback, list);
+              switch(list.list_type) {
+                case "dynamic_collection":
+                default:
+                  dynamic_collection_panel(lists_callback, list);
+                  break;
+              }
             })
           }
 

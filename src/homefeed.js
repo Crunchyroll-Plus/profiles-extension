@@ -197,24 +197,138 @@ request.override([URLS.home_feed], "GET", async (info) => {
     let start = parseInt(info.details.url.split("start=")[1].split("&")[0]);
     let size = parseInt(info.details.url.split("n=")[1].split("&")[0]);
 
+    if(start === 0) {
+        profileDB.stores.history.get(storage.currentUser, "episodes").then(async history => {
+            profile = await profileDB.stores.profile.get(storage.currentUser, "profile");
+            storage.settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
+    
+            storage.settings = storage.settings === undefined ? {
+                genreFeed: true,
+                compactHistory: false
+            } : storage.settings;
+    
+            if(history.items !== undefined && storage.settings.genreFeed === true) {
+                history.items.reverse();
+                let ids = []
+                home_feed.feed = []
+                
+                for(let item of history.items) {
+                    if(item.panel === undefined) continue;
+                    ids.push(item.panel.episode_metadata.series_id);
+                }
+    
+                crunchyroll.send({
+                    method: "GET",
+                    url: "https://www.crunchyroll.com/content/v2/cms/objects/" + ids.join(",") + "?ratings=true&preferred_audio_language=" + profile.preferred_content_audio_language + "&locale=" + profile.preferred_communication_language
+                }, (xml) => {
+                    let vote = { };
+    
+                    for(const series of JSON.parse(xml.response).data) {
+                        for(let tag of series.series_metadata.tenant_categories || []) {
+                            if(vote[tag] === undefined) vote[tag] = 0
+                            vote[tag] += 1
+                        }
+                    }
+    
+                    let tags = [
+                        []
+                    ];
+    
+                    let caps = [
+                        []
+                    ];
+    
+    
+                    for(const [tag, count] of shuffleArr(Object.entries(vote))) {
+                        if(count >= 2) {
+                            caps[caps.length - 1].push(tag)
+                            tags[tags.length - 1].push(tag.toLowerCase())
+                        }
+    
+                        if(tags[tags.length - 1].length === 2) {
+                            tags.push([])
+                            caps.push([])
+                        };
+                    }
+    
+                    let counter = 0;
+                    let index = 0;
+    
+                    for(let tag of tags) {
+                        if(tag.length === 0) continue;
+
+                        let position = 5 + index;
+
+                        const rng = getRandomInt(100)
+
+                        if(rng % 2 === 0) {
+                            home_feed.add_feed((11 + index).toString(), home_feed.create({
+                                type: "dynamic_collection",
+                                feed_type: "genre_recommendations",
+                                response_type: "genre_recommendations",
+                                title: "Popular: " + caps[index].join(", "),
+                                description: "Based off of your watch history you may like these popular series.",
+                                link: "/content/v2/discover/browse?categories=" + tag.join(",") + "&sort_by=popularity&n=20&locale=en-US",
+                                position: position,
+                                query_params: {
+                                    n: 20
+                                }
+                            }))
+                        } else {
+                            home_feed.add_feed((11 + index).toString(), home_feed.create({
+                                type: "dynamic_collection",
+                                title: "Newly Added: " + caps[index].join(", "),
+                                feed_type: "genre_recommendations",
+                                response_type: "genre_recommendations",
+                                description: "Based off of your watch history you may like these newly updated series.",
+                                link: "/content/v2/discover/browse?categories=" + tag.join(",") + "&sort_by=newly_added&n=20&locale=en-US",
+                                position: position,
+                                query_params: {
+                                    n: 20
+                                }
+                            }))
+                        }
+    
+                        index++;
+                    }
+                })
+             }
+          })
+    }
+
     let lists = await profileDB.stores.profile.get(storage.currentUser, "lists");
     
     if(lists !== undefined && lists.items !== undefined) {
         lists.items.forEach(list => {
             link = createLink(list)
-
-            home_feed.add_feed(list.id.toString(), home_feed.create({
-                type: "dynamic_collection",
-                feed_type: "custom_list",
-                title: list.title,
-                response_type: list.type === "episode" ? "browse" : "custom_list",
-                description: "Your custom list!",
-                position: list.position,
-                link: link,
-                query_params: {
-                    n: list.amount,
-                }
-            }))
+            switch(list.list_type) {
+                case "curated_collection":
+                    home_feed.add_feed(list.id.toString(), home_feed.create({
+                        type: list.list_type,
+                        feed_type: "custom_list",
+                        title: list.title,
+                        response_type: "custom_list-" + list.id.toString(),
+                        description: list.description || "",
+                        position: list.position,
+                        ids: list.ids 
+                    }))
+                    break;
+                case "dynamic_collection":
+                default:
+                    home_feed.add_feed(list.id.toString(), home_feed.create({
+                        type: "dynamic_collection",
+                        feed_type: "custom_list",
+                        title: list.title,
+                        response_type: "custom_list-" + list.id.toString(),
+                        description: "Your custom list!",
+                        position: list.position,
+                        link: link,
+                        query_params: {
+                            n: list.amount,
+                        }
+                    }))
+                    break;
+            }
 
         })
     }
@@ -259,3 +373,19 @@ request.override([URLS.home_feed], "GET", async (info) => {
 
     return JSON.stringify(data);
 })
+
+const shuffleArr = arr => {
+    const newArr = arr.slice()
+
+    for (let i = newArr.length - 1; i > 0; i--) {
+        const rand = Math.floor(Math.random() * (i + 1));
+        [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
+    }
+
+    return newArr
+};
+
+function getRandomInt(max) {
+    return Math.floor(Math.random() * max);
+  }
+  
