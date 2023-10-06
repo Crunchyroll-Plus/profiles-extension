@@ -16,6 +16,7 @@ const URLS = {
         prefences: "https://www.crunchyroll.com/account/preferences"
     },
     assets: {
+        fms: "https://static.crunchyroll.com/fms/*",
         avatar: "https://www.crunchyroll.com/assets/v2/*/avatar"
     },
     profile: {

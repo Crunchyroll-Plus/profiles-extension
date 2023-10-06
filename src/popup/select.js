@@ -28,11 +28,10 @@ function createOption(name, callback) {
     ul.appendChild(li);
 }
 
-function createTextInput(name, placeholder, callback) {
+function createTextInput(name, placeholder) {
   var div = document.createElement("div");
   var label = document.createElement("label");
   var input = document.createElement("input");
-  var submit = document.createElement("input");
 
   label.for = name;
   label.innerText = name + ": ";
@@ -43,17 +42,10 @@ function createTextInput(name, placeholder, callback) {
   input.style.width = "120px";
   input.placeholder = placeholder;
 
-  submit.type = "button";
-  submit.onclick = () => {
-    callback(input.value);
-  };
-  submit.value = "Set"
-  submit.classList.add("set-button");
 
   div.appendChild(label);
   div.appendChild(input);
-  div.appendChild(submit);
-
+  
   div.style.marginLeft = "30px";
 
   ul.appendChild(div);
@@ -208,23 +200,28 @@ dynamic_collection_panel = (ret, info) => {
     genres: []
   } : info
 
-  createTextInput(locale.messages.text_input_title, "My New List", (title) => {
+  const titleInput = createTextInput(locale.messages.text_input_title, "My New List", (title) => {
     info.title = title;
-  }).value = info.title;
+  });
 
-  createTextInput("Search", "Query", (query) => {
+  const searchInput = createTextInput("Search", "Query", (query) => {
     info.query = query;
-  }).value = info.query !== undefined ? info.query : "";
-
-  createTextInput(locale.messages.text_input_amount, "5", (amount) => {
+  });
+  
+  const amountInput = createTextInput(locale.messages.text_input_amount, "5", (amount) => {
     amount = parseInt(amount);
     info.amount = amount;
-  }).value = info.amount.toString();
+  });
 
-  createTextInput(locale.messages.text_input_position, "5", (position) => {
+  const positionInput = createTextInput(locale.messages.text_input_position, "5", (position) => {
     position = parseInt(position);
     info.position = position;
-  }).value = info.position.toString();
+  });
+
+  titleInput.value = info.title;
+  searchInput.value = info.query !== undefined ? info.query : ""
+  amountInput.value = info.amount.toString();
+  positionInput.value = info.position.toString();
 
   profileDB.stores.profile.get("meta", "current").then(id => {
     profileDB.stores.profile.get(id, "profile").then(profile => {
@@ -278,6 +275,11 @@ dynamic_collection_panel = (ret, info) => {
           }
 
           createOption(locale.messages.done_button, () => {
+            info.title = titleInput.value;
+            info.query = searchInput.value;
+            info.amount = parseInt(amountInput.value);
+            info.position = parseInt(positionInput.value)
+
             if(og_info === undefined) {
               profileDB.stores.profile.get(id, "lists").then(lists => {
                 lists = lists === undefined ? {

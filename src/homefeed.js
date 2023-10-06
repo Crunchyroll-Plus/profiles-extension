@@ -3,6 +3,8 @@
 */
 
 
+const DISCORD_INVITE = "https://discord.com/invite/9YV8rH2ntz";
+
 const home_feed = {
     responseTypes: [
         "recommendations",
@@ -132,6 +134,22 @@ const used_urls = [];
 const resource_callbacks = {
     hero_carousel: async (item) => {
         item.items = await home_feed.sort("hero_carousel", item.items)
+
+        item.items.splice(0, 0, {
+            id: getRandomInt(10000),
+            title: "If you run into any bugs make sure to open a ticket.",
+            slug: "discord",
+            button_text: "JOIN",
+            images: {
+                landscape_large: "FS_ICON_TOP.png",
+                portrait_large: "FS_PORTAIT_TOP.png",
+                logo: "FS_JOIN_TEXT.png"
+            },
+            third_party_impression_tracker: "",
+            link: DISCORD_INVITE
+        })
+
+        console.log(item.items)
     },
     curated_collection: async (item) => {
         item.ids = await home_feed.sort("curated_collection", item.ids)
@@ -207,7 +225,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
                 compactHistory: false
             } : storage.settings;
     
-            if(history.items !== undefined && storage.settings.genreFeed === true) {
+            if(history !== undefined && history.items !== undefined && storage.settings.genreFeed === true) {
                 history.items.reverse();
                 let ids = []
                 home_feed.feed = []

@@ -81,8 +81,9 @@ class crunchyArray {
             this.result.total--;
             this.result.meta.total_before_filter--;
 
-            this.result.data.pop(index);
+            this.result.data.splice(index, 1);
         }
+
 
         this.set = (key, value) => {
             this.meta[key] = value;
