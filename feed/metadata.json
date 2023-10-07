@@ -3,6 +3,7 @@
     "description": "Crunchyroll Profile's official feed list.",
     "link": "/feed",
     "available_feeds": [
-        "hero_carousel"
+        "hero_carousel",
+        "dynamic_collection"
     ]
 }
