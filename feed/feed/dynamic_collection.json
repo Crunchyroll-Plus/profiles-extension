@@ -5,7 +5,6 @@
             "title": "Just Updated On Crunchyroll",
             "description": "",
             "position": 1,
-            "replace": true,
             "id": "dynamic_collection-99990000000",
             "response_type": "browse",
             "display_type": "shelf",
