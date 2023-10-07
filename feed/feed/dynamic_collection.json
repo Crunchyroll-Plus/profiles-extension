@@ -5,10 +5,11 @@
             "title": "Recommendations Test",
             "description": "",
             "position": 1,
+            "replace": true,
             "id": "dynamic_collection-99990000000",
             "response_type": "recommendations",
             "display_type": "shelf",
-            "link": "/content/v2/discover/{user_id}/recommendations?locale=en-US&n=20"
+            "link": "/content/v2/discover/{user_id}/recommendations?locale=en-US&n=20&newly_added="
         }
     ]
 }
