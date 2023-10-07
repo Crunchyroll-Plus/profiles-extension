@@ -2,6 +2,8 @@
 This script handles profile changes.
 */
 
+const OPEN_PAGE_COOLDOWN = 3; // Wait x amount of time before opening the profile page again.
+
 const removeError = `
 if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
   document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
@@ -14,16 +16,18 @@ function tabExec(script) {
 }
 
 request.block([URLS.profile.get], "PATCH", (info) => {
-  storage.get(storage.currentUser, "profile", (profile) => {
-    let data = info.body;
+  const data = info.body;
 
+  console.log(data, storage.currentUser)
+  profileDB.stores.profile.get(storage.currentUser, "profile").then(profile => {
+    console.log(profile)
     for(let key of Object.keys(data)){
       profile[key] = data[key];
     }
 
-    storage.set(storage.currentUser, "profile", profile);
-    tabExec("window.location.reload();");
+    profileDB.stores.profile.set(storage.currentUser, "profile", profile);
   })
+  tabExec("window.location.reload();");
 })
 
 request.block([URLS.profile.new_profile], "PATCH", (info) => {
@@ -39,33 +43,73 @@ request.block([URLS.profile.new_profile], "PATCH", (info) => {
   `)
 })
 
+var last_open = 0;
+
 request.override([URLS.profile.get], "GET", async (info) => {
-  console.log(info.details)
-  if(info.details.originUrl === "https://www.crunchyroll.com/profile/activation") return "" // Enables the use of this page even with a profile.
 
-  return storage.getUsers((profiles) => {    
-    storage.currentUser = profiles.current
-
-    return storage.get(storage.currentUser, "profile", (profile) => {
+  if(info.details.originUrl === URLS.profile.activation)
+    return "";
+  
+  return profileDB.stores.profile.get("meta", "current").then(id => {
+    storage.currentUser = id;
+    return profileDB.stores.profile.get(id, "profile").then(profile => {
       browser.storage.local.set({original_profile: info.body});
 
       if(profile === undefined) {
-        // TODO: Finish "Who is watching?" page.
-        let profile_window = browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
+        tabExec(`
+          window.location.href = "https://www.crunchyroll.com/profile/activation"
+        `)
 
-        var interval;
+        return "";
+      };
 
-        profile_window.then((window) => {
-          interval = setInterval(() => {
-              browser.windows.get(window.id).catch(() => {
-                clearInterval(interval);
-                tabExec("window.location.reload();");
-              });
-          }, 500);
-        });
-      }
-      
+      if(profile !== undefined) base_browse = "/content/v2/discover/browse?locale=" + profile.preferred_communication_language + "&preferred_audio_language=" + profile.preferred_content_audio_language;
+
       return JSON.stringify(profile);
     })
-  })
+  });
 })
+
+request.override([URLS.me], "GET", (info) => {
+  let user_data = JSON.parse(info.body);
+
+  browser.storage.local.set({user_data: user_data})
+
+  user_data.created = new Date(user_data.created);
+
+  crunchyroll.user = user_data;
+
+  return JSON.stringify(user_data);
+})
+
+request.override([URLS.benefits], "GET", (info) => {
+  let data = JSON.parse(info.body).items;
+
+  data.forEach(item => {
+    if(item.__class__ !== "benefit") return;
+
+
+    if(item.benefit.indexOf(".") !== -1) {
+      const name = item.benefit.split(".")[0].replace("cr_", "");
+      var value = item.benefit.split(".")[1];
+
+      try { value = parseInt(value); } catch { };
+
+      crunchyroll.benefits[name] = value;
+      return;
+    }
+
+
+    crunchyroll.benefits[item.benefit.replace("cr_", "")] = true;
+
+    browser.storage.local.set({benefits: crunchyroll.benefits});
+  });
+
+  return info.body;
+})
+
+// request.override([URLS.locale], "GET", (info) => {
+//   crunchyroll.locale = JSON.parse(info.body);
+
+//   return info.body;
+// })

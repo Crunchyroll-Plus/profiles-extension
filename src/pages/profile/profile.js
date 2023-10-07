@@ -10,12 +10,15 @@ if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
   document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
 `;
 
-function tabExec(script) {
-  browser.tabs.executeScript({
-    code: removeError + script
-  });
-}
+const add_text = document.querySelector('.add-btn-text');
+const done_text = document.querySelector('.done-btn-text');
+const remove_text = document.querySelector('.remove-btn-text');
+const who_is_watching = document.querySelector('.browse-title');
 
+add_text.innerText = locale.messages.add_button;
+done_text.innerText = locale.messages.done_button;
+remove_text.innerText = locale.messages.remove_button;
+who_is_watching.innerText = locale.messages.who_is_watching;
 
 function addProfile(profile, i) {
     if(profile === undefined) return;
@@ -37,25 +40,18 @@ function addProfile(profile, i) {
     gitem.appendChild(span);
 
     gitem.addEventListener('click', (e) => {
-        storage.getUsers((profiles) => {
-            profiles.current = i;
+        profileDB.stores.profile.set("meta", "current", i);
+        storage.currentUser = i;
 
-            if(profiles.others !== [] && profiles.others[i] === undefined) {
-                 profiles.others.push(profiles.current);
-                 storage.set(profiles.current, "profile", new crunchyProfile());
+        for(let profile of profile_elms) {
+            if(profile.classList.contains('active')){
+                profile.classList.remove('active');
+                profile.classList.add('hover-item');
             }
+        }
 
-
-            storage.currentUser = profiles.current;
-            for(let profile of profile_elms) {
-                if(profile.classList.contains('active')){
-                    profile.classList.remove('active');
-                    profile.classList.add('hover-item');
-                }
-            }
-            img.classList.remove('hover-item');
-            img.classList.add('active');
-        })
+        img.classList.remove('hover-item');
+        img.classList.add('active');
     })
 
     grid.appendChild(gitem);
@@ -63,59 +59,31 @@ function addProfile(profile, i) {
     profile_elms.push(img);
 }
 
-storage.getUsers((profiles) => {
-    for(let idx of profiles.others) {
-        storage.get(idx, "profile", (profile) => {
-            addProfile(profile, idx);   
-        })
-    }
-})
+var main_interval;
+
+main_interval = setInterval(() => {
+    if(profileDB.stores.profile === undefined) return;
+    profileDB.stores.profile.forEach((key, data) => {
+        addProfile(data.profile, key)
+    });
+    clearInterval(main_interval);
+}, 500)
 
 addBtn.addEventListener('click', (e) => {
     window.location.href = "https://www.crunchyroll.com/profile/activation"
 });
 
 doneBtn.addEventListener('click', (e) => {
-    window.close();
+    browser.tabs.getCurrent().then((tab) => {
+        if(tab.index === 0)
+            window.close();
+        window.location.href = "https://www.crunchyroll.com/";
+    })
 });
 
 removeBtn.addEventListener('click', (e) => {
-    storage.getUsers((profiles) => {
-
-        if(profiles.current < profiles.others.length - 1) {
-            for(let i = profiles.current + 1; i < profiles.others.length; i++){
-                storage.get(i, "history", (history) => {
-                    console.log("MOVE HISTORY", i, i-1)
-                    storage.set(i - 1, "history", history);
-                    storage.set(i, "history", undefined);
-                });
-
-                storage.get(i, "watchlist", (watchlist) => {
-                    console.log("MOVE WATCHLIST", i, i-1)
-                    storage.set(i - 1, "watchlist", watchlist);
-                    storage.set(i, "watchlist", undefined);
-                });
-
-                storage.get(i, "profile", (profile) => {
-                    console.log("MOVE PROFILE", i, i-1)
-                    storage.set(i - 1, "profile", profile);
-                    storage.set(i, "profile", undefined);
-                });
-
-                profiles.others[i - 1] = i - 1;
-            }
-            profiles.others.pop(profiles.others.length - 1);
-        } else
-            profiles.others.pop(profiles.current);
-
-        storage.set(profiles.current, "history", undefined)
-        storage.set(profiles.current, "watchlist", undefined)
-        storage.set(profiles.current, "profile", undefined)
-
-        if(profiles.current === profiles.others.length)
-            profiles.current--;
-        else if(profiles.current > profiles.others.length)
-            profiles.current = 0;
-    });
+    profileDB.stores.profile.delete(storage.currentUser);
+    profileDB.stores.history.delete(storage.currentUser);
+    profileDB.stores.watchlist.delete(storage.currentUser);
     window.location.reload();
 });
