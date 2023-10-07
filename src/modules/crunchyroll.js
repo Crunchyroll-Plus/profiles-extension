@@ -168,8 +168,6 @@ const crunchyroll = {
 
                 const url = crunchyroll.content.URIs.base + crunchyroll.content.URIs[type] + link + queryString 
 
-                console.log(url)
-
                 crunchyroll.send({
                     url: url,
                     method: "GET"

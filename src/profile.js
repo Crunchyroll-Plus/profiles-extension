@@ -54,23 +54,12 @@ request.override([URLS.profile.get], "GET", async (info) => {
       browser.storage.local.set({original_profile: info.body});
 
       if(profile === undefined) {
-        let profile_window = browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
-              
-        var interval;
+        tabExec(`
+          window.location.href = "https://www.crunchyroll.com/profile/activation"
+        `)
 
-        profile_window.then((window) => {
-          interval = setInterval(() => {
-              if((new Date().getTime() / 1000) - last_open < OPEN_PAGE_COOLDOWN) return;
-
-              last_open = new Date().getTime() / 1000;
-
-              browser.windows.get(window.id).catch(() => {
-                clearInterval(interval);
-                tabExec("window.location.reload();");
-              });
-          }, 1000);
-        });
-      }
+        return "";
+      };
 
       if(profile !== undefined) base_browse = "/content/v2/discover/browse?locale=" + profile.preferred_communication_language + "&preferred_audio_language=" + profile.preferred_content_audio_language;
 

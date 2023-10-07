@@ -4,7 +4,9 @@ request.override([URLS.assets.fms], "GET", async (info) => {
 
     if(id.startsWith("FS_")) {
         id = id.split("FS_")[1];
-        const response = await fetch(browser.extension.getURL(`src/assets/${id}`));
+        const url = browser.extension.getURL(`src/assets/${id}`)
+        const response = await fetch(url);
+
         result = response.arrayBuffer();
     }
 

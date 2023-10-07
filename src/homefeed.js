@@ -135,21 +135,19 @@ const resource_callbacks = {
     hero_carousel: async (item) => {
         item.items = await home_feed.sort("hero_carousel", item.items)
 
-        item.items.splice(0, 0, {
+        item.items.splice(getRandomInt(3), 0, {
             id: getRandomInt(10000),
-            title: "If you run into any bugs make sure to open a ticket.",
+            title: "Feel free to join if you have any questions!",
             slug: "discord",
             button_text: "JOIN",
             images: {
-                landscape_large: "FS_ICON_TOP.png",
-                portrait_large: "FS_PORTAIT_TOP.png",
+                landscape_large: "FS_JOIN_LANDSCAPE.png",
+                portrait_large: "FS_JOIN_PORTRAIT.png",
                 logo: "FS_JOIN_TEXT.png"
             },
             third_party_impression_tracker: "",
             link: DISCORD_INVITE
         })
-
-        console.log(item.items)
     },
     curated_collection: async (item) => {
         item.ids = await home_feed.sort("curated_collection", item.ids)
