@@ -2,14 +2,14 @@
     "type": "dynamic_collection",
     "items": [
         {
-            "title": "Recommendations Test",
+            "title": "Just Updated On Crunchyroll",
             "description": "",
             "position": 1,
             "replace": true,
             "id": "dynamic_collection-99990000000",
-            "response_type": "recommendations",
+            "response_type": "browse",
             "display_type": "shelf",
-            "link": "/content/v2/discover/{user_id}/recommendations?locale=en-US&n=20&newly_added="
+            "link": "/content/v2/discover/browse?locale={text_locale}&n=20&preferred_audio_language={audio_locale}&sort_by=newly_added"
         }
     ]
 }
