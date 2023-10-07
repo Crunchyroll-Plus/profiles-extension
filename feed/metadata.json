@@ -1,5 +1,8 @@
 {
     "name": "Official CRP Feed",
     "description": "Crunchyroll Profile's official feed list.",
-    "link": "/feed"
+    "link": "/feed",
+    "available_feeds": [
+        "hero_carousel"
+    ]
 }
