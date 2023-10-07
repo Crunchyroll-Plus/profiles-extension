@@ -3,8 +3,8 @@
     "items": [
         {
             "title": "Just Updated On Crunchyroll",
-            "description": "",
-            "position": 1,
+            "description": "Just incase Crunchyroll decides to remove it again.",
+            "position": 2,
             "id": "dynamic_collection-99990000000",
             "response_type": "browse",
             "display_type": "shelf",
