@@ -100,7 +100,6 @@ const github = {
                     resolve(feed_data);
                 } catch (error) { reject(error) };
             })
-        },
         getFeeds: () => {
             return new Promise(async (resolve, reject) => {
                 try {

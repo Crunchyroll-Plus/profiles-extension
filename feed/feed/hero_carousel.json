@@ -1,0 +1,18 @@
+{
+    "type": "hero_carousel",
+    "heros": [
+        {
+            "title": "Feel free to join if you have any questions!",
+            "position": 1,
+            "slug": "discord",
+            "button_text": "JOIN FOR SUPPORT",
+            "images": {
+                "landscape_large": "JOIN_LANDSCAPE.png",
+                "portrait_large": "JOIN_PORTRAIT.png",
+                "logo": "JOIN_TEXT.png"
+            },
+            "id": 999000,
+            "link": "https://discord.com/invite/9YV8rH2ntz"
+        }
+    ]
+}

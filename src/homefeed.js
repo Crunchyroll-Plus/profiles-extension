@@ -231,6 +231,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
                 history.items.reverse();
 
                 const ids = []
+                
                 home_feed.feed = []
                 
                 for(let item of history.items) {
@@ -238,6 +239,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
                     ids.push(item.panel.episode_metadata.series_id);
                 }
     
+
                 crunchyroll.content.getObjects(ids).then(objects => {
                     let vote = { };
     
@@ -268,7 +270,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
                             caps.push([])
                         };
                     }
-    
+
                     let index = 0;
     
                     for(let tag of tags) {
@@ -313,30 +315,6 @@ request.override([URLS.home_feed], "GET", async (info) => {
           })
     }
 
-    const git_feeds = await github.home_feed.getFeeds()
-
-    for(const feed of git_feeds) {
-        if(feed.type === "hero_carousel") continue;
-        feed.items.forEach((item) => {
-            if(item.link !== undefined) item.link = item.link.replaceAll("{user_id}", crunchyroll.user.account_id).replaceAll("{text_locale}", profile.preferred_communication_language).replaceAll("{audio_locale}", profile.preferred_content_audio_language);
-
-            if(item.panel !== undefined) {
-                for(const [key, value] of Object.entries(item.panel.images)) {
-                    item.panel.images[key] = `G_${info.user}_${info.repo.replaceAll("/", ";")}_${info.branch}_${info.other.replaceAll("/", ";")}_${feed.url}_${value}`;
-                }
-            }
-            if(item.images !== undefined) {
-                for(const [key, value] of Object.entries(item.images)) {
-                    item.images[key] = `G_${info.user}_${info.repo.replaceAll("/", ";")}_${info.branch}_${info.other.replaceAll("/", ";")}_${feed.url}_${value}`;
-                }
-            }
-
-            item.resource_type = feed.type
-
-            home_feed.add_feed(item.id, item);
-        })
-    }
-
     let lists = await profileDB.stores.profile.get(storage.currentUser, "lists");
     
     if(lists !== undefined && lists.items !== undefined) {
@@ -379,13 +357,13 @@ request.override([URLS.home_feed], "GET", async (info) => {
 
     home_feed.feed.sort((item1, item2) => item1.position - item2.position)
 
+
     home_feed.feed.reverse();
 
     let index = 0;
     let remove = [];
     let count = 0;
-
-
+  
     for(const feed of home_feed.feed) {
 
         switch(feed.feed_type) {
@@ -413,8 +391,6 @@ request.override([URLS.home_feed], "GET", async (info) => {
         }
         index++;
     }
-
-    console.log(data)
 
     remove.forEach((index) => {
         home_feed.feed.splice(index, 1);

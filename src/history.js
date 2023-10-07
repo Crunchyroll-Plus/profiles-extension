@@ -131,6 +131,7 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
 
     crunchyroll.content.getObjects(postJS.content_id).then((data) => {
       postJS.panel = [...data][0];
+
       postJS.timestamp = new Date().toISOString();
 
       history.items.push(postJS);

@@ -1,0 +1,18 @@
+{
+    "type": "dynamic_collection",
+    "items": [
+        {
+            "title": "Just Updated On Crunchyroll",
+            "description": "Just incase Crunchyroll decides to remove it again.",
+            "position": 5,
+            "id": "dynamic_collection-99990000000",
+            "response_type": "browse",
+            "display_type": "shelf",
+            "link": "/content/v2/discover/browse?locale={text_locale}&n=20&preferred_audio_language={audio_locale}&sort_by=newly_added",
+            "query_params": {
+                "n": 20,
+                "sort_by": "newly_added"
+            }
+        }
+    ]
+}
