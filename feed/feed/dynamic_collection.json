@@ -1,9 +1,10 @@
 {
     "items": [
         {
-            "id": "dynamic_collection-99990000000",
             "title": "Recommendations Test",
-            "description": "idk",
+            "description": "",
+            "position": 1,
+            "id": "dynamic_collection-99990000000",
             "response_type": "recommendations",
             "display_type": "shelf",
             "link": "/content/v2/discover/{user_id}/recommendations?locale=en-US&n=20"
