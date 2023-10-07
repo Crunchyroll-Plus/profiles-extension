@@ -16,16 +16,18 @@ function tabExec(script) {
 }
 
 request.block([URLS.profile.get], "PATCH", (info) => {
-  profileDB.stores.profile.get(storage.currentUser, "profile", (profile) => {
-    let data = info.body;
+  const data = info.body;
 
+  console.log(data, storage.currentUser)
+  profileDB.stores.profile.get(storage.currentUser, "profile").then(profile => {
+    console.log(profile)
     for(let key of Object.keys(data)){
       profile[key] = data[key];
     }
 
     profileDB.stores.profile.set(storage.currentUser, "profile", profile);
-    tabExec("window.location.reload();");
   })
+  tabExec("window.location.reload();");
 })
 
 request.block([URLS.profile.new_profile], "PATCH", (info) => {

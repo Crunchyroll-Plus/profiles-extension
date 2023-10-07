@@ -24,10 +24,10 @@ request.block([URLS.message], "GET", (info) => {
         
         profileDB.stores.profile.getAll().then((values) => {
             var user = values.length === 0 ? values.length + 1 : values.length;
-            profileDB.stores.profile.set(user, "profile", profile)
-            profileDB.stores.profile.set("meta", "current", user)
-            url = browser.extension.getURL("/src/pages/profile/profile.html")
-            tabExec('window.location.href = "' + url + '"');
+            profileDB.stores.profile.set(user, "profile", profile);
+            profileDB.stores.profile.set("meta", "current", user);
+
+            tabExec('window.location.href = "https://www.crunchyroll.com"');
         });
         break;
       case 1:

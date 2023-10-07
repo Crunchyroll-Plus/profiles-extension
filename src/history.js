@@ -132,6 +132,8 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
     crunchyroll.content.getObjects(postJS.content_id).then((data) => {
       postJS.panel = [...data][0];
 
+      postJS.timestamp = new Date().toISOString();
+
       history.items.push(postJS);
 
       profileDB.stores.history.set(storage.currentUser, "episodes", history);
@@ -143,6 +145,7 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
           if(item.panel === undefined) continue;
           if(item.panel.episode_metadata.series_id === postJS.panel.episode_metadata.series_id) {
             item.playhead = postJS.playhead;
+            item.timestamp = postJS.timestamp;
             item.fully_watched = postJS.fully_watched;
             item.panel = postJS.panel;
             break;

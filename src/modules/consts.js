@@ -100,6 +100,30 @@ const github = {
                     resolve(feed_data);
                 } catch (error) { reject(error) };
             })
+        getFeeds: () => {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const info = await github.getInfo();
+
+                    if(info.repo === undefined || info.branch === undefined) return resolve();
+
+                    const base_url = new URL([URLS.github, info.user, info.repo, info.branch, info.other].join("/"));
+                    const metadata_url = new URL(`${base_url.href}/metadata.json`);
+
+                    const metadata = await (await fetch(metadata_url.href)).json();
+                    const feeds = [];
+
+                    for(const type of metadata.available_feeds) {
+                        const feed_url = new URL(`${base_url.href}${metadata.link}/${type}.json`);
+                        const feed_data = await (await fetch(feed_url)).json();
+
+                        feed_data.url = metadata.link.replaceAll("/", ";");
+                        feeds.push(feed_data);
+                    }
+
+                    resolve(feeds);
+                } catch (error) { reject(error) };
+            })
         }
     }
 }

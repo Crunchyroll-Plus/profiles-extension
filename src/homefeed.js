@@ -149,19 +149,12 @@ const resource_callbacks = {
                 hero.images[key] = `G_${info.user}_${info.repo.replaceAll("/", ";")}_${info.branch}_${info.other.replaceAll("/", ";")}_${feed.url}_${value}`;
             }
 
-            item.items.splice(hero.position, 0, {
-                id: hero.id,
-                title: hero.title,
-                slug: hero.slug,
-                button_text: hero.button_text,
-                images: hero.images,
-                third_party_impression_tracker: "",
-                link: DISCORD_INVITE
-            })
+            if(hero.replace === true) item.items.splice(hero.position, 1, hero)
+            else item.items.splice(hero.position, 0, hero);
         }
     },
     curated_collection: async (item) => {
-        item.ids = await home_feed.sort("curated_collection", item.ids)
+        item.ids = await home_feed.sort("curated_collection", item.ids);
     },
     dynamic_collection: async (item) => {
         switch(item.response_type) {
@@ -236,7 +229,9 @@ request.override([URLS.home_feed], "GET", async (info) => {
     
             if(history !== undefined && history.items !== undefined && storage.settings.genreFeed === true) {
                 history.items.reverse();
-                let ids = []
+
+                const ids = []
+                
                 home_feed.feed = []
                 
                 for(let item of history.items) {
@@ -244,13 +239,11 @@ request.override([URLS.home_feed], "GET", async (info) => {
                     ids.push(item.panel.episode_metadata.series_id);
                 }
     
-                crunchyroll.send({
-                    method: "GET",
-                    url: "https://www.crunchyroll.com/content/v2/cms/objects/" + ids.join(",") + "?ratings=true&preferred_audio_language=" + profile.preferred_content_audio_language + "&locale=" + profile.preferred_communication_language
-                }, (xml) => {
+
+                crunchyroll.content.getObjects(ids).then(objects => {
                     let vote = { };
     
-                    for(const series of JSON.parse(xml.response).data) {
+                    for(const series of objects) {
                         for(let tag of series.series_metadata.tenant_categories || []) {
                             if(vote[tag] === undefined) vote[tag] = 0
                             vote[tag] += 1
@@ -277,8 +270,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
                             caps.push([])
                         };
                     }
-    
-                    let counter = 0;
+
                     let index = 0;
     
                     for(let tag of tags) {
@@ -334,7 +326,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
                         type: list.list_type,
                         feed_type: "custom_list",
                         title: list.title,
-                        response_type: "custom_list-" + list.id.toString(),
+                        response_type: "browse",
                         description: list.description || "",
                         position: list.position,
                         ids: list.ids 
@@ -346,12 +338,15 @@ request.override([URLS.home_feed], "GET", async (info) => {
                         type: "dynamic_collection",
                         feed_type: "custom_list",
                         title: list.title,
-                        response_type: "custom_list-" + list.id.toString(),
+                        response_type: "browse",
                         description: "Your custom list!",
                         position: list.position,
                         link: link,
                         query_params: {
                             n: list.amount,
+                            categories: list.genres.join(","),
+                            type: list.type,
+                            q: list.query
                         }
                     }))
                     break;
@@ -362,9 +357,13 @@ request.override([URLS.home_feed], "GET", async (info) => {
 
     home_feed.feed.sort((item1, item2) => item1.position - item2.position)
 
-    home_feed.feed.reverse()
+
+    home_feed.feed.reverse();
+
     let index = 0;
     let remove = [];
+    let count = 0;
+  
     for(const feed of home_feed.feed) {
 
         switch(feed.feed_type) {
@@ -380,7 +379,16 @@ request.override([URLS.home_feed], "GET", async (info) => {
             continue
         }
 
-        if(start <= feed.position + 1 && feed.position <= start + size) data.data.splice(((feed.position - start) + 1), 0, feed)
+        if(start <= feed.position + 1 && feed.position <= start + size) {
+            const position = (size - feed.position) + count;
+            console.log(feed, position)
+            if(feed.replace === true) {
+                data.data.splice(position, 1, feed)
+            } else {
+                data.data.splice(position, 0, feed)
+                count++;
+            }
+        }
         index++;
     }
 
