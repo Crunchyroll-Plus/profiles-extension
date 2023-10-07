@@ -53,6 +53,39 @@ function createTextInput(name, placeholder) {
   return input
 }
 
+function createTextSubmit(name, placeholder, callback) {
+  var div = document.createElement("div");
+  var label = document.createElement("label");
+  var input = document.createElement("input");
+  var submit = document.createElement("input");
+
+  label.for = name;
+  label.innerText = name + ": ";
+
+  input.name = name;
+  input.type = "text";
+  input.classList.add("text");
+  input.style.width = "200px";
+  input.placeholder = placeholder;
+
+  submit.type = "button";
+  submit.onclick = () => {
+    callback(input.value);
+  };
+  submit.value = "Set"
+  submit.classList.add("set-button");
+
+  div.appendChild(label);
+  div.appendChild(input);
+  div.appendChild(submit)
+  
+  div.style.marginLeft = "15px";
+
+  ul.appendChild(div);
+
+  return input
+}
+
 function createDropdown(name, options, callback) {
   var div = document.createElement("div");
   var button = document.createElement("button");
@@ -392,24 +425,31 @@ main_callback = () => {
 
     profileDB.stores.profile.get("meta", "current").then(id => {
       profileDB.stores.profile.get(id, "settings").then(settings => {
-        settings = settings === undefined ? {
-          genreFeed: true,
-          compactHistory: false
-        } : settings
+        github.home_feed.getLink().then(link => {
+          settings = settings === undefined ? {
+            genreFeed: true,
+            compactHistory: false
+          } : settings
 
-        createToggle(locale.messages.genre_feed_settings, settings.genreFeed, (toggle) => {
-          settings.genreFeed = toggle;
+          createToggle(locale.messages.genre_feed_settings, settings.genreFeed, (toggle) => {
+            settings.genreFeed = toggle;
 
-          profileDB.stores.profile.set(id, "settings", settings);
+            profileDB.stores.profile.set(id, "settings", settings);
+          })
+
+          createToggle("Compact History", settings.compactHistory, (toggle) => {
+            settings.compactHistory = toggle;
+
+            profileDB.stores.profile.set(id, "settings", settings);
+          })
+          github.home_feed.getLink().then(link => {
+            createTextSubmit("Feed Repo", "Path for your custom homefeed's repo.", (repo) => {
+              github.home_feed.setLink(repo);
+            }).value = link;
+
+            createOption("Back", main_callback);
+          }) 
         })
-
-        createToggle("Compact History", settings.compactHistory, (toggle) => {
-          settings.compactHistory = toggle;
-
-          profileDB.stores.profile.set(id, "settings", settings);
-        })
-
-        createOption("Back", main_callback);
       })
     })
   });

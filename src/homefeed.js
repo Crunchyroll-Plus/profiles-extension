@@ -134,20 +134,31 @@ const used_urls = [];
 const resource_callbacks = {
     hero_carousel: async (item) => {
         item.items = await home_feed.sort("hero_carousel", item.items)
+        
+        const feed = await github.home_feed.getFeed("hero_carousel");
 
-        item.items.splice(getRandomInt(3), 0, {
-            id: getRandomInt(10000),
-            title: "Feel free to join if you have any questions!",
-            slug: "discord",
-            button_text: "JOIN",
-            images: {
-                landscape_large: "FS_JOIN_LANDSCAPE.png",
-                portrait_large: "FS_JOIN_PORTRAIT.png",
-                logo: "FS_JOIN_TEXT.png"
-            },
-            third_party_impression_tracker: "",
-            link: DISCORD_INVITE
-        })
+        if(feed === undefined) return;
+
+        const info = await github.getInfo();
+
+        if(info.branch === undefined || info.repo === undefined) return;
+
+        for(const hero of feed.heros) {
+
+            for(const [key, value] of Object.entries(hero.images)) {
+                hero.images[key] = `G_${info.user}_${info.repo.replaceAll("/", ";")}_${info.branch}_${info.other.replaceAll("/", ";")}_${feed.url}_${value}`;
+            }
+
+            item.items.splice(hero.position, 0, {
+                id: hero.id,
+                title: hero.title,
+                slug: hero.slug,
+                button_text: hero.button_text,
+                images: hero.images,
+                third_party_impression_tracker: "",
+                link: DISCORD_INVITE
+            })
+        }
     },
     curated_collection: async (item) => {
         item.ids = await home_feed.sort("curated_collection", item.ids)

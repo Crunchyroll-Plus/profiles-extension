@@ -1,14 +1,14 @@
 {
     "name": "Crunchyroll Profile",
     "description": "Allows you to have your own profiles for a personal experience on a shared account.",
-    "version": "0.0.128",
+    "version": "0.0.130",
     "default_locale": "en",
     "manifest_version": 2,
     "background": {
         "scripts": [
             "src/modules/locale.js",
-            "src/modules/urls.js",
             "src/modules/storage.js",
+            "src/modules/consts.js",
             "src/modules/request.js",
             "src/modules/crunchyroll.js",
             "src/modules/patch.js",

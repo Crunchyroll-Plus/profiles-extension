@@ -315,6 +315,7 @@ const profileDB = new ProfileDB(() => {
     })
 
     profileDB.stores.profile.get("meta", "current").then(setCurrent)
+    github.home_feed.getLink()
 });
 
 setCurrent = (id) => {
