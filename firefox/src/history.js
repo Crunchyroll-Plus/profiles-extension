@@ -60,10 +60,7 @@ request.override([URLS.history.watch_history], "GET", (info) => {
 
     let settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
 
-    settings = settings === undefined ? {
-      genreFeed: true,
-      compactHistory: false
-    } : settings
+    settings = settings === undefined ? defaults.settings : settings
 
     if(info.details.url.includes("check")) 
       return info.body;
@@ -77,7 +74,6 @@ request.override([URLS.history.watch_history], "GET", (info) => {
     let used_series = [];
 
     for(const hitem of history.items) {
-
       if(hitem.panel === undefined || used_series.find(id => id === hitem.panel.episode_metadata.series_id) !== undefined) continue;
 
       if(settings.compactHistory === true) {
@@ -155,6 +151,25 @@ request.block([URLS.history.save_playhead], "POST", (info) => {
       })
     })
   })
+});
+
+request.override([URLS.new_episodes], "GET", async (info) => {
+  var settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
+
+  settings = settings === undefined ? defaults.settings : settings;
+
+  let data = new crunchyArray(info.body);
+
+  if(settings.newDubs === true) data.filter((item) => item.episode_metadata.is_dubbed === false);
+  console.log(settings.onlyNewWatched)
+  if(settings.onlyNewWatched === true) {
+    const history = new crunchyArray(await profileDB.stores.history.get(storage.currentUser, "episodes"));
+    const watchlist = new crunchyArray(await profileDB.stores.watchlist.get(storage.currentUser, "watchlist"));
+    
+    data.filter((item) => history.find((hitem) => hitem !== undefined && hitem.panel !== undefined && hitem.panel.episode_metadata.series_id === item.episode_metadata.series_id) !== undefined || watchlist.find((witem) => witem !== undefined && witem.panel !== undefined && witem.panel.episode_metadata.series_id === item.episode_metadata.series_id) !== undefined)
+  }
+
+  return data.toString();
 });
 
 request.override([URLS.history.playheads], "GET", (info) => {

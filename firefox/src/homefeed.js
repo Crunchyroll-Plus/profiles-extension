@@ -2,8 +2,7 @@
     Edits the homefeed
 */
 
-
-const DISCORD_INVITE = "https://discord.com/invite/9YV8rH2ntz";
+var used_titles = [];
 
 const home_feed = {
     responseTypes: [
@@ -159,6 +158,8 @@ const resource_callbacks = {
     dynamic_collection: async (item) => {
         switch(item.response_type) {
             case "because_you_watched":
+                if(item.position !== undefined || item.position !== null) break;
+
                 let replacement = await profileDB.stores.history.get(storage.currentUser, "episodes")
                 if(replacement !== undefined && replacement.items !== undefined) {
                     replacement.items.reverse();
@@ -208,29 +209,28 @@ createLink = (list) => {
 request.override([URLS.home_feed], "GET", async (info) => {
     storage.settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
 
-    storage.settings = storage.settings === undefined ? {
-        genreFeed: true
-    } : storage.settings;
+    storage.settings = storage.settings === undefined ? defaults.settings : storage.settings;
 
-    let data = JSON.parse(info.body);
+    const data = new crunchyArray(info.body);
 
-    let start = parseInt(info.details.url.split("start=")[1].split("&")[0]);
-    let size = parseInt(info.details.url.split("n=")[1].split("&")[0]);
+    const url = new URL(info.details.url);
+
+    const start = parseInt(url.searchParams.get("start"));
+    const size = parseInt(url.searchParams.get("n"));
 
     if(start === 0) {
+        used_titles = [];
+
         profileDB.stores.history.get(storage.currentUser, "episodes").then(async history => {
             profile = await profileDB.stores.profile.get(storage.currentUser, "profile");
             storage.settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
     
-            storage.settings = storage.settings === undefined ? {
-                genreFeed: true,
-                compactHistory: false
-            } : storage.settings;
+            storage.settings = storage.settings === undefined ? defaults.settings : storage.settings;
     
             if(history !== undefined && history.items !== undefined && storage.settings.genreFeed === true) {
                 history.items.reverse();
 
-                const ids = []
+                const ids = [];
                 home_feed.feed = []
                 
                 for(let item of history.items) {
@@ -274,7 +274,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
                     for(let tag of tags) {
                         if(tag.length === 0) continue;
 
-                        let position = 5 + index;
+                        let position = 8 + index;
 
                         const rng = getRandomInt(100)
 
@@ -385,9 +385,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
     let remove = [];
     let count = 0;
 
-
     for(const feed of home_feed.feed) {
-
         switch(feed.feed_type) {
             case "genre_recommendations":
                 if(storage.settings.genreFeed === true) break;
@@ -395,19 +393,20 @@ request.override([URLS.home_feed], "GET", async (info) => {
                 continue;
         }
 
+        used_titles.push(feed.title);
+
         if(feed.feed_type === "custom_list" && lists.items !== undefined && lists.items.find(item => item.id === parseInt(feed.id.replace("dynamic_collection-", ""))) === undefined) {
             remove.push(index);
-            index++;
             continue
         }
 
         if(start <= feed.position + 1 && feed.position <= start + size) {
-            const position = (size - feed.position) + count;
+            const position = feed.position - start;
             
             if(feed.replace === true) {
-                data.data.splice(position, 1, feed)
+                data.splice(position, 1, feed)
             } else {
-                data.data.splice(position, 0, feed)
+                data.splice(position, 0, feed)
                 count++;
             }
         }
@@ -420,7 +419,9 @@ request.override([URLS.home_feed], "GET", async (info) => {
 
     home_feed.feed.reverse()
 
-    for(let item of data.data) {
+    data.filter(item => item.position !== undefined || used_titles.indexOf(item.title) === -1)
+
+    for(let item of data) {
         let callback = resource_callbacks[item.resource_type];
 
         if(callback === undefined) continue;
@@ -428,7 +429,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
         await callback(item);
     }
 
-    return JSON.stringify(data);
+    return data.toString();
 })
 
 const shuffleArr = arr => {
