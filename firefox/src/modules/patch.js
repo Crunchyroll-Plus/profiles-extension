@@ -53,7 +53,7 @@ const importScript = `
 function createButton(text, callback) {
     let select = document.createElement("div");
 
-    select.innerHTML = \`<div role="button" tabindex="0" class="add-button button--xqVd0 button--is-type-one-weak--KLvCX buttons-group__item--ThNEA" data-t="cancel-avatar-btn">
+    select.innerHTML = \`<div role="button" tabindex="0" class="add-button button--xqVd0 button--is-type-one--3uIzT buttons-group__item--ThNEA" data-t="cancel-avatar-btn">
     <span class="call-to-action--PEidl call-to-action--is-m--RVdkI button__cta--LOqDH">\` + text + \`</span>
 </div>\`
 

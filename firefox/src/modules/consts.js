@@ -1,3 +1,12 @@
+
+const defaults = {
+    settings: {
+        genreFeed: true,
+        compactHistory: false,
+        newDubs: false,
+        onlyNewWatched: false
+      }
+}
 const URLS = {
     token: "https://www.crunchyroll.com/auth/v1/token",
     message: "https://www.crunchyroll.com/fake/message*", // used for sending messages between tab and background scripts.
@@ -5,6 +14,7 @@ const URLS = {
     benefits: "https://www.crunchyroll.com/subs/v1/subscriptions/*/benefits",
     episode: "https://www.crunchyroll.com/content/v2/cms/objects/*?ratings=*&locale=*",
     github: "https://raw.githubusercontent.com",
+    new_episodes: "https://www.crunchyroll.com/content/v2/discover/browse?*&sort_by=newly_added&type=episode*",
     manga: {
         long: "https://www.crunchyroll.com/content/v3/*/manga?",
         short: "",

@@ -157,6 +157,8 @@ function createToggle(name, value, callback) {
 
   label.innerText = name;
 
+  value = value === undefined ? false : value;
+
   checkbox.checked = value;
 
   checkbox.addEventListener("click", () => {
@@ -426,10 +428,7 @@ main_callback = () => {
     profileDB.stores.profile.get("meta", "current").then(id => {
       profileDB.stores.profile.get(id, "settings").then(settings => {
         github.home_feed.getLink().then(link => {
-          settings = settings === undefined ? {
-            genreFeed: true,
-            compactHistory: false
-          } : settings
+          settings = settings === undefined ? defaults.settings : settings
 
           createToggle(locale.messages.genre_feed_settings, settings.genreFeed, (toggle) => {
             settings.genreFeed = toggle;
@@ -442,6 +441,19 @@ main_callback = () => {
 
             profileDB.stores.profile.set(id, "settings", settings);
           })
+
+          createToggle("Filter New Dubs", settings.newDubs, (toggle) => {
+            settings.newDubs = toggle;
+            
+            profileDB.stores.profile.set(id, "settings", settings);
+          })
+
+          createToggle("Filter New Watched", settings.onlyNewWatched, (toggle) => {
+            settings.onlyNewWatched = toggle;
+            
+            profileDB.stores.profile.set(id, "settings", settings);
+          })
+
           github.home_feed.getLink().then(link => {
             createTextSubmit("Feed Repo", "Path for your custom homefeed's repo.", (repo) => {
               github.home_feed.setLink(repo);

@@ -55,20 +55,35 @@ class crunchyArray {
             }
         }
         || typeof(data) === "string" && JSON.parse(data)
-        || data.toString !== undefined && data
         || data.items !== undefined && {
             total: data.items.length,
             data: data.items,
             meta: {
                 total_before_filter: data.items.length
             }
-        } || data
+        }
+        || data.toString !== undefined && data
+        || data
 
         this.push = (item) => {
             this.result.total++;
             this.result.meta.total_before_filter++;
 
             this.result.data.push(item);
+        }
+
+        this.sort = (callbackfn) => this.result.data = this.result.data.sort(callbackfn);
+        this.map = (callbackfn) => this.result.data = this.result.data.map(callbackfn);
+        this.indexOf = (callbackfn) => this.result.data.indexOf(callbackfn);
+        this.find = (callbackfn) => this.result.data.find(callbackfn);
+        this.splice = (...args) => this.result.data.splice(...args);
+
+        this.filter = (callbackfn) => {
+            if(this.result.meta.total_before_filter === this.result.data.length) {
+                this.result.meta.total_before_filter = this.result.data.length;
+            };
+
+            this.result.data = this.result.data.filter(callbackfn);
         }
 
         this.reverse = () => {
