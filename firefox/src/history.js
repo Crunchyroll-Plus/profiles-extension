@@ -161,12 +161,15 @@ request.override([URLS.new_episodes], "GET", async (info) => {
   let data = new crunchyArray(info.body);
 
   if(settings.newDubs === true) data.filter((item) => item.episode_metadata.is_dubbed === false);
-  console.log(settings.onlyNewWatched)
+  
   if(settings.onlyNewWatched === true) {
     const history = new crunchyArray(await profileDB.stores.history.get(storage.currentUser, "episodes"));
     const watchlist = new crunchyArray(await profileDB.stores.watchlist.get(storage.currentUser, "watchlist"));
     
-    data.filter((item) => history.find((hitem) => hitem !== undefined && hitem.panel !== undefined && hitem.panel.episode_metadata.series_id === item.episode_metadata.series_id) !== undefined || watchlist.find((witem) => witem !== undefined && witem.panel !== undefined && witem.panel.episode_metadata.series_id === item.episode_metadata.series_id) !== undefined)
+    data.filter((item) => 
+      history.find((hitem) => hitem !== undefined && hitem.panel !== undefined && hitem.panel.episode_metadata.series_id === item.episode_metadata.series_id) !== undefined ||
+      watchlist.find((witem) => witem !== undefined && witem.panel !== undefined && witem.panel.episode_metadata.series_id === item.episode_metadata.series_id) !== undefined
+    )
   }
 
   return data.toString();
