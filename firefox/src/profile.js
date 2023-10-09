@@ -9,12 +9,6 @@ if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
 document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
 `;
 
-
-// function removeError(){
-//   if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
-//     document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
-// }
-
 function tabExec(script) {
   browser.tabs.executeScript({
     code: removeError + script
@@ -60,7 +54,7 @@ request.override([URLS.profile.get], "GET", async (info) => {
       browser.storage.local.set({original_profile: info.body});
 
       if(profile === undefined) {
-        console.log("what")
+        
         tabExec(`
           window.location.href = "https://www.crunchyroll.com/profile/activation"
         `)
