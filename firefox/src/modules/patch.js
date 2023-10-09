@@ -380,7 +380,7 @@ waitForElm("a.erc-user-menu-nav-item[href='/account/preferences']").then((elm) =
         clone.removeAttribute("href");
 
         clone.addEventListener("click", () => {
-            window.location.href = "` + browser.extension.getURL("/src/pages/profile/profile.html") + `";
+            window.location.href = "` + browser.runtime.getURL("/src/pages/profile/profile.html") + `";
         });
 
         name.innerText = "Change Profile";
@@ -600,7 +600,7 @@ const patch = {
         console.log("init called for patch")
 
         patch.patches.forEach((patch) => {
-            request.override(typeof(patch.url) === "string" ? [patch.url] : patch.url, "GET", (info) => {
+            request.override(typeof(patch.url) === "string" ? [patch.url] : patch.url, "GET", async (info) => {
                 let result = info.array;
                 
                 if(info.details.originUrl !== undefined && info.details.originUrl.includes("moz-extension")) return result;

@@ -1,7 +1,7 @@
 {
     "name": "Crunchyroll Profile",
     "description": "Allows you to have your own profiles for a personal experience on a shared account.",
-    "version": "0.0.146",
+    "version": "0.0.147",
     "default_locale": "en",
     "manifest_version": 2,
     "background": {
@@ -33,9 +33,7 @@
         "tabs",
         "webRequest",
         "webRequestBlocking",
-        "https://www.crunchyroll.com/*",
-        "https://eec.crunchyroll.com/*",
-        "https://static.crunchyroll.com/*",
+        "https://*.crunchyroll.com/*",
         "https://raw.githubusercontent.com/*"
     ]
 }

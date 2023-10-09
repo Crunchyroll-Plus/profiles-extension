@@ -5,7 +5,7 @@
 
 const MIN_MINUTES_LEFT = 3; // Minimum amount of minutes left of a show.
 
-request.override([URLS.history.continue_watching], "GET", (info) => {
+request.override([URLS.history.continue_watching], "GET", async (info) => {
   let url = new URL(info.details.url);
   let amount = parseInt(url.searchParams.get("n"));
 
@@ -54,7 +54,7 @@ request.override([URLS.history.continue_watching], "GET", (info) => {
   });
 })
 
-request.override([URLS.history.watch_history], "GET", (info) => {
+request.override([URLS.history.watch_history], "GET", async (info) => {
   return profileDB.stores.history.get(storage.currentUser, "episodes").then(async history => {
     let data = new crunchyArray();
 
@@ -98,7 +98,7 @@ request.override([URLS.history.watch_history], "GET", (info) => {
   })
 })
 
-request.block([URLS.history.save_playhead], "POST", (info) => {
+request.block([URLS.history.save_playhead], "POST", async (info) => {
   profileDB.stores.history.get(storage.currentUser, "episodes").then((history) => {
     let postJS = info.body;
 
@@ -175,7 +175,7 @@ request.override([URLS.new_episodes], "GET", async (info) => {
   return data.toString();
 });
 
-request.override([URLS.history.playheads], "GET", (info) => {
+request.override([URLS.history.playheads], "GET", async (info) => {
   return profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {
     if(history === undefined) return;
 
@@ -184,15 +184,22 @@ request.override([URLS.history.playheads], "GET", (info) => {
     let ids = info.details.url.split("content_ids=")[1].split("&")[0].split("%2C");
 
     let result = new crunchyArray();
+    let reversed = true
 
     for(const item of history.items) {
       if(item.panel === undefined || ids.indexOf(item.panel.id) === -1) continue;
+
+      if(item.timestamp === undefined) {
+        item.timestamp = new Date().toISOString();
+        if(reversed) history.items.reverse();
+        profileDB.stores.history.set(storage.currentUser, "episodes", history);
+      }
 
       result.push({
           playhead: item.playhead | 0,
           content_id: item.panel.id,
           fully_watched: false,
-          last_modified: "2023-06-23T20:54:00Z"
+          last_modified: item.timestamp
       })
     }
 
@@ -200,7 +207,7 @@ request.override([URLS.history.playheads], "GET", (info) => {
   })
 })
 
-request.block([URLS.history.delete], "DELETE", (info) => {
+request.block([URLS.history.delete], "DELETE", async (info) => {
   let id = info.details.url.split("watch-history")[1].split("?")[0].split("/")[1];
   
   return profileDB.stores.history.get(storage.currentUser, "episodes").then(history => {

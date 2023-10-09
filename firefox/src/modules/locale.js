@@ -1,4 +1,6 @@
-const i18n = chrome.i18n;
+browser = browser === undefined ? chrome : browser;
+
+const i18n = browser.i18n;
 
 let messages_temp = {};
 

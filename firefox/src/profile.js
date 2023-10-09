@@ -6,8 +6,14 @@ const OPEN_PAGE_COOLDOWN = 3; // Wait x amount of time before opening the profil
 
 const removeError = `
 if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
-  document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
+document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
 `;
+
+
+// function removeError(){
+//   if(document.body.querySelector(".flash-message__wrapper--UWCF8"))
+//     document.body.querySelector(".flash-message__wrapper--UWCF8").remove();
+// }
 
 function tabExec(script) {
   browser.tabs.executeScript({
@@ -15,7 +21,7 @@ function tabExec(script) {
   });
 }
 
-request.block([URLS.profile.get], "PATCH", (info) => {
+request.block([URLS.profile.get], "PATCH", async (info) => {
   const data = info.body;
 
   profileDB.stores.profile.get(storage.currentUser, "profile").then(profile => {
@@ -25,10 +31,11 @@ request.block([URLS.profile.get], "PATCH", (info) => {
 
     profileDB.stores.profile.set(storage.currentUser, "profile", profile);
   })
+
   tabExec("window.location.reload();");
 })
 
-request.block([URLS.profile.new_profile], "PATCH", (info) => {
+request.block([URLS.profile.new_profile], "PATCH", async (info) => {
   // Overrides the profile activation page to work as a new profile button.
   tabExec(`
   let img = document.querySelector(".content-image__image--7tGlg").src.split("/170x170/")[1];
@@ -44,7 +51,6 @@ request.block([URLS.profile.new_profile], "PATCH", (info) => {
 var last_open = 0;
 
 request.override([URLS.profile.get], "GET", async (info) => {
-
   if(info.details.originUrl === URLS.profile.activation)
     return "";
   
@@ -54,6 +60,7 @@ request.override([URLS.profile.get], "GET", async (info) => {
       browser.storage.local.set({original_profile: info.body});
 
       if(profile === undefined) {
+        console.log("what")
         tabExec(`
           window.location.href = "https://www.crunchyroll.com/profile/activation"
         `)
@@ -68,7 +75,7 @@ request.override([URLS.profile.get], "GET", async (info) => {
   });
 })
 
-request.override([URLS.me], "GET", (info) => {
+request.override([URLS.me], "GET", async (info) => {
   let user_data = JSON.parse(info.body);
 
   browser.storage.local.set({user_data: user_data})
@@ -80,7 +87,7 @@ request.override([URLS.me], "GET", (info) => {
   return JSON.stringify(user_data);
 })
 
-request.override([URLS.benefits], "GET", (info) => {
+request.override([URLS.benefits], "GET", async (info) => {
   let data = JSON.parse(info.body).items;
 
   data.forEach(item => {
@@ -106,7 +113,7 @@ request.override([URLS.benefits], "GET", (info) => {
   return info.body;
 })
 
-// request.override([URLS.locale], "GET", (info) => {
+// request.override([URLS.locale], "GET", async (info) => {
 //   crunchyroll.locale = JSON.parse(info.body);
 
 //   return info.body;

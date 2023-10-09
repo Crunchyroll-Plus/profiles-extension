@@ -2,7 +2,7 @@
   Handles the message url traffic.
 */
 
-request.block([URLS.message], "GET", (info) => {
+request.block([URLS.message], "GET", async (info) => {
     let url = new URL(info.details.url);
 
     let messages = url.searchParams.get("message").split(",");

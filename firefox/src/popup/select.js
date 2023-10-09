@@ -355,7 +355,7 @@ main_callback = () => {
   document.body.style.height = "auto";
 
   createOption(locale.messages.profile_selection, () => {
-      browser.windows.create({url: browser.extension.getURL("/src/pages/profile/profile.html")});
+      browser.windows.create({url: browser.runtime.getURL("/src/pages/profile/profile.html")});
   });
 
 

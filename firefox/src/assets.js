@@ -11,7 +11,7 @@ request.override([URLS.assets.fms], "GET", async (info) => {
         switch(indentifier) {
             case "FS":
                 file = seperated.reverse().join("_");
-                asset_url = browser.extension.getURL(`src/assets/${file}`);
+                asset_url = browser.runtime.getURL(`src/assets/${file}`);
                 break;
             case "G":
                 const user = seperated.pop();
@@ -35,7 +35,7 @@ request.override([URLS.assets.fms], "GET", async (info) => {
 
     // if(id.startsWith("FS_") === true) {
     //     id = id.split("FS_")[1];
-    //     const url = browser.extension.getURL(`src/assets/${id}`)
+    //     const url = browser.runtime.getURL(`src/assets/${id}`)
     //     const response = await fetch(url);
 
     //     result = response.arrayBuffer();

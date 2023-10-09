@@ -2,7 +2,7 @@
  Saves the watchlist.
 */
 
-request.override([URLS.watchlist.get], "GET", (info) => {
+request.override([URLS.watchlist.get], "GET", async (info) => {
     return profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
       if(watchlist === undefined) return;
   
@@ -14,11 +14,15 @@ request.override([URLS.watchlist.get], "GET", (info) => {
   
       for(const item of watchlist.items) {
         if(ids.indexOf(item.panel.id) === -1) continue;
-  
+        if(item.timestamp === undefined) {
+            item.timestamp = new Date().toISOString();
+            profileDB.stores.history.set(storage.currentUser, "watchlist", watchlist);
+        }
+
         result.push({
             id: item.panel.id,
             is_favorite: item.is_favorite,
-            last_modified: "2023-06-23T20:54:00Z"
+            last_modified: item.timestamp
         })
       }
  
@@ -26,7 +30,7 @@ request.override([URLS.watchlist.get], "GET", (info) => {
     })
   })
 
-request.block([URLS.watchlist.save], "POST", (info) => {
+request.block([URLS.watchlist.save], "POST", async (info) => {
     profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         let toggle = false;
         if(watchlist === undefined) {
@@ -44,6 +48,7 @@ request.block([URLS.watchlist.save], "POST", (info) => {
                 info.body.never_watched = data.never_watched;
                 info.body.fully_watched = data.fully_watched;
                 info.body.is_favorite = false;
+                info.body.timestamp = new Date().toISOString();
 
                 watchlist.items.push(info.body);
                 profileDB.stores.watchlist.set(storage.currentUser, "watchlist", watchlist);
@@ -86,7 +91,7 @@ request.block([URLS.watchlist.save], "POST", (info) => {
     })
 })
 
-request.block([URLS.watchlist.check_exist], ["GET", "DELETE"], (info) => {
+request.block([URLS.watchlist.check_exist], ["GET", "DELETE"], async (info) => {
     // Pretty much just need this to block.
 })
 
@@ -118,7 +123,7 @@ request.override([URLS.watchlist.watchlist], "GET", async (info) => {
     })
 })
 
-request.block([URLS.watchlist.set], ["DELETE", "PATCH"], (info) => {
+request.block([URLS.watchlist.set], ["DELETE", "PATCH"], async (info) => {
     profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         let id = info.details.url.split("?")[0].split("").reverse().join("").split("/")[0].split("").reverse().join("");
 
