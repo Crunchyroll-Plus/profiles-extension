@@ -1,3 +1,35 @@
+const Settings = {
+    default: {
+        genreFeed: true,
+        compactHistory: false,
+        newDubs: false,
+        onlyNewWatched: false,
+        fixSeasons: false,
+    },
+    get: (key) => {
+        return new Promise((resolve, reject) => {
+            browser.storage.local.get("settings").then((item) => {
+                item.settings = item.settings || Settings.default;
+
+                var value = key === "*" && item.settings || item.settings[key] !== undefined && item.settings[key] || Settings.default[key];
+                
+                resolve(value);
+            }, reject);
+        })
+    },
+    set: (key, value) => {
+        return new Promise((resolve, reject) => {
+            browser.storage.local.get("settings").then((item) => {
+                item.settings = item.settings || {};
+
+                item.settings[key] = value || Settings.default[key];
+
+                browser.storage.local.set(item).then(resolve);
+            }, reject);
+        })
+    }
+}
+
 // Old storage module kept just for converting.
 
 const storage = {
@@ -226,6 +258,7 @@ class StorageDB {
             this.database = event.target.result;
 
             for(const name of this.database.objectStoreNames) {
+                if(this.stores[name] !== undefined) continue; 
                 this.stores[name] = new store_class(name, this.database);
             }
 

@@ -74,11 +74,9 @@ addBtn.addEventListener('click', (e) => {
 });
 
 doneBtn.addEventListener('click', (e) => {
-    browser.tabs.getCurrent().then((tab) => {
-        if(tab.index === 0)
-            window.close();
-        window.location.href = "https://www.crunchyroll.com/";
-    })
+    window.location.href = "https://www.crunchyroll.com/"
+    tab.updateAll();
+    tab.closePopup();
 });
 
 removeBtn.addEventListener('click', (e) => {

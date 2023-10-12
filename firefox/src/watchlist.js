@@ -5,19 +5,18 @@
 request.override([URLS.watchlist.get], "GET", async (info) => {
     return profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
       if(watchlist === undefined) return;
-  
-      watchlist.items.reverse();
-  
-      let ids = info.details.url.split("content_ids=")[1].split("&")[0].split("%2C");
+
+      watchlist = new crunchyArray(watchlist);
+
+      let url = new URL(info.details.url);
+      let ids = url.searchParams.get("content_ids").split(",");
   
       let result = new crunchyArray();
-  
-      for(const item of watchlist.items) {
-        if(ids.indexOf(item.panel.id) === -1) continue;
-        if(item.timestamp === undefined) {
-            item.timestamp = new Date().toISOString();
-            profileDB.stores.history.set(storage.currentUser, "watchlist", watchlist);
-        }
+
+      for(const id of ids) {
+        item = watchlist.find(item => item.panel.id === id);
+
+        if(item === undefined) continue;
 
         result.push({
             id: item.panel.id,
@@ -157,7 +156,7 @@ request.override([URLS.watchlist.history], "GET", async (info) => {
     return profileDB.stores.watchlist.get(storage.currentUser, "watchlist").then(watchlist => {
         let data = new crunchyArray();
 
-        if(info.details.url.includes("check")) 
+        if(info.details.url.includes(checkQuery)) 
             return info.body;
 
         if(watchlist === undefined)

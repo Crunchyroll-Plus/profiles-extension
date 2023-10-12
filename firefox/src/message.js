@@ -19,15 +19,15 @@ request.block([URLS.message], "GET", async (info) => {
   
         profile.avatar = avatar;
         profile.username = username;
-        if(profile.profile)
-          delete profile.profile;
         
-        profileDB.stores.profile.getAll().then((values) => {
+        profileDB.stores.profile.getAll().then(async (values) => {
             var user = values.length === 0 ? values.length + 1 : values.length;
-            profileDB.stores.profile.set(user, "profile", profile)
-            profileDB.stores.profile.set("meta", "current", user)
 
-            tabExec('window.location.href = "https://www.crunchyroll.com"');
+            profileDB.stores.profile.set(user, "profile", profile);
+            profileDB.stores.profile.set("meta", "current", user);
+
+            tab.closePopup();
+            tab.runScript('window.location.href = "https://www.crunchyroll.com"');
         });
         break;
       case 1:
@@ -38,15 +38,15 @@ request.block([URLS.message], "GET", async (info) => {
           case 1:
             // Import profile.
             profileDB.stores.profile.set(storage.currentUser, "profile", js.value);
-            tabExec('window.location.reload()');
+            tab.updateAll();
             break;
           case 2:
             profileDB.stores.history.set(storage.currentUser, "episodes", js.value);
-            tabExec('window.location.reload()');
+            tab.updateAll();
             break;
           case 3:
             profileDB.stores.watchlist.set(storage.currentUser, "watchlist", js.value);
-            tabExec('window.location.reload()');
+            tab.updateAll();
             break;
         }
         break;

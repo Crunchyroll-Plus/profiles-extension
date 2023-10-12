@@ -56,14 +56,12 @@ request.override([URLS.history.continue_watching], "GET", async (info) => {
 
 request.override([URLS.history.watch_history], "GET", async (info) => {
   return profileDB.stores.history.get(storage.currentUser, "episodes").then(async history => {
+    if(info.details.url.includes(checkQuery)) 
+      return info.body;
+
     let data = new crunchyArray();
 
-    let settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
-
-    settings = settings === undefined ? defaults.settings : settings
-
-    if(info.details.url.includes("check")) 
-      return info.body;
+    let settings = await Settings.get("*");
     
     if(history === undefined || history.items === undefined){
       return data.toString();
@@ -96,6 +94,53 @@ request.override([URLS.history.watch_history], "GET", async (info) => {
 
     return data.toString();
   })
+})
+
+request.override([URLS.history.seasons], "GET", async info => {
+  var fixSeasons = await Settings.get("fixSeasons");
+  var data = new crunchyArray(info.body);
+  
+  /* Fix Season */
+  if(fixSeasons === true) {
+    let count = 0;
+    let used_numbers = [];
+
+    for(let item of data) {
+
+      /* Fix Count */
+      let check;
+      if((check = used_numbers.find(it => item.season_number === it.season_number)) !== undefined && (check.number_of_episodes === item.number_of_episodes)) continue;
+
+      count++;
+      used_numbers.push(item);
+      item.season_number = count;
+    }
+  }
+
+  return data.toString();
+});
+
+request.override([URLS.history.up_next], "GET", async info => {
+  var episodes = await profileDB.stores.history.get(storage.currentUser, "episodes");
+
+  episodes = new crunchyArray(episodes);
+  const data = new crunchyArray(info.body);
+  ids = info.details.url.split("/up_next/")[1].split("?")[0].split(",");
+  episodes.reverse();
+
+  for(var id of ids) {
+    console.log(id);
+    var history_item = episodes.find(hitem => hitem.panel.episode_metadata.series_id === id);
+    if(history_item === undefined) continue;
+    item = data.find(it => it.panel.episode_metadata.series_id === id);
+
+    item.playhead = history_item.playhead;
+    item.never_watched = item.playhead === 0;
+    item.fully_watched = ((item.panel.episode_metadata.duration_ms / 1000) - item.playhead) / 60 < MIN_MINUTES_LEFT;
+    item.panel = history_item.panel;
+  }
+
+  return data.toString();
 })
 
 request.block([URLS.history.save_playhead], "POST", async (info) => {
@@ -151,28 +196,6 @@ request.block([URLS.history.save_playhead], "POST", async (info) => {
       })
     })
   })
-});
-
-request.override([URLS.new_episodes], "GET", async (info) => {
-  var settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
-
-  settings = settings === undefined ? defaults.settings : settings;
-
-  let data = new crunchyArray(info.body);
-
-  if(settings.newDubs === true) data.filter((item) => item.episode_metadata.is_dubbed === false);
-  
-  if(settings.onlyNewWatched === true) {
-    const history = new crunchyArray(await profileDB.stores.history.get(storage.currentUser, "episodes"));
-    const watchlist = new crunchyArray(await profileDB.stores.watchlist.get(storage.currentUser, "watchlist"));
-    
-    data.filter((item) => 
-      history.find((hitem) => hitem !== undefined && hitem.panel !== undefined && hitem.panel.episode_metadata.series_id === item.episode_metadata.series_id) !== undefined ||
-      watchlist.find((witem) => witem !== undefined && witem.panel !== undefined && witem.panel.episode_metadata.series_id === item.episode_metadata.series_id) !== undefined
-    )
-  }
-
-  return data.toString();
 });
 
 request.override([URLS.history.playheads], "GET", async (info) => {

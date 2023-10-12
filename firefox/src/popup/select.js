@@ -258,94 +258,68 @@ dynamic_collection_panel = (ret, info) => {
   amountInput.value = info.amount.toString();
   positionInput.value = info.position.toString();
 
-  profileDB.stores.profile.get("meta", "current").then(id => {
-    profileDB.stores.profile.get(id, "profile").then(profile => {
-      browser.storage.local.get("access").then(item => {
-        crunchyroll.token = item.access;
-
-        crunchyroll.send({
-          method: "GET",
-          url: "https://www.crunchyroll.com/content/v2/discover/seasonal_tags?preferred_audio_language=" + profile.preferred_content_audio_language + "&locale=" + profile.preferred_communication_language
-        }, (xml) => {
-          let data = JSON.parse(xml.response).data;
-
-          let names = []
-          let ids = {}
-
-          for(let tag of data) {
-            names.push(tag.localization.title)
-            ids[tag.localization.title] = tag.id;
-          }
-
-          createDropdown(locale.messages.dropdown_type, ["Episode", "Series"], (type) => {
-            type = type.toLowerCase().replaceAll(" ", "_");
-            info.type = type;
-          })
-        
-          createDropdown(locale.messages.dropdown_sort_by, ["New", "Alphabetical", "Popular"], (sort_type) => {
-            switch(sort_type) {
-              case "New":
-                sort_type = "newly_added";
-                break;
-              case "Alphabetical":
-                sort_type = "alphabetical";
-                break;
-              case "Popular":
-                sort_type = "popularity";
-                break;
-            }
-            info.sort_type = sort_type;
-          })
-
-          createDropdown(locale.messages.dropdown_seasonal_tags, names, (seasonal_tag) => {
-            seasonal_tag = ids[seasonal_tag];
-            info.seasonal_tag = seasonal_tag
-          })
-
-          for(let genre of crunchyroll.categories) {
-            createToggle(genre.charAt(0).toUpperCase() + genre.slice(1), info.genres.find(item => item === genre) !== undefined, (toggle) => {
-              if(toggle === true) info.genres.push(genre)
-              else info.genres.splice(info.genres.indexOf(item => item === genre), 1);
-            });
-          }
-
-          createOption(locale.messages.done_button, () => {
-            info.title = titleInput.value;
-            info.query = searchInput.value;
-            info.amount = parseInt(amountInput.value);
-            info.position = parseInt(positionInput.value)
-
-            if(og_info === undefined) {
-              profileDB.stores.profile.get(id, "lists").then(lists => {
-                lists = lists === undefined ? {
-                 items: []
-                } : lists;
-
-                lists.items.push(info);
-
-                profileDB.stores.profile.set(id, "lists", lists);
-              })
-
-              return ret();
-            }
-
-            profileDB.stores.profile.get(id, "lists").then(lists => {
-              let item = lists.items.find(obj => obj.id == info.id);
-
-              for(const [key, value] of Object.entries(info)) {
-                item[key] = value;
-              }
-
-              profileDB.stores.profile.set(id, "lists", lists);
-            })
-
-            return ret();
-          })
-          createOption("Back", ret);
-        })
-      })
-    })
+  createDropdown(locale.messages.dropdown_type, ["Episode", "Series"], (type) => {
+    type = type.toLowerCase().replaceAll(" ", "_");
+    info.type = type;
   })
+
+  createDropdown(locale.messages.dropdown_sort_by, ["New", "Alphabetical", "Popular"], (sort_type) => {
+    switch(sort_type) {
+      case "New":
+        sort_type = "newly_added";
+        break;
+      case "Alphabetical":
+        sort_type = "alphabetical";
+        break;
+      case "Popular":
+        sort_type = "popularity";
+        break;
+    }
+    info.sort_type = sort_type;
+  })
+
+  for(let genre of crunchyroll.categories) {
+    createToggle(genre.charAt(0).toUpperCase() + genre.slice(1), info.genres.find(item => item === genre) !== undefined, (toggle) => {
+      if(toggle === true) info.genres.push(genre)
+      else info.genres.splice(info.genres.indexOf(item => item === genre), 1);
+    });
+  }
+
+  createOption(locale.messages.done_button, () => {
+    info.title = titleInput.value;
+    info.query = searchInput.value;
+    info.amount = parseInt(amountInput.value);
+    info.position = parseInt(positionInput.value)
+
+    if(og_info === undefined) {
+        Settings.get("lists").then(lists => {
+        lists = lists === undefined ? {
+          items: []
+        } : lists;
+
+        lists.items.push(info);
+
+        Settings.set("lists", lists);
+        tab.updateAll();
+      })
+
+      return ret();
+    }
+
+    Settings.get("lists").then(lists => {
+      let item = lists.items.find(obj => obj.id == info.id);
+
+      for(const [key, value] of Object.entries(info)) {
+        item[key] = value;
+      }
+
+      Settings.set("lists", lists);
+      tab.updateAll();
+    })
+
+    return ret();
+  })
+  createOption("Back", ret);
 }
 
 main_callback = () => {
@@ -376,42 +350,41 @@ main_callback = () => {
 
     createOption(locale.messages.edit_list_button, () => {
       ul.innerHTML = "";
-      profileDB.stores.profile.get("meta", "current").then(id => {
-        profileDB.stores.profile.get(id, "lists").then(lists => {
-          for(let list of lists.items) {
-            createOption(list.title, () => {
-              switch(list.list_type) {
-                case "dynamic_collection":
-                default:
-                  dynamic_collection_panel(lists_callback, list);
-                  break;
-              }
-            })
-          }
+      Settings.get("lists").then(lists => {
+        lists = lists || {items: []}
+        for(let list of lists.items) {
+          createOption(list.title, () => {
+            switch(list.list_type) {
+              case "dynamic_collection":
+              default:
+                dynamic_collection_panel(lists_callback, list);
+                break;
+            }
+          })
+        }
 
-          createOption("Back", lists_callback)
-        })
+        createOption("Back", lists_callback)
       })
     })
 
     createOption(locale.messages.delete_list_button, () => {
       ul.innerHTML = "";
-      profileDB.stores.profile.get("meta", "current").then(id => {
-        profileDB.stores.profile.get(id, "lists").then(lists => {
-          for(let list in lists.items) {
-            let index = list;
-            list = lists.items[index];
+      Settings.get("lists").then(lists => {
+        lists = lists || {items: []}
+        for(let list in lists.items) {
+          let index = list;
+          list = lists.items[index];
 
-            createOption(list.title, () => {
-              lists.items.splice(index, 1)
-              
-              profileDB.stores.profile.set(id, "lists", lists);
-              lists_callback();
-            })
-          }
+          createOption(list.title, () => {
+            lists.items.splice(index, 1)
+            
+            Settings.set("lists", lists);
+            tab.updateAll();
+            lists_callback();
+          })
+        }
 
-          createOption("Back", lists_callback)
-        })
+        createOption("Back", lists_callback)
       })
     })
 
@@ -425,44 +398,42 @@ main_callback = () => {
 
     document.body.style.width = "350px";
 
-    profileDB.stores.profile.get("meta", "current").then(id => {
-      profileDB.stores.profile.get(id, "settings").then(settings => {
-        github.home_feed.getLink().then(link => {
-          settings = settings === undefined ? defaults.settings : settings
-
-          createToggle(locale.messages.genre_feed_settings, settings.genreFeed, (toggle) => {
-            settings.genreFeed = toggle;
-
-            profileDB.stores.profile.set(id, "settings", settings);
-          })
-
-          createToggle("Compact History", settings.compactHistory, (toggle) => {
-            settings.compactHistory = toggle;
-
-            profileDB.stores.profile.set(id, "settings", settings);
-          })
-
-          createToggle("Filter New Dubs", settings.newDubs, (toggle) => {
-            settings.newDubs = toggle;
-            
-            profileDB.stores.profile.set(id, "settings", settings);
-          })
-
-          createToggle("Filter New Watched", settings.onlyNewWatched, (toggle) => {
-            settings.onlyNewWatched = toggle;
-            
-            profileDB.stores.profile.set(id, "settings", settings);
-          })
-
-          github.home_feed.getLink().then(link => {
-            createTextSubmit("Feed Repo", "Path for your custom homefeed's repo.", (repo) => {
-              github.home_feed.setLink(repo);
-            }).value = link;
-
-            createOption("Back", main_callback);
-          }) 
-        })
+    Settings.get("genreFeed").then(toggle => {
+      createToggle(locale.messages.genre_feed_settings, toggle, (toggle) => {
+        Settings.set("genreFeed", toggle);
       })
+    })
+
+    Settings.get("compactHistory").then(toggle => {
+      createToggle("Compact History", toggle, (toggle) => {
+        Settings.set("compactHistory", toggle);
+      })
+    })
+    
+    Settings.get("newDubs").then(toggle => {
+      createToggle("Filter New Dubs", toggle, (toggle) => {
+        Settings.set("newDubs", toggle);
+      })
+    })
+
+    Settings.get("onlyNewWatched").then(toggle => {
+      createToggle("Filter New Watched", toggle, (toggle) => {
+        Settings.set("onlyNewWatched", toggle);
+      })
+    })
+
+    Settings.get("fixSeasons").then(toggle => {
+      createToggle("Fix Season Count", toggle, (toggle) => {
+        Settings.set("fixSeasons", toggle);
+      })
+    })
+
+    github.home_feed.getLink().then(link => {
+      createTextSubmit("Feed Repo", "Path for your custom homefeed's repo.", (repo) => {
+        github.home_feed.setLink(repo);
+      }).value = link;
+
+      createOption("Back", main_callback);
     })
   });
 };

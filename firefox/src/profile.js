@@ -26,7 +26,7 @@ request.block([URLS.profile.get], "PATCH", async (info) => {
     profileDB.stores.profile.set(storage.currentUser, "profile", profile);
   })
 
-  tabExec("window.location.reload();");
+  tab.updateAll();
 })
 
 request.block([URLS.profile.new_profile], "PATCH", async (info) => {

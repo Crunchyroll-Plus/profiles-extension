@@ -74,6 +74,7 @@ const home_feed = {
     },
     feed: [],
     sort: async (sort_type, sort_items) => {
+        sort_items = sort_items || [];
         switch(sort_type) {
             default:
                 var sorted = [];
@@ -176,16 +177,16 @@ const resource_callbacks = {
                 }
         }
 
-        if(used_urls.indexOf(item.link) !== -1) return;
-        used_urls.push(item.link)
+        // if(used_urls.indexOf(item.link) !== -1) return;
+        // used_urls.push(item.link)
 
-        request.override(["https://www.crunchyroll.com" + item.link + "*"], "GET", async (info) => {
-            let json = JSON.parse(info.body);
+        // request.override(["https://www.crunchyroll.com" + item.link + "*"], "GET", async (info) => {
+        //     let json = JSON.parse(info.body);
 
-            json.data = await home_feed.sort(item.link, json.data)
+        //     json.data = await home_feed.sort(item.link, json.data)
 
-            return JSON.stringify(json);
-        })
+        //     return JSON.stringify(json);
+        // })
     }
 }
 
@@ -207,9 +208,7 @@ createLink = (list) => {
 }
 
 request.override([URLS.home_feed], "GET", async (info) => {
-    storage.settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
-
-    storage.settings = storage.settings === undefined ? defaults.settings : storage.settings;
+    storage.settings = await Settings.get("*");
 
     const data = new crunchyArray(info.body);
 
@@ -223,9 +222,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
 
         profileDB.stores.history.get(storage.currentUser, "episodes").then(async history => {
             profile = await profileDB.stores.profile.get(storage.currentUser, "profile");
-            storage.settings = await profileDB.stores.profile.get(storage.currentUser, "settings");
-    
-            storage.settings = storage.settings === undefined ? defaults.settings : storage.settings;
+            storage.settings = await Settings.get("*");
     
             if(history !== undefined && history.items !== undefined && storage.settings.genreFeed === true) {
                 history.items.reverse();
@@ -337,7 +334,7 @@ request.override([URLS.home_feed], "GET", async (info) => {
         })
     }
 
-    let lists = await profileDB.stores.profile.get(storage.currentUser, "lists");
+    let lists = await Settings.get("lists");
     
     if(lists !== undefined && lists.items !== undefined) {
         lists.items.forEach(list => {
