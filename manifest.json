@@ -1,0 +1,26 @@
+{
+    "name": "Crunchyroll Profile",
+    "description": "Allows you to have your own profiles for a personal experience on a shared account.",
+    "version": "0.1.0",
+    "default_locale": "en",
+    "manifest_version": 2,
+    "background": {
+        "scripts": [
+            "src/background/index.js"
+        ],
+        "type": "module",
+        "persistent": true
+    },
+    "browser_action": {
+        "default_popup": "src/ui/popup/index.html"
+    },
+    "permissions": [
+        "storage",
+        "unlimitedStorage",
+        "tabs",
+        "scripting",
+        "webRequest",
+        "webRequestBlocking",
+        "https://*.crunchyroll.com/*"
+    ]
+}

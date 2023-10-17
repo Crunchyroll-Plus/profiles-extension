@@ -1,0 +1,101 @@
+{
+    "extName": {
+        "message": "Perfis da Crunchyroll"
+    },
+    "extDescription": {
+        "message": "Permite que você tenha seus próprios perfis para uma experiência pessoal em uma conta compartilhada"
+    },
+    "profile-selection": {
+        "message": "Perfis"
+    },
+    "settings-selection": {
+        "message": "Configurações"
+    },
+    "genre-feed-settings": {
+        "message": "Recomendações gênero"
+    },
+    "who-is-watching": {
+        "message": "Quem está assistindo?"
+    },
+    "add-button": {
+        "message": "Criar"
+    },
+    "remove-button": {
+        "message": "Excluir"
+    },
+    "done-button": {
+        "message": "Terminar"
+    },
+    "import-button": {
+        "message": "Importar"
+    },
+    "export-button": {
+        "message": "Exportar"
+    },
+    "import-current-watchlist": {
+        "message": "Importar lista de observação original"
+    },
+    "import-current-history": {
+        "message": "Importar histórico original"
+    },
+    "import-current": {
+        "message": "Importar Atual"
+    },
+    "create-profile-title": {
+        "message": "Crie um novo perfil!"
+    },
+    "create-profile-button": {
+        "message": "Criar perfil"
+    },
+    "import-profile-button": {
+        "message": "Perfil de importação"
+    },
+    "export-profile-button": {
+        "message": "Perfil de exportação"
+    },
+    "import-history-button": {
+        "message": "Histórico de importação"
+    },
+    "export-history-button": {
+        "message": "Histórico de exportação"
+    },
+    "import-watchlist-button": {
+        "message": "Importar lista de observação"
+    },
+    "export-watchlist-button": {
+        "message": "Exportar lista de observação"
+    },
+    "text-input-title": {
+        "message": "Título"
+    },
+    "text-input-amount": {
+        "message": "Quantia"
+    },
+    "text-input-position": {
+        "message": "Posição"
+    },
+    "dropdown-type": {
+        "message": "Tipo"
+    },
+    "dropdown-sort-by": {
+        "message": "Sort By"
+    },
+    "dropdown-seasonal-tags": {
+        "message": "Seasonal Tags"
+    },
+    "create-list-button": {
+        "message": "Criar Lista"
+    },
+    "edit-list-button": {
+        "message": "Lista de edição"
+    },
+    "delete-list-button": {
+        "message": "Excluir lista"
+    },
+    "lists-option": {
+        "message": "Listas"
+    },
+    "left": {
+        "message": "Esquerda"
+    }
+}
