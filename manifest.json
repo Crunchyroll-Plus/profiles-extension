@@ -1,53 +1,27 @@
 {
-    "name": "Crunchyroll Profile",
+    "name": "CR+ Profiles",
     "description": "Allows you to have your own profiles for a personal experience on a shared account.",
-    "version": "0.0.173",
+    "version": "0.1.2",
     "default_locale": "en",
     "manifest_version": 2,
-    "content_scripts": [
-        {
-            "matches": [
-                "https://static.crunchyroll.com/vilos-v2/web/vilos/player.html*"
-            ],
-            "js": [
-                "src/contentScripts/player/main.js"
-            ],
-            "all_frames": true,
-            "run_at": "document_start"
-        }
-    ],
     "background": {
         "scripts": [
-            "src/modules/locale.js",
-            "src/modules/storage.js",
-            "src/modules/consts.js",
-            "src/modules/request.js",
-            "src/modules/crunchyroll.js",
-            "src/modules/patch.js",
-            "src/pages/install.js",
-            "src/message.js",
-            "src/profile.js",
-            "src/token.js",
-            "src/collect.js",
-            "src/watchlist.js",
-            "src/history.js",
-            "src/homefeed.js",
-            "src/assets.js",
-            "src/browse.js"
+            "src/background/index.js"
         ],
+        "type": "module",
         "persistent": true
     },
     "browser_action": {
-        "default_icon": "src/assets/icon.png",
-        "default_popup": "src/popup/select.html"
+        "default_icon": "src/ui/assets/icon.png",
+        "default_popup": "src/ui/popup/index.html"
     },
     "permissions": [
         "storage",
         "unlimitedStorage",
         "tabs",
+        "scripting",
         "webRequest",
         "webRequestBlocking",
-        "https://*.crunchyroll.com/*",
-        "https://raw.githubusercontent.com/*"
+        "https://*.crunchyroll.com/*"
     ]
 }
