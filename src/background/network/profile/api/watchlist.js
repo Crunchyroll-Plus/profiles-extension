@@ -20,6 +20,8 @@ export default {
 
             var current = await storage.profile.get("meta", "current");
             var watchlist = await storage.watchlist.get(current, "watchlist");
+            if(watchlist === undefined) return data.toString();
+
             var amount = parseInt(paramaters.get("n"));
 
             if(order !== null) {

@@ -1,7 +1,7 @@
 {
     "name": "Crunchyroll Profile",
     "description": "Allows you to have your own profiles for a personal experience on a shared account.",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "default_locale": "en",
     "manifest_version": 2,
     "background": {
@@ -12,6 +12,7 @@
         "persistent": true
     },
     "browser_action": {
+        "default_icon": "src/ui/assets/icon.png",
         "default_popup": "src/ui/popup/index.html"
     },
     "permissions": [

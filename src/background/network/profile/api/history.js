@@ -116,7 +116,6 @@ export default {
             if(history === undefined) return data.toString();
 
             history.items.reverse();
-            // var additions = [];
 
             for(var item of history.items) {
                 // Break once we've reached the amount of episodes.
@@ -131,7 +130,11 @@ export default {
                     if(next_up === undefined) continue;
 
                     var h_item = history.items.find(it => it.id === next_up.result.data[0].panel.id)
-                    if(h_item !== undefined) continue;
+
+                    if(h_item !== undefined) {
+                        used_series.push(h_item.panel.episode_metadata.series_id);
+                        continue;
+                    };
 
                     next_up = next_up.result.data[0];
 
@@ -145,8 +148,6 @@ export default {
                     }
                     
                     item.content_id = item.id;
-
-                    // additions.push([h_item, item]);
                 };
 
                 // Push the series_id to the used_series array.
@@ -160,8 +161,6 @@ export default {
             }
 
             history.items.reverse();
-
-            // for(var [h_item, item] of additions) history.items.splice(history.items.indexOf(h_item) -1, 0, item);
 
             storage.history.set(current, "episodes", history);
 
