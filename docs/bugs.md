@@ -13,9 +13,5 @@ Explains some current bugs and hopefully with instructions on how to avoid them 
 
 ### Black screen
 ---------
-The black screen on the history page is caused by how I used to store episodes to fix this simply go to the [settings page](https://www.crunchyroll.com/account/preferences) on the left side you'll find an export and import section with buttons.
-<p>
-    Press the "Export History" button then press the "Import History" then select the history JSON file that was exported.
-</p>
 
----------
+This has been fixed with the update 0.1.3 simply update to the newest version and your history will be fixed.
