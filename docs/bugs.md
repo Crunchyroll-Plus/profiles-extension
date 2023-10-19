@@ -7,11 +7,4 @@ Explains some current bugs and hopefully with instructions on how to avoid them 
 
 ## Bugs
 
-* [Black screen on history page](#black-screen)
-
-## Fixes
-
-### Black screen
----------
-
-This has been fixed with the update 0.1.3 simply update to the newest version and your history will be fixed.
+* Sometimes a show won't show that's in the watchlist.
