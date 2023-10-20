@@ -20,8 +20,6 @@ export default {
                 func: (username) => {
                     let img = document.querySelector(".content-image__image--7tGlg").src.split("/170x170/")[1];
 
-                    console.log(img);
-
                     if(img === undefined) return;
 
                     browser.runtime.sendMessage({
@@ -57,7 +55,7 @@ export default {
             return info.body;
         }),
         request.override([GET_PROFILE], "GET", async (info) => {
-            if(info.details.originUrl === ACTIVATION_PROFILE) {
+            if(info.details.originUrl.startsWith(ACTIVATION_PROFILE)) {
                 tab.exec({
                     args: [
                         {
@@ -77,8 +75,6 @@ export default {
                                 clearInterval(interval);
                                 btn.innerText = messages.button;
                             }, 500);
-
-                            console.log(btn.innerText)
                         });
                         function waitForElm(selector) {
                             return new Promise(resolve => {

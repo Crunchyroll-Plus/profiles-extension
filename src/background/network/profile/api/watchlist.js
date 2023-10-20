@@ -58,13 +58,12 @@ export default {
             return data.toString();
         }),
         request.block([GET], "POST", async (info) => {
-            var data = JSON.parse(info.body);
+            var data = info.body
 
             var current = await storage.profile.get("meta", "current");
             if(current === undefined) return true;
 
-            var watchlist = await storage.watchlist.get(current, "watchlist");
-            if(watchlist == undefined) return true;
+            var watchlist = (await storage.watchlist.get(current, "watchlist")) || {items: []};
 
             var item = watchlist.items.find(item => item.panel.episode_metadata.series_id === data.content_id);
             if(item !== undefined) return true;

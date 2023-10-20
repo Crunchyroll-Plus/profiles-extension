@@ -6,7 +6,6 @@
 */
 
 import { locale } from "../scripts/locale.js";
-import { config } from "../config/index.js";
 
 export class crunchyProfile {
     constructor(data) {

@@ -6,6 +6,7 @@
 */
 
 import { StorageDB, StoreObject } from "../models/storage.js";
+import { config } from "../config/index.js";
 
 export const Settings = {
     default: {
@@ -78,6 +79,40 @@ export class ProfileStore extends StoreObject {
 
 export const storage = {
     onload: () => {},
+    loaded: false,
+    updateHistory: async (history) => {
+        var current = await storage.profile.get("meta", "current");
+
+        if(history === undefined)
+            history = await storage.history.get(current, "episodes");
+        
+        var removed = [];
+
+        for(var item of history.items) {
+            if(item.panel === undefined) {
+                let objects = await crunchyroll.content.getObjects(item.id);
+                
+                if(objects === undefined){ 
+                    removed.push(item);
+                    continue;
+                }
+
+                item.panel = objects.result.data[0];
+            };
+
+            if(item.id === undefined || item.content_id === undefined) {
+                item.id = item.panel.id;
+                item.content_id = item.panel.id;
+            };
+
+            if(item.fully_watched !== true) item.fully_watched = config.isFinished(item);
+            if(item.date_played === undefined) item.date_played = (new Date()).toISOString();
+        }
+
+        for(var item of removed) history.splice(history.items.indexOf(item), 1);
+
+        storage.history.set(current, "episodes", history);
+    },
     database: new ProfileDB(() => {
         storage.database.stores.profile.get("meta", "current").then(current => {
             storage.current = current;
@@ -85,6 +120,7 @@ export const storage = {
             storage.history = storage.database.stores.history;
             storage.watchlist = storage.database.stores.watchlist;
             storage.onload();
+            storage.loaded = true;
         })
         try { github.home_feed.getLink() } catch { };
     }),

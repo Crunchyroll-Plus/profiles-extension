@@ -13,6 +13,7 @@ export default {
     listeners: [
         request.block([PLAYHEADS], "POST", async (info) => {
             let body = info.body;
+
             var current = await storage.profile.get("meta", "current");
             let history = (await storage.history.get(current, "episodes")) || { items: [] };
 
@@ -27,7 +28,7 @@ export default {
             found_episode.date_played = (new Date()).toISOString();
             found_episode.panel = found_episode.panel === undefined ? (await crunchyroll.content.getObjects(found_episode.content_id)).result.data[0] : found_episode.panel;
             found_episode.id = found_episode.panel.id;
-            found_episode.fully_watched = (found_episode.panel.episode_metadata.duration_ms / 1000) - found_episode.playhead < config.MIN_MINUTES_LEFT;
+            found_episode.fully_watched = config.isFinished(found_episode);
 
             if(!exists) history.items.push(found_episode);
             
@@ -77,7 +78,7 @@ export default {
           
               item.playhead = history_item.playhead;
               item.never_watched = item.playhead;
-              item.fully_watched = ((item.panel.episode_metadata.duration_ms / 1000) - item.playhead) / 60 < config.MIN_MINUTES_LEFT;
+              item.fully_watched = config.isFinished(item);
               item.panel = history_item.panel;
             }
           
@@ -125,7 +126,7 @@ export default {
                 if(used_series.includes(item.panel.episode_metadata.series_id)) continue;
 
                 // Check if the user has finished the episode.
-                if(item.fully_watched === true || ((item.panel.episode_metadata.duration_ms / 1000) - item.playhead) / 60 < config.MIN_MINUTES_LEFT) {
+                if(item.fully_watched === true || config.isFinished(item)) {
                     var next_up = await crunchyroll.content.getUpNext(item.content_id);
                     if(next_up === undefined) continue;
 

@@ -11,8 +11,12 @@ const AVATARS = config.URLS.get("settings.avatars");
 request.override([AVATARS], "GET", async (info) => {
     var current = await storage.profile.get("meta", "current");
 
+    if(current === undefined) return info.body;
+
     var history = await storage.history.get(current, "episodes");
     var watchlist = await storage.watchlist.get(current, "watchlist");
+
+    // if(history === undefined || watchlist === undefined) return info.body;
 
     var current_watchlist = await crunchyroll.content.getWatchlist({
         n: 2000

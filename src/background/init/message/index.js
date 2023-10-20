@@ -1,8 +1,6 @@
 import { crunchyProfile } from "../../../api/models/crunchyroll.js";
-import { crunchyroll } from "../../../api/scripts/crunchyroll.js";
 import { storage } from "../../../api/scripts/storage.js";
 import { tab } from "../../../api/scripts/tab.js";
-import { config } from "../../../api/config/index.js";
 
 browser.runtime.onMessage.addListener(async (request) => {
     if(typeof request !== "object" || request.type === undefined) return;
@@ -26,37 +24,8 @@ browser.runtime.onMessage.addListener(async (request) => {
             break;
         case "import_history":
             // Import history.
-            var current = await storage.profile.get("meta", "current");
-            var removed = [];
-            for(var item of request.value.items) {
-                if(item.panel === undefined) {
-                    let objects = await crunchyroll.content.getObjects(item.id);
-                    
-                    if(objects === undefined){ 
-                        removed.push(item);
-                        continue;
-                    }
+            await storage.updateHistory(request.value);
 
-                    item.panel = objects.result.data[0];
-                };
-                // console.log(2)
-
-                if(item.id === undefined || item.content_id === undefined) {
-                    item.id = item.panel.id;
-                    item.content_id = item.panel.id;
-                };
-                // console.log(3)
-
-                if(item.fully_watched !== true) item.fully_watched = (item.panel.episode_metadata.duration_ms / 1000) - item.playhead <= config.MIN_MINUTES_LEFT;
-
-                // console.log(4)
-                if(item.date_played === undefined) item.date_played = (new Date()).toISOString();
-                // console.log(5)
-            }
-
-            for(var item of removed) request.value.items.splice(request.value.items.indexOf(item), 1);
-
-            storage.history.set(current, "episodes", request.value);
             tab.updateAll();
             break;
         case "import_watchlist":
