@@ -3,6 +3,7 @@ import { crunchyroll } from "../../../../api/scripts/crunchyroll.js";
 import { crunchyArray } from "../../../../api/models/crunchyroll.js";
 import { config } from "../../../../api/config/index.js";
 import { storage } from "../../../../api/scripts/storage.js";
+import { tab } from "../../../../api/scripts/tab.js";
 
 const CONTINUE_WATCHING = config.URLS.get("history.continue_watching");
 const WATCH_HISTORY = config.URLS.get("history.watch_history");
@@ -101,8 +102,6 @@ export default {
                 if(result === undefined) continue;
                 data.push(result);
             }
-
-            console.log(data);
 
             return data.toString();
         }),
@@ -218,10 +217,10 @@ export default {
 
             for(const season of data) {
                 if(season.audio_locale === profile.preferred_content_audio_language) continue;
-                season.audio_locale = profile.preferred_content_audio_language;
-                season.series_id = (season.versions.find(item => item.audio_locale === profile.preferred_content_audio_language) || {guid: season.identifier}).guid;
-            }
 
+                season.id = (season.versions.find(item => item.audio_locale === profile.preferred_content_audio_language) || {guid: season.identifier}).guid;
+            }
+            
             return data.toString();
         }),
         request.override([SEASON_EPISODES], "GET", async (info) => {

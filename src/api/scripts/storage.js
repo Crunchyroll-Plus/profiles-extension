@@ -110,7 +110,6 @@ export const storage = {
             if(item.date_played === undefined) item.date_played = (new Date()).toISOString();
         }
 
-        history.items.reverse();
         for(var item of removed) history.items.splice(history.items.indexOf(item), 1);
 
         storage.history.set(current, "episodes", history);

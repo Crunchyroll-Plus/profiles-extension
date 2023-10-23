@@ -64,6 +64,8 @@ request.override([AVATARS], "GET", async (info) => {
 
                     history.items = current_history;
 
+                    history.items.reverse();
+
                     browser.runtime.sendMessage({"type": "import_history", "value": history});
                 });
         
