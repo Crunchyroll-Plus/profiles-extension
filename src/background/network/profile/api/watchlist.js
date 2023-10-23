@@ -14,25 +14,15 @@ export default {
             var paramaters = request.getURLParams(info);
             
             var ids = paramaters.get("content_ids");
-            var order = paramaters.get("order");
 
             var current = await storage.profile.get("meta", "current");
             var watchlist = await storage.watchlist.get(current, "watchlist");
             if(watchlist === undefined) return data.toString();
 
             var amount = parseInt(paramaters.get("n"));
+            var start = parseInt(paramaters.get("start")) | 0;
 
-            if(order !== null) {
-                if(order === "desc" || order === null) watchlist.items.reverse();
-                
-                var start = parseInt(paramaters.get("start")) | 0;
-
-                data.result.data = watchlist.items.slice(start, start + amount);
-                data.result.total = data.result.data.length;
-                data.result.meta.total_before_filter = watchlist.items.length;
-                
-                return data.toString();
-            }
+            if(amount >= 1000) return info.body;
 
             if(ids !== null) {
                 for(var id of ids.split(",")) {
@@ -49,10 +39,10 @@ export default {
                 return data.toString();
             }
 
-            data.result.data = watchlist.items.reverse().slice(0, amount);
-            data.result.total = data.result.data.length;
+            data.result.data = watchlist.items.reverse().slice(start, start + amount);
+            data.result.total = watchlist.items.length;
             data.result.meta.total_before_filter = watchlist.items.length;
-
+            
             return data.toString();
         }),
         request.block([GET], "POST", async (info) => {

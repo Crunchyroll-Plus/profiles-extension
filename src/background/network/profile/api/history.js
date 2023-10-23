@@ -210,6 +210,20 @@ export default {
 
             return data.toString();
         }),
+        request.override([SEASONS], "GET", async (info) => {
+            var data = new crunchyArray(info.body);
+
+            var current = await storage.profile.get("meta", "current");
+            var profile = await storage.profile.get(current, "profile");
+
+            for(const season of data) {
+                if(season.audio_locale === profile.preferred_content_audio_language) continue;
+                season.audio_locale = profile.preferred_content_audio_language;
+                season.series_id = (season.versions.find(item => item.audio_locale === profile.preferred_content_audio_language) || {guid: season.identifier}).guid;
+            }
+
+            return data.toString();
+        }),
         request.override([SEASON_EPISODES], "GET", async (info) => {
             var data = new crunchyArray(info.body);
             

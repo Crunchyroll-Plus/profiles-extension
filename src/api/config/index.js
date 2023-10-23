@@ -69,6 +69,7 @@ export const config = {
                 playheads: "https://www.crunchyroll.com/content/v2/*/playheads*",
                 watch_history: "https://www.crunchyroll.com/content/v2/*/watch-history*",
                 continue_watching: "https://www.crunchyroll.com/content/v2/discover/*/history?locale=*&n=*&ratings=*"
+                // ^ Can get this url from home_feed so might want to get it from there instead, same with watchlist.
             }
         },
         get: (id) => {

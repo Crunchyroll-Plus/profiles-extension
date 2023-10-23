@@ -16,8 +16,6 @@ request.override([AVATARS], "GET", async (info) => {
     var history = await storage.history.get(current, "episodes");
     var watchlist = await storage.watchlist.get(current, "watchlist");
 
-    // if(history === undefined || watchlist === undefined) return info.body;
-
     var current_watchlist = await crunchyroll.content.getWatchlist({
         n: 2000
     });
@@ -30,8 +28,8 @@ request.override([AVATARS], "GET", async (info) => {
         args: [
             history,
             watchlist,
-            current_watchlist,
-            current_history,
+            current_watchlist.result.data,
+            current_history.result.data,
             {
                 import_title: locale.messages.import_button,
                 export_title: locale.messages.export_button,
@@ -64,7 +62,7 @@ request.override([AVATARS], "GET", async (info) => {
                         items: []
                     }
 
-                    history.items = current_history.result.data;
+                    history.items = current_history;
 
                     browser.runtime.sendMessage({"type": "import_history", "value": history});
                 });
@@ -80,7 +78,7 @@ request.override([AVATARS], "GET", async (info) => {
                         items: []
                     }
 
-                    watchlist.items = current_watchlist.result.data;
+                    watchlist.items = current_watchlist;
 
                     browser.runtime.sendMessage({"type": "import_watchlist", "value": watchlist});
                 });
@@ -127,7 +125,9 @@ request.override([AVATARS], "GET", async (info) => {
             
             function createButton(text, callback) {
                 var select = document.createElement("div");
+
                 select.setAttribute("role", "button");
+                
                 select.classList.add("add-button");
                 select.classList.add("button--xqVd0");
                 select.classList.add("button--is-type-one--3uIzT");
@@ -143,13 +143,14 @@ request.override([AVATARS], "GET", async (info) => {
             
                 select.addEventListener("click", callback);
             
-                select.children[0].style.textAlign = "center";
-                select.children[0].style.height = "auto";
-                select.children[0].style.paddingTop = "10px";
-                select.children[0].style.paddingBottom = "10px";
-                select.children[0].style.display = "inline-block";
-                
+                span.style.textAlign = "center";
+                span.style.height = "auto";
+                span.style.paddingTop = "10px";
+                span.style.paddingBottom = "10px";
+
                 select.style.mariginRight = "10px";
+
+                select.appendChild(span);
             
                 return select;
             }

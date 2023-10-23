@@ -7,6 +7,7 @@
 
 import { StorageDB, StoreObject } from "../models/storage.js";
 import { config } from "../config/index.js";
+import { crunchyroll } from "./crunchyroll.js";
 
 export const Settings = {
     default: {
@@ -109,7 +110,8 @@ export const storage = {
             if(item.date_played === undefined) item.date_played = (new Date()).toISOString();
         }
 
-        for(var item of removed) history.splice(history.items.indexOf(item), 1);
+        history.items.reverse();
+        for(var item of removed) history.items.splice(history.items.indexOf(item), 1);
 
         storage.history.set(current, "episodes", history);
     },

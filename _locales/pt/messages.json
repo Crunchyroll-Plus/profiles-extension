@@ -1,6 +1,6 @@
 {
     "extName": {
-        "message": "Perfis da Crunchyroll"
+        "message": "Perfis da Crunchyroll+"
     },
     "extDescription": {
         "message": "Permite que você tenha seus próprios perfis para uma experiência pessoal em uma conta compartilhada"
@@ -10,9 +10,6 @@
     },
     "settings-selection": {
         "message": "Configurações"
-    },
-    "genre-feed-settings": {
-        "message": "Recomendações gênero"
     },
     "who-is-watching": {
         "message": "Quem está assistindo?"
@@ -64,38 +61,5 @@
     },
     "export-watchlist-button": {
         "message": "Exportar lista de observação"
-    },
-    "text-input-title": {
-        "message": "Título"
-    },
-    "text-input-amount": {
-        "message": "Quantia"
-    },
-    "text-input-position": {
-        "message": "Posição"
-    },
-    "dropdown-type": {
-        "message": "Tipo"
-    },
-    "dropdown-sort-by": {
-        "message": "Sort By"
-    },
-    "dropdown-seasonal-tags": {
-        "message": "Seasonal Tags"
-    },
-    "create-list-button": {
-        "message": "Criar Lista"
-    },
-    "edit-list-button": {
-        "message": "Lista de edição"
-    },
-    "delete-list-button": {
-        "message": "Excluir lista"
-    },
-    "lists-option": {
-        "message": "Listas"
-    },
-    "left": {
-        "message": "Esquerda"
     }
 }
