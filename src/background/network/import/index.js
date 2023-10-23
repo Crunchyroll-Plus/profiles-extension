@@ -126,11 +126,20 @@ request.override([AVATARS], "GET", async (info) => {
             }
             
             function createButton(text, callback) {
-                let select = document.createElement("div");
-            
-                select.innerHTML = `<div role="button" tabindex="0" class="add-button button--xqVd0 button--is-type-one--3uIzT buttons-group__item--ThNEA" data-t="cancel-avatar-btn">
-                <span class="call-to-action--PEidl call-to-action--is-m--RVdkI button__cta--LOqDH">${text}</span>
-            </div>`
+                var select = document.createElement("div");
+                select.setAttribute("role", "button");
+                select.classList.add("add-button");
+                select.classList.add("button--xqVd0");
+                select.classList.add("button--is-type-one--3uIzT");
+                select.classList.add("buttons-group__item--ThNEA");
+
+                var span = document.createElement("span");
+
+                span.classList.add("call-to-action--PEidl");
+                span.classList.add("call-to-action--is-m--RVdkI");
+                span.classList.add("button__cta--LOqDH")
+
+                span.innerText = text
             
                 select.addEventListener("click", callback);
             

@@ -212,9 +212,9 @@ export default {
         }),
         request.override([SEASON_EPISODES], "GET", async (info) => {
             var data = new crunchyArray(info.body);
+            
             var current = await storage.profile.get("meta", "current");
             var profile = await storage.profile.get(current, "profile");
-            var history = await storage.history.get(current, "episodes");
 
             for(const episode of data) {
                 // Set recent_audio_locale to the preferred language.
