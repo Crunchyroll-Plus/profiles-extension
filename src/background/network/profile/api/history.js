@@ -3,7 +3,6 @@ import { crunchyroll } from "../../../../api/scripts/crunchyroll.js";
 import { crunchyArray } from "../../../../api/models/crunchyroll.js";
 import { config } from "../../../../api/config/index.js";
 import { storage } from "../../../../api/scripts/storage.js";
-import { tab } from "../../../../api/scripts/tab.js";
 
 const CONTINUE_WATCHING = config.URLS.get("history.continue_watching");
 const WATCH_HISTORY = config.URLS.get("history.watch_history");
@@ -137,6 +136,8 @@ export default {
                         continue;
                     };
 
+                    console.log(next_up)
+
                     // Check if the next up exists in the watch history.
                     var h_item = history.items.find(it => it.id === next_up.result.data[0].panel.id)
 
@@ -167,10 +168,11 @@ export default {
                 // Push the episode to the data crunchyArray.
                 data.push(item);
             }
-
             history.items.reverse();
 
             storage.history.set(current, "episodes", history);
+
+            data.sort(item => item.new);
 
             return data.toString();
         }),
@@ -216,11 +218,13 @@ export default {
             var profile = await storage.profile.get(current, "profile");
 
             for(const season of data) {
+                // Check if the audio locale is the profile's
                 if(season.audio_locale === profile.preferred_content_audio_language) continue;
 
-                season.id = (season.versions.find(item => item.audio_locale === profile.preferred_content_audio_language) || {guid: season.identifier}).guid;
+                // Set the season's id to the profile's audio locale
+                season.id = season.versions.find(item => item.audio_locale === profile.preferred_content_audio_language).guid || season.identifier;
             }
-            
+
             return data.toString();
         }),
         request.override([SEASON_EPISODES], "GET", async (info) => {
