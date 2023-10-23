@@ -136,8 +136,6 @@ export default {
                         continue;
                     };
 
-                    console.log(next_up)
-
                     // Check if the next up exists in the watch history.
                     var h_item = history.items.find(it => it.id === next_up.result.data[0].panel.id)
 
@@ -172,7 +170,9 @@ export default {
 
             storage.history.set(current, "episodes", history);
 
-            data.sort(item => item.new);
+            data.sort(item => item.new === false);
+
+            console.log(data.result.data)
 
             return data.toString();
         }),
