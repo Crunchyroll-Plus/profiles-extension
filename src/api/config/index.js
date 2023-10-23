@@ -2,13 +2,35 @@ export const config = {
     // Minimum amount of minutes left in a video before it's finished.
     MIN_MINUTES_LEFT: 3,
     // Check if the episode is finished.
-    isFinished: (item) => {
-        return ((item.panel.episode_metadata.duration_ms / 1000) - item.playhead) / 60 < config.MIN_MINUTES_LEFT;
-    },
+    isFinished: (item) => ((item.panel.episode_metadata.duration_ms / 1000) - item.playhead) / 60 < config.MIN_MINUTES_LEFT,
     // Maximum amount of seconds to wait before opening a profile window.
     OPEN_PAGE_COOLDOWN: 3,
     // Maximum amount of days of a episode being released before it's not new.
     NEW_DAYS: 7,
+    // Check if the item is new.
+    isNew: (item) => config.getDays(new Date((item.panel || item).episode_metadata.availability_starts), new Date()) < config.NEW_DAYS,
+    // Get the amount of days between two dates.
+    getDays: (date1, date2) => {
+        const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+        const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+      
+        return Math.floor((utc2 - utc1) / 86400000);
+    },
+    // Checks the item's id.
+    checkId: (item, id) => {
+        var panel = item.panel || item;
+        var metadata = panel.episode_metadata || panel.series_metadata;
+        var found_version;
+
+        if(!(metadata.versions !== undefined && (found_version = metadata.versions.find(it => it.guid === id)) !== undefined || item.id === id || item.content_id === id)) return;
+        
+        if(found_version.guid === undefined) return true;
+
+        item.content_id = found_version.guid;
+        item.id = found_version.guid;
+
+        return true;
+    },
     // Url patterns used for traffic.
     URLS: {
         items: {
@@ -42,6 +64,7 @@ export const config = {
             },
             history: {
                 seasons: "https://www.crunchyroll.com/content/v2/cms/series/*/seasons?*",
+                season_episodes: "https://www.crunchyroll.com/content/v2/cms/seasons/*/episodes?*",
                 up_next: "https://www.crunchyroll.com/content/v2/discover/up_next/*?preferred_audio_language=*&locale=*",
                 playheads: "https://www.crunchyroll.com/content/v2/*/playheads*",
                 watch_history: "https://www.crunchyroll.com/content/v2/*/watch-history*",

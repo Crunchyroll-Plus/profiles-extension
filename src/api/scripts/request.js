@@ -20,6 +20,9 @@ export const request = {
 
         xml.send(request.body);
     },
+    getParams: (pattern, url) => {
+        return (new URLSearchParams(pattern)).exec(url);
+    },
     getURLParams: (info) => {
         return new URLSearchParams(info.details.url.split("?")[1]);
     },

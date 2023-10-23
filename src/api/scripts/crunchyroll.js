@@ -156,6 +156,13 @@ export const crunchyroll = {
                 query
             )
         },
+        getBrowse: (query) => {
+            return crunchyroll.content.createPromise(
+                "discover",
+                "/browse",
+                query
+            )
+        },
         getSeries: (ids, query) => {
             ids = typeof(ids) === "object" ? ids : [ids];
 

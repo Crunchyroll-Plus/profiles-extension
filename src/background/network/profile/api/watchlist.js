@@ -3,11 +3,9 @@ import { crunchyroll } from "../../../../api/scripts/crunchyroll.js";
 import { crunchyArray } from "../../../../api/models/crunchyroll.js";
 import { config } from "../../../../api/config/index.js";
 import { storage } from "../../../../api/scripts/storage.js";
-import { tab } from "../../../../api/scripts/tab.js";
 
 const GET = config.URLS.get("watchlist.get");
 const SET = config.URLS.get("watchlist.set");
-// const EXIST = config.URLS.get("watchlist.check_exist");
 
 export default {
     listeners: [
@@ -72,7 +70,7 @@ export default {
             if(panel === undefined) return true;
 
             panel.is_favorite = false;
-            panel.new = getDays(new Date(panel.panel.episode_metadata.availability_starts), new Date()) < config.NEW_DAYS;
+            panel.new = config.isNew(panel);
 
             delete panel.shortcut;
 
@@ -84,6 +82,7 @@ export default {
         request.block([SET], ["DELETE", "PATCH"], async (info) => {
             var current = await storage.profile.get("meta", "current");
             var watchlist = await storage.watchlist.get(current, "watchlist");
+            
             var id = info.details.url.split("?")[0].split("/watchlist/")[1];
 
             switch(info.details.method) {
@@ -104,11 +103,4 @@ export default {
             return true;
         })
     ]
-}
-
-function getDays(date1, date2) {
-    const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
-    const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
-  
-    return Math.floor((utc2 - utc1) / 86400000);
 }

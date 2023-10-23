@@ -1,7 +1,7 @@
 {
     "name": "CR+ Profiles",
     "description": "Allows you to have your own profiles for a personal experience on a shared account.",
-    "version": "0.1.8",
+    "version": "0.1.9",
     "default_locale": "en",
     "manifest_version": 2,
     "background": {

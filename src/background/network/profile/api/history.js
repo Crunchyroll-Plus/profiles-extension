@@ -8,18 +8,19 @@ const CONTINUE_WATCHING = config.URLS.get("history.continue_watching");
 const WATCH_HISTORY = config.URLS.get("history.watch_history");
 const PLAYHEADS = config.URLS.get("history.playheads");
 const NEXT_UP = config.URLS.get("history.up_next");
+const SEASON_EPISODES = config.URLS.get("history.season_episodes");
+const SEASONS = config.URLS.get("history.seasons");
 
 export default {
     listeners: [
         request.block([PLAYHEADS], "POST", async (info) => {
-            let body = info.body;
+            const body = info.body;
 
             var current = await storage.profile.get("meta", "current");
             let history = (await storage.history.get(current, "episodes")) || { items: [] };
 
-            let found_episode = history.items.find((item) => item.content_id === body.content_id);
-
-            let exists = found_episode !== undefined;
+            var found_episode = history.items.find((item) => config.checkId(item, body.content_id));
+            var exists = found_episode !== undefined;
 
             found_episode = exists ? found_episode : body;
 
@@ -96,10 +97,12 @@ export default {
             if(history === undefined) return data.toString();
 
             for(const id of content_ids) {
-                var result = history.items.find((item) => item.content_id === id);
+                var result = history.items.find((item) => config.checkId(item, id));
                 if(result === undefined) continue;
                 data.push(result);
             }
+
+            console.log(data);
 
             return data.toString();
         }),
@@ -128,8 +131,14 @@ export default {
                 // Check if the user has finished the episode.
                 if(item.fully_watched === true || config.isFinished(item)) {
                     var next_up = await crunchyroll.content.getUpNext(item.content_id);
-                    if(next_up === undefined) continue;
 
+                    // If there is no next up episode, we can skip this series.
+                    if(next_up === undefined) { 
+                        used_series.push(item.panel.episode_metadata.series_id);
+                        continue;
+                    };
+
+                    // Check if the next up exists in the watch history.
                     var h_item = history.items.find(it => it.id === next_up.result.data[0].panel.id)
 
                     if(h_item !== undefined) {
@@ -137,25 +146,24 @@ export default {
                         continue;
                     };
 
+                    // Get the next up episode.
                     next_up = next_up.result.data[0];
 
-                    item.fully_watched = true;
-
+                    // Reassign the item to the next up episode.
                     item = {
                         panel: next_up.panel,
                         id: next_up.panel.id,
+                        content_id: next_up.panel.id,
                         date_played: (new Date()).toISOString(),
                         fully_watched: next_up.fully_watched
                     }
-                    
-                    item.content_id = item.id;
                 };
 
                 // Push the series_id to the used_series array.
                 used_series.push(item.panel.episode_metadata.series_id);
 
                 // Check if the episode is new.
-                item.new = getDays(new Date(item.panel.episode_metadata.availability_starts), new Date()) < config.NEW_DAYS;
+                item.new = config.isNew(item);
 
                 // Push the episode to the data crunchyArray.
                 data.push(item);
@@ -201,13 +209,32 @@ export default {
             data.result.meta.total_before_filter = history.items.length;
 
             return data.toString();
-        })
+        }),
+        request.override([SEASON_EPISODES], "GET", async (info) => {
+            var data = new crunchyArray(info.body);
+            var current = await storage.profile.get("meta", "current");
+            var profile = await storage.profile.get(current, "profile");
+            var history = await storage.history.get(current, "episodes");
+
+            for(const episode of data) {
+                // Set recent_audio_locale to the preferred language.
+                episode.recent_audio_locale = profile.preferred_content_audio_language;
+
+                // Check if the episode is subbed and if it is then set the subtitle to the preferred language.
+                if(episode.is_subbed === true) episode.subtitle_locales = [profile.preferred_content_subtitle_language];
+
+                // Check if the episode is dubbed and if it is then set the audio to the preferred language.
+                if(episode.is_dubbed === true) {
+                    var index = -1;
+                    var versions = episode.versions;
+
+                    if(versions.find(item => item.audio_locale === profile.preferred_content_audio_language)) episode.audio_locale = profile.preferred_content_audio_language;
+                    if((index = versions.findIndex(item => item.audio_locale === profile.preferred_communication_language)) !== -1) episode.versions[0] = versions.splice(index, 1, versions[0])[0]
+                }
+            }
+
+            return data.toString();
+        }),
+
     ]
 }
-
-function getDays(date1, date2) {
-    const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
-    const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
-  
-    return Math.floor((utc2 - utc1) / 86400000);
-  }
