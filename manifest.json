@@ -1,7 +1,7 @@
 {
     "name": "CR+ Profiles",
     "description": "Allows you to have your own profiles for a personal experience on a shared account.",
-    "version": "0.1.9",
+    "version": "0.1.11",
     "default_locale": "en",
     "manifest_version": 2,
     "background": {
@@ -13,8 +13,7 @@
     },
     "browser_specific_settings": {
         "gecko": {
-            "id": "ayykkk@outlook.com",
-            "strict_min_version": "42.0"
+            "id": "ayykkk@outlook.com"
         }
     },
     "browser_action": {
