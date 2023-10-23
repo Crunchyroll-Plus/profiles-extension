@@ -129,7 +129,7 @@ export default {
                 // Check if the user has finished the episode.
                 if(item.fully_watched === true || config.isFinished(item)) {
                     var next_up = await crunchyroll.content.getUpNext(item.content_id);
-
+                    
                     // If there is no next up episode, we can skip this series.
                     if(next_up === undefined) { 
                         used_series.push(item.panel.episode_metadata.series_id);
@@ -151,9 +151,10 @@ export default {
                     item = {
                         panel: next_up.panel,
                         id: next_up.panel.id,
+                        playhead: 0,
                         content_id: next_up.panel.id,
                         date_played: (new Date()).toISOString(),
-                        fully_watched: next_up.fully_watched
+                        fully_watched: false,
                     }
                 };
 
@@ -164,13 +165,12 @@ export default {
                 item.new = config.isNew(item);
 
                 // Push the episode to the data crunchyArray.
-                data.push(item);
+                if(item.new) data.splice(0, 0, item)
+                else data.push(item);
             }
             history.items.reverse();
 
             storage.history.set(current, "episodes", history);
-
-            data.sort(item => item.new === false);
 
             console.log(data.result.data)
 
