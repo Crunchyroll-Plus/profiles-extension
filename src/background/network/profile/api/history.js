@@ -146,14 +146,14 @@ export default {
 
                     // Get the next up episode.
                     next_up = next_up.result.data[0];
-
+                    
                     // Reassign the item to the next up episode.
                     item = {
                         panel: next_up.panel,
                         id: next_up.panel.id,
-                        playhead: 0,
+                        playhead: -1,
                         content_id: next_up.panel.id,
-                        date_played: (new Date()).toISOString(),
+                        date_played: item.date_played || item.panel.episode_metadata.availability_starts,
                         fully_watched: false,
                     }
                 };
@@ -165,15 +165,13 @@ export default {
                 item.new = config.isNew(item);
 
                 // Push the episode to the data crunchyArray.
-                if(item.new) data.splice(0, 0, item)
-                else data.push(item);
+                data.push(item)
             }
             history.items.reverse();
-
             storage.history.set(current, "episodes", history);
 
-            console.log(data.result.data)
-
+            data.sort((a, b) => (new Date(b.date_played)).getTime() - (new Date(a.date_played)).getTime())
+            
             return data.toString();
         }),
         request.override([WATCH_HISTORY], "GET", async (info) => {
