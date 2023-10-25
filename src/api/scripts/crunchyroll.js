@@ -181,6 +181,38 @@ export const crunchyroll = {
                     xml.setRequestHeader("Accept", "application/json, text/plain, */*")
                 }
             )
+        },
+        getNext: async (id) => {
+            var current = await storage.profile.get("meta", "current");
+            var profile = await storage.profile.get(current, "profile");
+            var item = await crunchyroll.content.getUpNext(id);
+
+            if(item !== undefined) return item;
+            
+            var season = (await crunchyroll.content.createPromise(
+                "cms",
+                `/series/${id}/seasons`,
+                {
+                    force_locale: profile.preferred_content_subtitle_language
+                }
+            )).result.data[0];
+            
+            var metadata = (await crunchyroll.content.createPromise(
+                "cms",
+                `/seasons/${season.id}/episodes`
+            )).result.data[0];
+
+            var episode_id = metadata.id
+
+            item = await crunchyroll.content.getObjects(episode_id);
+
+            item.result.data[0] = {
+                panel: item.result.data[0],
+                playhead: 0,
+                fully_watched: false
+            }
+
+            return item;
         }
     },
     getAvatars: (callback) => {

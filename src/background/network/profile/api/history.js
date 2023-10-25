@@ -10,6 +10,8 @@ const PLAYHEADS = config.URLS.get("history.playheads");
 const NEXT_UP = config.URLS.get("history.up_next");
 const SEASON_EPISODES = config.URLS.get("history.season_episodes");
 const SEASONS = config.URLS.get("history.seasons");
+// const SKIP_EVENTS = config.URLS.get("skip_events");
+const INTRO = config.URLS.get("intro");
 
 export default {
     listeners: [
@@ -62,26 +64,53 @@ export default {
         request.override([NEXT_UP], "GET", async (info) => {
             var current = await storage.profile.get("meta", "current");
             var episodes = await storage.history.get(current, "episodes");
-          
+            var profile = await storage.profile.get(current, "profile");
+
+            var id = info.details.url.split("/up_next/")[1].split("?")[0];
+
+            // if(info.body === "" && info.details.url.includes("?locale=") === true) {
+            //     var episode = (await crunchyroll.content.getObjects(id)).result.data[0];
+
+            //     var watchlist = await storage.watchlist.get(current, "watchlist");
+            //     if(watchlist === undefined) return JSON.stringify(data);
+
+            //     var next_watchlist = watchlist.items.findIndex(item => item.panel.episode_metadata.series_id === episode.series_id);
+            //     if(next_watchlist === -1 || next_watchlist + 1 === watchlist.items.length) next_watchlist = watchlist.items[watchlist.items.length - 1];
+            //     else next_watchlist = watchlist.items[next_watchlist + 1];
+            //     var item = await crunchyroll.content.getNext(next_watchlist.panel.episode_metadata.series_id)
+            //     console.log(item)
+
+
+            //     return item.toString();
+            // }
+
             if(episodes === undefined || info.body === "") return info.body;
           
             const data = new crunchyArray(info.body);
-            var ids = info.details.url.split("/up_next/")[1].split("?")[0].split(",");
             
             episodes.items.reverse();
-          
-            for(var id of ids) {
-              var history_item = episodes.items.find(hitem => hitem.panel.episode_metadata.series_id === id);
-          
-              if(history_item === undefined) continue;
-          
-              var item = data.find(it => it.panel.episode_metadata.series_id === id);
-          
-              item.playhead = history_item.playhead;
-              item.never_watched = item.playhead;
-              item.fully_watched = config.isFinished(item);
-              item.panel = history_item.panel;
+
+            var item = data.result.data[0];
+
+            var metadata = item.panel.episode_metadata;
+
+            var index = -1;
+            var versions = metadata.versions;
+
+            if(versions !== null && (index = versions.findIndex(item => item.audio_locale === profile.preferred_communication_language)) !== -1) metadata.versions[0] = versions.splice(index, 1, versions[0])[0]
+
+            var history_item = episodes.items.find(item => config.checkId(item, data.result.data[0].panel.id)) 
+
+            if(history_item !== undefined) {
+                item = history_item;
+            } else  {
+                item.playhead = 0;
+                item.never_watched = true;
+                item.fully_watched = false;
             }
+
+            item.never_watched = item.playhead === 0;
+            item.fully_watched = config.isFinished(item);
           
             return data.toString();
         }),
@@ -110,7 +139,7 @@ export default {
 
             let amount = parseInt(paramaters.get("n"));
 
-            var current = await storage.profile.get("meta", "current");            
+            var current = await storage.profile.get("meta", "current");
             let history = await storage.history.get(current, "episodes");
 
             var used_series = [];
@@ -153,7 +182,7 @@ export default {
                         id: next_up.panel.id,
                         playhead: -1,
                         content_id: next_up.panel.id,
-                        date_played: item.date_played || item.panel.episode_metadata.availability_starts,
+                        date_played: new Date(item.date_played).getTime() > new Date(item.panel.episode_metadata.availability_starts).getTime() ? item.date_played : item.panel.episode_metadata.availability_starts,
                         fully_watched: false,
                     }
                 };
@@ -170,7 +199,10 @@ export default {
             history.items.reverse();
             storage.history.set(current, "episodes", history);
 
-            data.sort((a, b) => (new Date(b.date_played)).getTime() - (new Date(a.date_played)).getTime())
+            data.sort((a, b) =>
+                // Sort by date
+                new Date(b.date_played).getTime() - new Date(a.date_played).getTime()
+            );
             
             return data.toString();
         }),
@@ -250,6 +282,33 @@ export default {
 
             return data.toString();
         }),
+        // Uncomment when this is actually implemented into crunchyroll.
+        // request.override([SKIP_EVENTS], "GET", async (info) => {
+        //     var data = {
+        //         lastUpdate: (new Date()).toISOString(),
+        //         mediaId: info.details.url.split("/production/")[1].split(".json")[0]
+        //     };
 
+        //     if(!info.body.startsWith("<?xml")) {
+        //         data = JSON.parse(info.body);
+        //     }
+
+        //     if(data.credits === undefined) {
+        //         var episode = (await crunchyroll.content.getNext(data.mediaId)).result.data[0];
+        //         var panel = episode.panel;
+        //         var metadata = panel.episode_metadata;
+
+        //         data.credits = {
+        //             start: ~~(metadata.duration_ms / 1000 - config.MIN_MINUTES_LEFT * 60),
+        //             end: ~~(metadata.duration_ms / 1000), 
+        //             seriesId: metadata.series_id,
+        //             type: "credits"
+        //         };
+        //     }
+
+        //     console.log(data);
+
+        //     return JSON.stringify(data);
+        // }),
     ]
 }

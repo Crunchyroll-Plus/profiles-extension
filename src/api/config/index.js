@@ -8,21 +8,20 @@ export const config = {
     // Maximum amount of days of a episode being released before it's not new.
     NEW_DAYS: 7,
     // Check if the item is new.
-    isNew: (item) => config.getDays(new Date((item.panel || item).episode_metadata.availability_starts), new Date()) < config.NEW_DAYS,
-    // Get the amount of days between two dates.
-    getDays: (date1, date2) => {
-        const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
-        const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
-      
-        return Math.floor((utc2 - utc1) / 86400000);
+    isNew: (item) => {
+        var metadata = item.series_id !== undefined ? item : (item.panel || item).episode_metadata;
+        // console.log(item)
+        return config.getDays(new Date(metadata.availability_starts), new Date()) < config.NEW_DAYS;
     },
+    // Get the amount of days between two dates.
+    getDays: (date1, date2) => Math.floor((date2.getTime() - date1.getTime()) / 86400000),
     // Checks the item's id.
     checkId: (item, id) => {
         var panel = item.panel || item;
         var metadata = panel.episode_metadata || panel.series_metadata;
         var found_version;
 
-        if(!(metadata.versions !== undefined && (found_version = metadata.versions.find(it => it.guid === id)) !== undefined || item.id === id || item.content_id === id)) return;
+        if(!(metadata.versions !== undefined && (found_version = metadata.versions.find(it => it.guid === id)) !== undefined || item.id === id || panel.id === id || item.content_id === id)) return;
         
         if(found_version.guid === undefined) return true;
 
@@ -34,6 +33,8 @@ export const config = {
     // Url patterns used for traffic.
     URLS: {
         items: {
+            skip_events: "https://static.crunchyroll.com/skip-events/production/*.json",
+            // intro: "https://static.crunchyroll.com/datalab-intro-v2/*.json",
             token: "https://www.crunchyroll.com/auth/v1/token",
             home_feed: "https://www.crunchyroll.com/content/v2/discover/*/home_feed*",
             benefits: "https://www.crunchyroll.com/subs/v1/subscriptions/*/benefits",
@@ -65,7 +66,7 @@ export const config = {
             history: {
                 seasons: "https://www.crunchyroll.com/content/v2/cms/series/*/seasons?*",
                 season_episodes: "https://www.crunchyroll.com/content/v2/cms/seasons/*/episodes?*",
-                up_next: "https://www.crunchyroll.com/content/v2/discover/up_next/*?preferred_audio_language=*&locale=*",
+                up_next: "https://www.crunchyroll.com/content/v2/discover/up_next/*",
                 playheads: "https://www.crunchyroll.com/content/v2/*/playheads*",
                 watch_history: "https://www.crunchyroll.com/content/v2/*/watch-history*",
                 continue_watching: "https://www.crunchyroll.com/content/v2/discover/*/history?locale=*&n=*&ratings=*"

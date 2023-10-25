@@ -39,10 +39,30 @@ export default {
                 return data.toString();
             }
 
+            var order = paramaters.get("order");
+
+            var is_favorite = paramaters.get("is_favorite");
+            var is_subbed = paramaters.get("is_subbed");
+            var is_dubbed = paramaters.get("is_dubbed");
+
+            if(is_favorite === "true") watchlist.items = watchlist.items.filter(item => item.is_favorite === true)
+            if(is_dubbed === "true") watchlist.items = watchlist.items.filter(item => item.panel.episode_metadata.is_dubbed === true)
+            if(is_subbed === "true") watchlist.items = watchlist.items.filter(item => item.panel.episode_metadata.is_subbed === true)
+
+            watchlist.items.sort(item => item.is_favorite === true)
+
             data.result.data = watchlist.items.reverse().slice(start, start + amount);
             data.result.total = watchlist.items.length;
             data.result.meta.total_before_filter = watchlist.items.length;
-            
+           
+            switch(order){
+                case "desc":
+                    break;
+                case "asc":
+                    data.reverse();
+                    break;
+            }
+
             return data.toString();
         }),
         request.block([GET], "POST", async (info) => {
@@ -50,14 +70,16 @@ export default {
 
             var current = await storage.profile.get("meta", "current");
             if(current === undefined) return true;
-
+            var profile = await storage.profile.get(current, "profile");
             var watchlist = (await storage.watchlist.get(current, "watchlist")) || {items: []};
 
             var item = watchlist.items.find(item => item.panel.episode_metadata.series_id === data.content_id);
             if(item !== undefined) return true;
 
-            var panel = (await crunchyroll.content.getUpNext(data.content_id)).result.data[0];
-            if(panel === undefined) return true;
+            var panel = await crunchyroll.content.getNext(data.content_id);
+            if(panel.result.data[0] === undefined) return true;
+
+            panel = panel.result.data[0];
 
             panel.is_favorite = false;
             panel.new = config.isNew(panel);
