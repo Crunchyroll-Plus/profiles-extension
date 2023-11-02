@@ -1,6 +1,6 @@
 {
     "extName": {
-        "message": "Perfis da Crunchyroll+"
+        "message": "Perfis Crunchyroll+"
     },
     "extDescription": {
         "message": "Permite que você tenha seus próprios perfis para uma experiência pessoal em uma conta compartilhada"
@@ -30,13 +30,13 @@
         "message": "Exportar"
     },
     "import-current-watchlist": {
-        "message": "Importar lista de observação original"
+        "message": "Importar lista de fila original"
     },
     "import-current-history": {
         "message": "Importar histórico original"
     },
     "import-current": {
-        "message": "Importar Atual"
+        "message": "Importar perfil Atual"
     },
     "create-profile-title": {
         "message": "Crie um novo perfil!"
@@ -45,21 +45,21 @@
         "message": "Criar perfil"
     },
     "import-profile-button": {
-        "message": "Perfil de importação"
+        "message": "Importar o Perfil"
     },
     "export-profile-button": {
-        "message": "Perfil de exportação"
+        "message": "Exportar o Perfil"
     },
     "import-history-button": {
-        "message": "Histórico de importação"
+        "message": "Importar o Histórico"
     },
     "export-history-button": {
-        "message": "Histórico de exportação"
+        "message": "Exportar o Histórico"
     },
     "import-watchlist-button": {
-        "message": "Importar lista de observação"
+        "message": "Importar Fila"
     },
     "export-watchlist-button": {
-        "message": "Exportar lista de observação"
+        "message": "Exportar Fila"
     }
 }

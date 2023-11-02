@@ -1,0 +1,65 @@
+{
+    "extName": {
+        "message": "Perfiles Crunchyroll+"
+    },
+    "extDescription": {
+        "message": "Te permite tener tus propios perfiles para una experiencia personal en una cuenta compartida"
+    },
+    "profile-selection": {
+        "message": "Perfiles"
+    },
+    "settings-selection": {
+        "message": "Configuracion"
+    },
+    "who-is-watching": {
+        "message": "¿Quien esta viendo?"
+    },
+    "add-button": {
+        "message": "Añadir"
+    },
+    "remove-button": {
+        "message": "Remover"
+    },
+    "done-button": {
+        "message": "Terminar"
+    },
+    "import-button": {
+        "message": "Importar"
+    },
+    "export-button": {
+        "message": "Exportar"
+    },
+    "import-current": {
+        "message": "Importar Este Perfil"
+    },
+    "import-current-watchlist": {
+        "message": "Importar Favoritos Originales"
+    },
+    "import-current-history": {
+        "message": "Importar Historial Original"
+    },
+    "create-profile-title": {
+        "message": "Crear un nuevo perfil!"
+    },
+    "create-profile-button": {
+        "message": "Crear Perfil"
+    },
+    "import-profile-button": {
+        "message": "Importar Perfil"
+    },
+    "export-profile-button": {
+        "message": "Exportar Perfil"
+    },
+    "import-history-button": {
+        "message": "Importar Historial"
+    },
+    "export-history-button": {
+        "message": "Exportar Historial"
+    },
+    "import-watchlist-button": {
+        "message": "Importar Favoritos"
+    },
+    "export-watchlist-button": {
+        "message": "Exportar Favoritos"
+    }
+}

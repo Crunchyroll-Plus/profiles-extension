@@ -67,6 +67,17 @@ export const crunchyroll = {
             }
         )
     },
+    getToken: async () => {
+        return (await (await fetch("https://www.crunchyroll.com/auth/v1/token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                Authorization: "Basic bm9haWhkZXZtXzZpeWcwYThsMHE6",
+            },
+            credentials: "include",
+            body: "grant_type=etp_rt_cookie"
+        })).json()).access_token
+    },
     content: {
         URIs: {
             base: "https://www.crunchyroll.com/content/v2",
@@ -163,6 +174,13 @@ export const crunchyroll = {
                 query
             )
         },
+        getSeason: (id, query) => {
+            return crunchyroll.content.createPromise(
+                "cms",
+                `/seasons/${id}/episodes`,
+                query
+            )
+        },
         getSeries: (ids, query) => {
             ids = typeof(ids) === "object" ? ids : [ids];
 
@@ -185,7 +203,7 @@ export const crunchyroll = {
         getNext: async (id) => {
             var current = await storage.profile.get("meta", "current");
             var profile = await storage.profile.get(current, "profile");
-            var item = await crunchyroll.content.getUpNext(id);
+            var item = await crunchyroll.content.getUpNext(id, {check: true});
 
             if(item !== undefined) return item;
             

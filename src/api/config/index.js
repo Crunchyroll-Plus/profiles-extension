@@ -44,6 +44,7 @@ export const config = {
             categories: "https://www.crunchyroll.com/content/v2/discover/categories?locale=*",
             me: "https://www.crunchyroll.com/accounts/v1/me",
             locale: "https://static.crunchyroll.com/i18n/cxweb/*.json",
+            play: "https://cr-play-service.prd.crunchyrollsvc.com/v1/*/web/firefox/play",
             settings: {
                 avatars: "https://www.crunchyroll.com/assets/v2/*/avatar",
                 all: "https://www.crunchyroll.com/account/*",
@@ -67,6 +68,7 @@ export const config = {
                 seasons: "https://www.crunchyroll.com/content/v2/cms/series/*/seasons?*",
                 season_episodes: "https://www.crunchyroll.com/content/v2/cms/seasons/*/episodes?*",
                 up_next: "https://www.crunchyroll.com/content/v2/discover/up_next/*",
+                previous_episode: "https://www.crunchyroll.com/content/v2/discover/previous_episode/*",
                 playheads: "https://www.crunchyroll.com/content/v2/*/playheads*",
                 watch_history: "https://www.crunchyroll.com/content/v2/*/watch-history*",
                 continue_watching: "https://www.crunchyroll.com/content/v2/discover/*/history?locale=*&n=*&ratings=*"
