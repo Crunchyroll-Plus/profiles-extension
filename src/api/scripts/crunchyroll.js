@@ -84,6 +84,7 @@ export const crunchyroll = {
             discover: "/discover",
             cms: "/cms",
             initiate: () => {
+                crunchyroll.content.URIs.accounts = "/accounts/v1/" + crunchyroll.user.account_id;
                 crunchyroll.content.URIs.discoverUser = "/discover/" + crunchyroll.user.account_id;
                 crunchyroll.content.URIs.user = "/" + crunchyroll.user.account_id;
                 crunchyroll.content.URIs.cmsUser = "/cms/" + crunchyroll.user.account_id;
@@ -149,6 +150,12 @@ export const crunchyroll = {
                 "discoverUser",
                 "/watchlist",
                 query
+            )
+        },
+        getDevices: () => {
+            return crunchyroll.content.createPromise(
+                "accounts",
+                "/devices/active"
             )
         },
         getSimilarSeriesFromGUID: (guid, query) => {

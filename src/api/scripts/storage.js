@@ -111,7 +111,7 @@ export const storage = {
         }
 
         for(var item of removed) history.items.splice(history.items.indexOf(item), 1);
-
+        
         storage.history.set(current, "episodes", history);
     },
     database: new ProfileDB(() => {

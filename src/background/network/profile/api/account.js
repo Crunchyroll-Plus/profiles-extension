@@ -21,12 +21,20 @@ export default {
                     let img = document.querySelector(".content-image__image--7tGlg").src.split("/170x170/")[1];
 
                     if(img === undefined) return;
-
+                    if(window.location.href.endsWith("#install"))
+                    browser.runtime.sendMessage({
+                        type: "first_profile",
+                        img: img,
+                        username: username
+                    });
+                    else
                     browser.runtime.sendMessage({
                         type: "new_profile",
                         img: img,
                         username: username
                     });
+
+                    window.location.href = "https://www.crunchyroll.com/"
                 }
             }, ACTIVATION_PROFILE)
             return true;
@@ -47,7 +55,7 @@ export default {
         }),
         request.override([TOKEN], "POST", async (info) => {
             let data = JSON.parse(info.body);
-          
+            
             crunchyroll.token = data.access_token;
           
             browser.storage.local.set({access: crunchyroll.token});
@@ -58,23 +66,50 @@ export default {
             if(info.details.originUrl.startsWith(ACTIVATION_PROFILE)) {
                 tab.exec({
                     args: [
+                        JSON.parse(info.body),
                         {
                             title: locale.messages.create_profile_title,
                             button: locale.messages.create_profile_button,
                         }
                     ],
-                    func: (messages) => {
+                    func: (profile, messages) => {
                         waitForElm("div[data-t='submit-btn']").then((elm) => {
-                            const title = document.querySelector(".page-title");
-                            const btn = elm.querySelector("span");
-            
+                            let title = document.querySelector(".page-title");
+                            let btn = elm.querySelector("span");
+                            
                             title.innerText = messages.title;
+
+                            if(window.location.href.endsWith("#install")) {
+                                // console.log(profile);
+                                let input = document.querySelector("input[name='username']");
+                                let img = document.querySelector(".content-image__image--7tGlg")
+                                input.parentElement.parentElement.classList.add("label--is-focus--pE9va");
+                                input.value = profile.username;
+                                img.src = "https://static.crunchyroll.com/assets/avatar/170x170/" + profile.avatar;
+
+                                let parent = btn.parentElement;
+                                parent.classList.remove("button--is-disabled--ndfHf");
+                                parent.removeAttribute("style");
+                                parent.setAttribute("aria-disabled", false);
+                                parent.tabIndex = 0;
+                                parent.classList.add("button--is-type-one--3uIzT");
+
+                                parent.addEventListener("click", () => {
+                                    if(parent.getAttribute("aria-disabled") === null) return;
+                                    browser.runtime.sendMessage({
+                                        type: "first_profile",
+                                        img: img.src.split("170x170/")[1],
+                                        username: input.value
+                                    });
+                                    setTimeout(() => window.location.href = "https://www.crunchyroll.com/", 500);
+                                });
+                            }
 
                             var interval = setInterval(() => {
                                 if(btn.innerText === "") return;
                                 clearInterval(interval);
                                 btn.innerText = messages.button;
-                            }, 500);
+                            }, 100);
                         });
                         function waitForElm(selector) {
                             return new Promise(resolve => {
@@ -97,7 +132,7 @@ export default {
                         }
                     }
                 }, ACTIVATION_PROFILE)
-                return "";
+                return "{}";
             }
 
             var current_id = await storage.profile.get("meta", "current");

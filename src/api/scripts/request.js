@@ -92,7 +92,7 @@ export const request = {
             )
         }
     },
-    block: (urls, method, callback, checks) => {
+    block: (urls, method, callback) => {
         return {
             stop: () => {
                 if(browser.webRequest.onBeforeRequest.hasListener(this.listener))
@@ -109,11 +109,15 @@ export const request = {
                     let cancel = callback({
                         details: details,
                         filter: filter,
-                        body: details.requestBody !== null &&
-                        details.requestBody.raw !== null &&
-                        JSON.parse(decoder.decode(details.requestBody.raw[0].bytes))
+                        body: details.requestBody !== undefined &&
+                        details.requestBody.raw !== undefined &&
+                        JSON.parse(decoder.decode(details.requestBody.raw[0].bytes)) ||
+                        details.requestBody.formData !== undefined &&
+                        details.requestBody.formData
                     }) === false ? false : true;
 
+                    
+                    if(cancel === false) return {};
                     return {cancel: cancel}
                 },
                 {urls: urls},

@@ -12,7 +12,7 @@ export default {
         request.override([GET], "GET", async (info) => {
             var data = new crunchyArray();
             var paramaters = request.getURLParams(info);
-            
+            if(paramaters.get("original") !== null) return info.body;
             var ids = paramaters.get("content_ids");
 
             var current = await storage.profile.get("meta", "current");

@@ -21,9 +21,9 @@ export const config = {
         var metadata = panel.episode_metadata || panel.series_metadata;
         var found_version;
 
-        if(!(metadata.versions !== undefined && (found_version = metadata.versions.find(it => it.guid === id)) !== undefined || item.id === id || panel.id === id || item.content_id === id)) return;
+        if(!(metadata.versions && (found_version = metadata.versions.find(it => it.guid === id)) !== undefined || item.id === id || panel.id === id || item.content_id === id)) return;
         
-        if(found_version.guid === undefined) return true;
+        if(!found_version || !found_version.guid) return true;
 
         item.content_id = found_version.guid;
         item.id = found_version.guid;
@@ -45,6 +45,7 @@ export const config = {
             me: "https://www.crunchyroll.com/accounts/v1/me",
             locale: "https://static.crunchyroll.com/i18n/cxweb/*.json",
             play: "https://cr-play-service.prd.crunchyrollsvc.com/v1/*/web/firefox/play",
+            subtitles: "https://v.vrv.co/evs3/*/assets/*.txt*",
             settings: {
                 avatars: "https://www.crunchyroll.com/assets/v2/*/avatar",
                 all: "https://www.crunchyroll.com/account/*",
