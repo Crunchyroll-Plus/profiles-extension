@@ -27,7 +27,7 @@ function main() {
     createOption(locale.messages.settings_selection, () => {
         ul.innerHTML = "";
 
-        createOption("Subtitles", () => browser.windows.create({url: browser.runtime.getURL("/src/ui/subtitles/index.html")}));
+        createOption("Subtitles", () => browser.windows.create({url: browser.runtime.getURL("/src/ui/settings/index.html")}));
         createOption("⬅", main);
     });
 }

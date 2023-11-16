@@ -6,7 +6,7 @@ const SUBTITLES = config.URLS.get("subtitles");
 
 const stylesPattern = new RegExp("\\[V([0-9])\\+ Styles\\]");
 const colorPattern = new RegExp("(?:colour|color)");
-const defaultNamePattern = new RegExp("(?:main|default)(?!(?:italic|bold|flashback|top|overlay))");
+const defaultNamePattern = new RegExp("(?:main|default)(?!(?:italic|bold|flashback|top|overlay|low))");
 const hexPattern = new RegExp(".{1,2}", "g");
 
 const convert = {
@@ -16,10 +16,14 @@ const convert = {
         return [red, green, blue, alpha];
     },
     rgba: (color) => {
-        let red = color.splice(0, 1, color[3])[0];
-        color.splice(3, 1, red)[0];
+        let tmp = Object.assign([], color);
+        
+        let red = tmp.splice(0, 1, tmp[3])[0];
+        tmp.splice(3, 1, red);
+        let green = tmp.splice(1, 1, tmp[2])[0];
+        tmp.splice(2, 1, green);
 
-        return color.reduce(
+        return tmp.reduce(
             (inc, code) => inc + ((code = code.toString(16)).length === 1 ? code + "0" : code),
             "&H"
         ).toUpperCase();
@@ -31,8 +35,9 @@ export default {
         request.override([SUBTITLES], "GET", async (info) => {
             let current = await storage.profile.get("meta", "current");
             let subtitles = await storage.profile.get(current, "subtitles");
-            
+
             if(subtitles === undefined) return info.body;
+            subtitles = Object.freeze(subtitles);
 
             let sections = info.body.split("\r\n\r\n");
             sections = sections.map(section => {
@@ -57,10 +62,10 @@ export default {
                     values = values.map((value, index) => {
                         let defaultValue = defaultValues[index];
                         let property = format[index].toLowerCase();
-                        
+
+
                         if(value === defaultValue && subtitles[property] !== undefined)
-                            return property.match(colorPattern) === null ? subtitles[property] : convert.rgba(subtitles[property]);
-                        
+                            return property.match(colorPattern) === null ? subtitles[property] : convert.rgba(subtitles[property]);                        
 
                         return value;
                     })
@@ -68,14 +73,10 @@ export default {
                     return values.join(",");
                 });
 
-                console.log(format);
-                console.log(defaultValues);
-
                 section = lines.join("\r\n");
-                console.log(section);
                 return section;
             })
-
+            
             return sections.join("\r\n\r\n");
         })
     ]

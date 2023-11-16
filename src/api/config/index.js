@@ -45,7 +45,7 @@ export const config = {
             me: "https://www.crunchyroll.com/accounts/v1/me",
             locale: "https://static.crunchyroll.com/i18n/cxweb/*.json",
             play: "https://cr-play-service.prd.crunchyrollsvc.com/v1/*/web/firefox/play",
-            subtitles: "https://v.vrv.co/evs3/*/assets/*.txt*",
+            subtitles: "https://v.vrv.co/evs3/*/assets/*_*.txt?*",
             settings: {
                 avatars: "https://www.crunchyroll.com/assets/v2/*/avatar",
                 all: "https://www.crunchyroll.com/account/*",

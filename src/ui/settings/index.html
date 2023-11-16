@@ -1,14 +1,64 @@
 <html>
     <head>
-        <link rel="preload" href="https://static.crunchyroll.com/cxweb/assets/fonts/Lato/Lato-Semibold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-        <link rel="preload" href="https://static.crunchyroll.com/cxweb/assets/fonts/Lato/Lato-Medium.woff2" as="font" type="font/woff2" crossorigin="anonymous">
-        <link rel="preload" href="https://static.crunchyroll.com/cxweb/assets/fonts/Lato/Lato-Heavy.woff2" as="font" type="font/woff2" crossorigin="anonymous">
         <link rel="stylesheet" href="./css/stylesheet.css">
     </head>    
     <body>
-        <ul>
-        </ul>
-        <script src="../index.js" type="module"></script>
+        <div class="settings-container">
+            <label for="dropdown-button">Font:</label>
+            <br>
+            <div class="dropdown">
+                <button id="dropdown-button"></button>
+                <div class="dropdown-content">
+                </div>
+            </div>
+            <br>
+            <label for="pcolor">Primary Color:</label>
+            <br>
+            <input type="color" name="primarycolour" id="pcolor"/>
+            <br><br>
+            <label for="scolor">Secondary Color:</label>
+            <br>
+            <input type="color" name="secondarycolour" id="scolor"/>
+            <br><br>
+            <label for="bcolor">Background Color:</label>
+            <br>
+            <input type="color" name="backcolour" id="bcolor"/>
+            <br><br>
+            <label for="fontSize">Font Size:</label>
+            <br>
+            <input type="number" id="fontSize" name="fontsize" value="20">
+            <br><br>
+            <label for="shadow">Shadow Depression:</label>
+            <br>
+            <input type="number" id="shadow" name="shadow">
+            <br><br>
+            <label for="outline">Outline Thickness:</label>
+            <br>
+            <input type="number" id="outline" name="outline">
+            <br><br>
+            <label for="ocolor">Outline Color:</label>
+            <br>
+            <input type="color" name="outlinecolour" id="ocolor"/>
+            <br><br>
+            <label for="spacing">Word Spacing:</label>
+            <br>
+            <input type="number" id="spacing" name="sacing">
+            <br><br>
+
+            <label for="bold">Bold:</label>
+            <br>
+            <input type="checkbox" id="bold">
+            <br><br>
+            <label for="italic">Italic:</label>
+            <br>
+            <input type="checkbox" id="italic">
+            <br><br>
+            <label for="underline">Underline:</label>
+            <br>
+            <input type="checkbox" id="underline">
+            <br><br>
+        </div>
+
         <script src="./scripts/index.js" type="module"></script>
     </body>
 </html>
