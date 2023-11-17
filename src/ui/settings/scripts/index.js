@@ -67,7 +67,7 @@ const fonts = [
 ]
 
 var settings = {
-    fontname: "Trebuchet MS",
+    fontname: 'Trebuchet MS',
     fontsize: 20,
     primarycolour: [255, 255, 255, 0],
     secondarycolour: [255, 0, 0, 0],

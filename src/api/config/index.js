@@ -2,7 +2,7 @@ export const config = {
     // Minimum amount of minutes left in a video before it's finished.
     MIN_MINUTES_LEFT: 3,
     // Check if the episode is finished.
-    isFinished: (item) => ((item.panel.episode_metadata.duration_ms / 1000) - item.playhead) / 60 < config.MIN_MINUTES_LEFT,
+    isFinished: (item) => ~~((item.panel.episode_metadata.duration_ms / 1000) - item.playhead) / 60 < config.MIN_MINUTES_LEFT,
     // Maximum amount of seconds to wait before opening a profile window.
     OPEN_PAGE_COOLDOWN: 3,
     // Maximum amount of days of a episode being released before it's not new.
@@ -66,11 +66,13 @@ export const config = {
                 check_exist: "https://www.crunchyroll.com/content/v2/*/watchlist?preferred_audio_language=*&locale=*",
             },
             history: {
+                playheads_batch: "https://www.crunchyroll.com/content/v2/*/playheads/batch*", // Isn't implemented yet but it could, also possible cross compatibility with other extensions like with "Improve Crunchyroll" @ https://github.com/ThomasTavernier/Improve-Crunchyroll
+                mark_as_watched: "https://www.crunchyroll.com/content/v2/discover/*/mark_as_watched/*",// ^
                 seasons: "https://www.crunchyroll.com/content/v2/cms/series/*/seasons?*",
                 season_episodes: "https://www.crunchyroll.com/content/v2/cms/seasons/*/episodes?*",
                 up_next: "https://www.crunchyroll.com/content/v2/discover/up_next/*",
                 previous_episode: "https://www.crunchyroll.com/content/v2/discover/previous_episode/*",
-                playheads: "https://www.crunchyroll.com/content/v2/*/playheads*",
+                playheads: "https://www.crunchyroll.com/content/v2/*/playheads?*",
                 watch_history: "https://www.crunchyroll.com/content/v2/*/watch-history*",
                 continue_watching: "https://www.crunchyroll.com/content/v2/discover/*/history?locale=*&n=*&ratings=*"
                 // ^ Can get this url from home_feed so might want to get it from there instead, same with watchlist.

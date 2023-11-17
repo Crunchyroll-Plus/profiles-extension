@@ -6,6 +6,8 @@ import { storage } from "../../../../api/scripts/storage.js";
 
 const CONTINUE_WATCHING = config.URLS.get("history.continue_watching");
 const WATCH_HISTORY = config.URLS.get("history.watch_history");
+const PLAYHEADS_BATCH = config.URLS.get("history.playheads_batch");
+const MARK_AS_WATCHED = config.URLS.get("history.mark_as_watched");
 const PLAYHEADS = config.URLS.get("history.playheads");
 const NEXT_UP = config.URLS.get("history.up_next");
 const PREVIOUS_EPISODE = config.URLS.get("history.previous_episode");
@@ -14,8 +16,62 @@ const SEASONS = config.URLS.get("history.seasons");
 
 export default {
     listeners: [
+        request.block([MARK_AS_WATCHED], "POST", async (info) => {
+            var current = await storage.profile.get("meta", "current");
+            var history = (await storage.history.get(current, "episodes")) || { items: [] };
+
+            const datePlayed = new Date().toISOString();
+
+            info.details.ids.split("mark_as_watched/")[1].split(",").reduce(async (history, id) => {
+                var found_episode = history.items.find((item) => config.checkId(item, id));
+                if(found_episode === undefined || !found_episode.panel) found_episode.panel = (await crunchyroll.content.getObjects(found_episode.content_id)).result.data[0];
+
+                found_episode.content_id = id;
+                found_episode.date_played = found_episode.date_played || datePlayed
+                found_episode.fully_watched = true;
+                found_episode.id = id;
+                found_episode.playhead = found_episode.playhead || ~~(found_episode.panel.episode_metadata.duration_ms / 1000);
+
+                return history;
+            }, history)
+
+
+            storage.history.set(current, "episodes", history);
+
+            return true;
+        }),
+        request.block([PLAYHEADS_BATCH], "POST", async (info) => {
+            var data = info.body;
+
+            var current = await storage.profile.get("meta", "current");
+            var history = (await storage.history.get(current, "episodes")) || { items: [] };
+
+            const datePlayed = new Date().toISOString();
+
+            for(let [id, info] of Object.entries(data.batch)) {
+                var found_episode = history.items.find((item) => config.checkId(item, id));
+                var exists = found_episode !== undefined;
+
+                found_episode = exists ? found_episode : info;
+
+                found_episode.content_id = id;
+                found_episode.playhead = info.playhead;
+                found_episode.date_played = info.date_played || datePlayed;
+                found_episode.panel = found_episode.panel === undefined ? (await crunchyroll.content.getObjects(found_episode.content_id)).result.data[0] : found_episode.panel;
+                found_episode.id = found_episode.panel.id;
+                found_episode.fully_watched = config.isFinished(found_episode);
+
+                if(!exists) history.items.push(found_episode);
+            }
+
+            storage.history.set(current, "episodes", history);
+
+            return true;
+        }),
         request.block([PLAYHEADS], "POST", async (info) => {
             const body = info.body;
+
+            console.log(info.body);
 
             var current = await storage.profile.get("meta", "current");
             let history = (await storage.history.get(current, "episodes")) || { items: [] };
