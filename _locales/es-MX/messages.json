@@ -9,19 +9,19 @@
         "message": "Perfiles"
     },
     "settings-selection": {
-        "message": "Configuracion"
+        "message": "Configuración"
     },
     "who-is-watching": {
-        "message": "¿Quien esta viendo?"
+        "message": "¿Quién eres?"
     },
     "add-button": {
         "message": "Añadir"
     },
     "remove-button": {
-        "message": "Remover"
+        "message": "Eliminar"
     },
     "done-button": {
-        "message": "Terminar"
+        "message": "Finalizar"
     },
     "import-button": {
         "message": "Importar"
@@ -30,36 +30,36 @@
         "message": "Exportar"
     },
     "import-current": {
-        "message": "Importar Este Perfil"
+        "message": "Importar este perfil"
     },
     "import-current-watchlist": {
-        "message": "Importar Favoritos Originales"
+        "message": "Importar favoritos originales"
     },
     "import-current-history": {
-        "message": "Importar Historial Original"
+        "message": "Importar historial original"
     },
     "create-profile-title": {
-        "message": "Crear un nuevo perfil!"
+        "message": "¡Crear un nuevo perfil!"
     },
     "create-profile-button": {
-        "message": "Crear Perfil"
+        "message": "Crear perfil"
     },
     "import-profile-button": {
-        "message": "Importar Perfil"
+        "message": "Importar perfil"
     },
     "export-profile-button": {
-        "message": "Exportar Perfil"
+        "message": "Exportar perfil"
     },
     "import-history-button": {
-        "message": "Importar Historial"
+        "message": "Importar historial"
     },
     "export-history-button": {
-        "message": "Exportar Historial"
+        "message": "Exportar historial"
     },
     "import-watchlist-button": {
-        "message": "Importar Favoritos"
+        "message": "Importar favoritos"
     },
     "export-watchlist-button": {
-        "message": "Exportar Favoritos"
+        "message": "Exportar favoritos"
     }
 }
