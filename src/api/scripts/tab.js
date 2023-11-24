@@ -6,16 +6,17 @@
 */
 
 export const tab = {
-    websites: [
-        "https://www.crunchyroll.com",
-    ],
+    website: "https://www.crunchyroll.com",
     exec(details, url) {
         return browser.tabs.query({active: true}).then(tabs => {
             for(let _tab of tabs) {
-                if(url === undefined && tab.websites.find(item => _tab.url.startsWith(item)) === undefined || !_tab.url.startsWith(url)) continue;
+
+                if(!(url === undefined && _tab.url.startsWith(tab.website) || _tab.url.startsWith(url))) continue;
 
                 details.target = details.target || {};
                 details.target.tabId = _tab.id;
+
+                console.log(_tab.url)
 
                 browser.scripting.executeScript(details);
             }

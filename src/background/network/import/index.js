@@ -5,7 +5,7 @@ import { request } from "../../../api/scripts/request.js";
 import { config } from "../../../api/config/index.js";
 import { tab } from "../../../api/scripts/tab.js";
 
-const SETTINGS_PAGE = config.URLS.get("settings.all"); 
+// const SETTINGS_PAGE = config.URLS.get("settings.all"); 
 const AVATARS = config.URLS.get("settings.avatars");
 
 request.override([AVATARS], "GET", async (info) => {
@@ -191,7 +191,7 @@ request.override([AVATARS], "GET", async (info) => {
 
                 document.body.removeChild(element);
             }
-    }}, SETTINGS_PAGE.replaceAll("*", ""));
+    }});
 
     return info.body;
 })

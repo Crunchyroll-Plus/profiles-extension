@@ -19,8 +19,8 @@ export default {
                 args: [ info.body.username ],
                 func: (username) => {
                     let img = document.querySelector(".content-image__image--7tGlg").src.split("/170x170/")[1];
-
                     if(img === undefined) return;
+
                     if(window.location.href.endsWith("#install"))
                     browser.runtime.sendMessage({
                         type: "first_profile",
@@ -36,7 +36,7 @@ export default {
 
                     window.location.href = "https://www.crunchyroll.com/"
                 }
-            }, ACTIVATION_PROFILE)
+            })
             return true;
         }),
         request.block([GET_PROFILE], "PATCH", async (info) => {
@@ -63,7 +63,7 @@ export default {
             return info.body;
         }),
         request.override([GET_PROFILE], "GET", async (info) => {
-            if(info.details.originUrl.startsWith(ACTIVATION_PROFILE)) {
+            if(info.details.originUrl.includes("profile/activation")) {
                 tab.exec({
                     args: [
                         JSON.parse(info.body),
@@ -131,7 +131,7 @@ export default {
                             });
                         }
                     }
-                }, ACTIVATION_PROFILE)
+                })
                 return "{}";
             }
 
@@ -145,7 +145,7 @@ export default {
                 tab.exec({
                     func: () => {
                         if(window.location.href === "https://www.crunchyroll.com/") 
-                            window.location.href = ACTIVATION_PROFILE
+                            window.location.href = "https://www.crunchyroll.com/profile/activation"
                     }
                 })
 

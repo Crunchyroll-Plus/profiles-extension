@@ -57,7 +57,7 @@ export const config = {
             },
             profile: {
                 get: "https://www.crunchyroll.com/accounts/v1/me/profile",
-                activation: "https://www.crunchyroll.com/profile/activation",
+                activation: "https://www.crunchyroll.com*/profile/activation",
                 new_profile: "https://www.crunchyroll.com/accounts/v1/me/credentials"
             },
             watchlist: {
