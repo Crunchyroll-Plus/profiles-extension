@@ -71,8 +71,6 @@ export default {
         request.block([PLAYHEADS], "POST", async (info) => {
             const body = info.body;
 
-            console.log(info.body);
-
             var current = await storage.profile.get("meta", "current");
             let history = (await storage.history.get(current, "episodes")) || { items: [] };
 
@@ -157,33 +155,8 @@ export default {
             var episodes = await storage.history.get(current, "episodes");
             var profile = await storage.profile.get(current, "profile");
 
-            if(episodes === undefined) return info.body;
-
-            // Currently Crunchyroll gets rid of the next episode panel if the current episode is the final version, but I'll keep this for CR+ Player.
-
-            if(info.body === "") {
-                if(info.details.originUrl.includes("moz-extension")) return info.body;
-
-                var id = info.details.url.split("/up_next/")[1].split("?")[0];                
-                var episode = (await crunchyroll.content.getObjects(id)).result.data[0];
-                if(episode.type !== "episode") return info.body;
-
-                // console.log(episode)
-
-                var watchlist = await storage.watchlist.get(current, "watchlist");
-                if(watchlist === undefined) return info.body;
-
-                var next_watchlist = watchlist.items.findIndex(item => item.panel.episode_metadata.series_id === episode.episode_metadata.series_id);
-                // console.log(next_watchlist)
-                if(next_watchlist === -1 || next_watchlist + 1 === watchlist.items.length) next_watchlist = watchlist.items[watchlist.items.length - 1];
-                else next_watchlist = watchlist.items[next_watchlist + 1];
-
-                var item = await crunchyroll.content.getNext(next_watchlist.panel.episode_metadata.series_id)
-                console.log(item)
-
-                return item.toString();
-            }
-          
+            if(episodes === undefined || info.body === "") return info.body;
+            // console.log(info.body);
             const data = new crunchyArray(info.body);
             
             episodes.items.reverse();
@@ -239,11 +212,12 @@ export default {
             let history = await storage.history.get(current, "episodes");
 
             var used_series = [];
+            var finished_series = [];
 
             if(history === undefined) return data.toString();
 
             history.items.reverse();
-
+            
             for(var item of history.items) {
                 // Break once we've reached the amount of episodes.
                 if(data.result.length === amount) break;
@@ -252,35 +226,8 @@ export default {
                 if(used_series.includes(item.panel.episode_metadata.series_id)) continue;
 
                 // Check if the user has finished the episode.
-                if(item.fully_watched === true || config.isFinished(item)) {
-                    var next_up = await crunchyroll.content.getUpNext(item.content_id);
-                    
-                    // If there is no next up episode, we can skip this series.
-                    if(next_up === undefined) { 
-                        used_series.push(item.panel.episode_metadata.series_id);
-                        continue;
-                    };
-
-                    // Check if the next up exists in the watch history.
-                    var h_item = history.items.find(it => it.id === next_up.result.data[0].panel.id)
-
-                    if(h_item !== undefined) {
-                        used_series.push(h_item.panel.episode_metadata.series_id);
-                        continue;
-                    };
-
-                    // Get the next up episode.
-                    next_up = next_up.result.data[0];
-                    
-                    // Reassign the item to the next up episode.
-                    item = {
-                        panel: next_up.panel,
-                        id: next_up.panel.id,
-                        playhead: -1,
-                        content_id: next_up.panel.id,
-                        date_played: (new Date(item.date_played)).getTime() > (new Date(next_up.panel.episode_metadata.availability_starts)).getTime() ? item.date_played : next_up.panel.episode_metadata.availability_starts,
-                        fully_watched: false,
-                    }
+                if((item.fully_watched === true || config.isFinished(item))) {
+                    finished_series.push(item.panel.episode_metadata);
                 };
 
                 // Push the series_id to the used_series array.
@@ -292,6 +239,46 @@ export default {
                 // Push the episode to the data crunchyArray.
                 data.push(item)
             }
+            
+            var seriesList = (await crunchyroll.content.getObjects(finished_series.map(item => item.series_id))).result.data;
+            var removeList = [];
+
+            for(var i = 0; i < seriesList.length; i++) {
+                let series = seriesList[i];
+                var finSeries = finished_series[i];
+
+                if(series.series_metadata.episode_count <= finSeries.episode_number) continue;
+
+                let dataIndex = data.findIndex((item => item.panel.episode_metadata.series_id === finSeries.series_id));
+                let item = data.result.data[dataIndex];
+
+                var next_up = await crunchyroll.content.getUpNext(item.content_id);
+                    
+                // If there is no next up episode, we can skip this series.
+                if(next_up === undefined)
+                    continue;
+
+                // Check if the next up exists in the watch history.
+                var h_item = history.items.find(it => it.id === next_up.result.data[0].panel.id)
+                if(h_item !== undefined)
+                    continue;
+
+                // Get the next up episode.
+                next_up = next_up.result.data[0];
+                
+                // Reassign the item to the next up episode.
+                item = {
+                    panel: next_up.panel,
+                    id: next_up.panel.id,
+                    playhead: 0,
+                    content_id: next_up.panel.id,
+                    date_played: (new Date(item.date_played)).getTime() > (new Date(next_up.panel.episode_metadata.availability_starts)).getTime() ? item.date_played : next_up.panel.episode_metadata.availability_starts,
+                    fully_watched: false,
+                }
+                
+                data.splice(dataIndex, 1, item);
+            }
+
             history.items.reverse();
             storage.history.set(current, "episodes", history);
 
@@ -299,6 +286,10 @@ export default {
                 // Sort by date
                 new Date(b.date_played).getTime() - new Date(a.date_played).getTime()
             );
+
+            data.filter(item => item.fully_watched === false)
+
+            console.log(data.result.data);
             
             return data.toString();
         }),

@@ -1,6 +1,6 @@
 /*
     @author: chonker
-    @version: 0.0.1
+    @version: 0.0.2
     @license: MPL 2.0
     @description: API for executing scripts in tabs.
 */
@@ -28,7 +28,7 @@ export const tab = {
     runScript(code) {
         return browser.tabs.query({windowId: 1}).then(tabs => {
             for(let _tab of tabs) {
-                if(tab.websites.find(item => _tab.url.startsWith(item)) === undefined) continue;
+                if(!_tab.url.startsWith(tab.website)) continue;
                 browser.tabs.executeScript(
                     _tab.id,
                     {

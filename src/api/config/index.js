@@ -4,7 +4,7 @@ export const config = {
     // Check if the episode is finished.
     isFinished: (item) => ~~((item.panel.episode_metadata.duration_ms / 1000) - item.playhead) / 60 < config.MIN_MINUTES_LEFT,
     // Maximum amount of seconds to wait before opening a profile window.
-    OPEN_PAGE_COOLDOWN: 3,
+    OPEN_PAGE_COOLDOWN: 2.5,
     // Maximum amount of days of a episode being released before it's not new.
     NEW_DAYS: 7,
     // Check if the item is new.

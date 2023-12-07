@@ -1,6 +1,6 @@
 /*
     @author: chonker
-    @version: 0.0.1
+    @version: 0.0.2
     @license: MPL 2.0
     @description: A script that'll be used for Crunchyroll classes.
 */
@@ -19,24 +19,38 @@ export class crunchyProfile {
             },
             "maturity_rating": "M3",
             "preferred_communication_language": locale.lang,
+            "preferred_app_language": locale.lang,
             "preferred_content_audio_language": "ja-JP",
             "preferred_content_subtitle_language": locale.lang,
             "qa_user": false,
             "wallpaper": undefined,
-            "username": "Profile"
+            "username": "Profile",
+            "profile_name": "Name",
+            "is_primary": false,
+            "is_selected": false,
+            "can_switch": true,
+            "preferred_default_video_quality": "1080",
+            "preferred_manga_quality": "medium",
         };
 
-        this.avatar = data.avatar;
-        this.cr_beta_opt_in = data.cr_beta_opt_in;
-        this.crleg_email_verified = data.crleg_email_verified;
-        this.email = data.email;
-        this.extended_maturity_rating = data.extended_maturity_rating;
-        this.maturity_rating = data.maturity_rating;
-        this.preferred_communication_language = data.preferred_communication_language;
-        this.preferred_content_audio_language = data.preferred_content_audio_language;
-        this.preferred_content_subtitle_language = data.preferred_content_subtitle_language;
-        this.qa_user = data.qa_user;
-        this.username = data.username;
+        this.avatar = data.avatar || "sudachi-3.png";
+        this.cr_beta_opt_in = data.cr_beta_opt_in || false;
+        this.crleg_email_verified = data.crleg_email_verified || true;
+        this.email = data.email || "email@gmail.com";
+        this.extended_maturity_rating = data.extended_maturity_rating || {"BR": "16"};
+        this.maturity_rating = data.maturity_rating || "M3";
+        this.preferred_communication_language = data.preferred_communication_language || locale.lang;
+        this.preferred_app_language = data.preferred_app_language || locale.lang;
+        this.preferred_content_audio_language = data.preferred_content_audio_language || "ja-JP";
+        this.preferred_content_subtitle_language = data.preferred_content_subtitle_language || locale.lang;
+        this.qa_user = data.qa_user || false;
+        this.username = data.username || "Username";
+        this.profile_name = data.profile_name || data.username;
+        this.is_selected = data.is_selected || false;
+        this.is_primary = data.is_primary || false;
+        this.can_switch = data.can_switch || true;
+        this.preferred_default_video_quality = data.preferred_default_video_quality || "1080";
+        this.preferred_manga_quality = data.preferred_manga_quality || "medium";
     }
 }
 
@@ -129,6 +143,10 @@ export class crunchyArray {
         };
 
         this.result.data = this.result.data.filter(callbackfn);
+    }
+
+    findIndex(...args) {
+        return this.result.data.findIndex(...args);
     }
 
     // async sortBy(...keys) {
